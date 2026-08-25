@@ -99,17 +99,31 @@ class HomePlaceholderView(BaseView):
         self.main_frame = ttk.Frame(self, padding=20)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         
-        ttk.Label(
+        self.welcome_label = ttk.Label(
             self.main_frame, 
             text="TypeMaster Home Screen Placeholder", 
             font=("Helvetica", 18, "bold")
-        ).pack(pady=20)
+        )
+        self.welcome_label.pack(pady=20)
         
         ttk.Button(
             self.main_frame,
-            text="Ro'yxatdan o'tishga qaytish",
-            command=lambda: self.controller.show_view("register")
+            text="Chiqish (Logout)",
+            command=self.handle_logout
         ).pack(pady=10)
+
+    def on_show(self):
+        """Dynamically update welcome text with current user info."""
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        name = user.get("display_name") if user else "Mehmon"
+        self.welcome_label.config(text=f"Xush kelibsiz, {name}!")
+
+    def handle_logout(self):
+        """Log out user details and redirect back to login."""
+        from services.auth_service import logout_user
+        logout_user()
+        self.controller.show_view("login")
 
 
 # LoginPlaceholderView deleted as LoginView is fully integrated.
