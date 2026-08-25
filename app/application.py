@@ -60,8 +60,13 @@ class Application:
         self.views["home"] = HomePlaceholderView(self.main_container, self)
         self.views["login"] = LoginView(self.main_container, self)
         
-        # Default starting screen is RegisterView
-        self.show_view("register")
+        # Check auto-login session
+        from services.auth_service import load_session_user
+        user = load_session_user()
+        if user:
+            self.show_view("home")
+        else:
+            self.show_view("login")
 
     def show_view(self, view_name: str):
         """Transition views content dynamically."""

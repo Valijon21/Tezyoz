@@ -7,6 +7,7 @@ import hmac
 import os
 import sqlite3
 import logging
+import json
 from database.connection import db
 from app.config import (
     DEFAULT_THEME,
@@ -23,6 +24,10 @@ logger = logging.getLogger("services.auth_service")
 
 # NIST recommended minimum iterations for PBKDF2 with SHA-256
 PBKDF2_ITERATIONS = 100000
+
+# Global user session state
+_current_user = None
+SESSION_FILE_PATH = db.database_path.parent / "session.json"
 
 def hash_password(password: str) -> str:
     """
@@ -121,6 +126,9 @@ def register_user(username: str, display_name: str, password: str) -> int:
                     DEFAULT_CARET_STYLE
                 )
             )
+            
+            # Auto save last active user ID to session persistence file:
+            _save_session(user_id)
             return user_id
     except sqlite3.IntegrityError as err:
         logger.error(f"Database integrity constraints violation during user registry: {err}")
@@ -152,6 +160,76 @@ def login_user(username: str, password: str) -> dict:
     if verify_password(password, user_dict["password_hash"]):
         # Remove password hash for safety reasons when passing dict
         del user_dict["password_hash"]
+        set_current_user(user_dict)
         return user_dict
         
     return None
+
+def get_current_user() -> dict:
+    """Returns the currently active user session from memory, or None."""
+    global _current_user
+    return _current_user
+
+def set_current_user(user: dict):
+    """Sets the active user session in memory and persists the user ID."""
+    global _current_user
+    _current_user = user
+    if user:
+        _save_session(user["id"])
+    else:
+        _clear_session()
+
+def _save_session(user_id: int):
+    """Saves user ID to session.json file."""
+    try:
+        data = {"last_active_user_id": user_id}
+        with open(SESSION_FILE_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+    except Exception as err:
+        logger.error(f"Failed to save session file: {err}")
+
+def _clear_session():
+    """Removes user ID from session.json file."""
+    try:
+        if SESSION_FILE_PATH.exists():
+            SESSION_FILE_PATH.unlink()
+    except Exception as err:
+        logger.error(f"Failed to delete session file: {err}")
+
+def load_session_user() -> dict:
+    """Reads session.json and automatically retrieves the user details from DB."""
+    global _current_user
+    if not SESSION_FILE_PATH.exists():
+        return None
+        
+    try:
+        with open(SESSION_FILE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        user_id = data.get("last_active_user_id")
+    except Exception as err:
+        logger.error(f"Failed to read session file: {err}")
+        _clear_session()
+        return None
+        
+    if not user_id:
+        return None
+        
+    # Query database to retrieve user details
+    with db.get_connection() as conn:
+        cursor = conn.execute(
+            "SELECT id, username, display_name, xp, level, current_streak, longest_streak FROM users WHERE id = ?;",
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        
+    if not row:
+        logger.warning(f"Session user ID {user_id} not found in database. Clearing session.")
+        _clear_session()
+        return None
+        
+    _current_user = dict(row)
+    return _current_user
+
+def logout_user():
+    """Logs out the active user session, clearing memory and session file."""
+    set_current_user(None)
