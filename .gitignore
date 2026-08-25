@@ -31,12 +31,15 @@ env/
 pyvenv.cfg
 
 # Database files
-data/*.db
+data/
 *.db
 
 # Logs
-logs/*.log
+logs/
 *.log
+
+# Agent instructions
+AGENT_*.md
 
 # IDEs and editors
 .idea/
