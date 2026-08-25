@@ -1,0 +1,56 @@
+"""
+TestConfiguration class for TypeMaster.
+Validates and tracks the active language and duration constraints for a typing test session.
+"""
+from app.config import SUPPORTED_MODES, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE
+
+class TestConfig:
+    """Holds and validates typing test setup parameters (language and duration)."""
+    def __init__(self, language: str = DEFAULT_LANGUAGE, duration: int = 60):
+        self.set_language(language)
+        self.set_duration(duration)
+
+    def set_language(self, language: str):
+        """Validates and sets the language choice."""
+        if not language or not isinstance(language, str):
+            raise ValueError("Til nomi matn bo'lishi shart!")
+            
+        normalized = language.strip().capitalize()
+        if normalized not in SUPPORTED_LANGUAGES:
+            raise ValueError(f"Qo'llab-quvvatlanmaydigan til: {language}")
+        self._language = normalized
+
+    def get_language(self) -> str:
+        """Returns the normalized language name."""
+        return self._language
+
+    def set_duration(self, duration: int):
+        """Validates and sets the test duration in seconds."""
+        try:
+            val = int(duration)
+        except (ValueError, TypeError):
+            raise ValueError("Test vaqti son bo'lishi shart!")
+            
+        if val not in SUPPORTED_MODES:
+            raise ValueError(f"Qo'llab-quvvatlanmaydigan vaqt: {duration}")
+        self._duration = val
+
+    def get_duration(self) -> int:
+        """Returns the test duration in seconds."""
+        return self._duration
+
+    @property
+    def language(self) -> str:
+        return self.get_language()
+
+    @language.setter
+    def language(self, value: str):
+        self.set_language(value)
+
+    @property
+    def duration(self) -> int:
+        return self.get_duration()
+
+    @duration.setter
+    def duration(self, value: int):
+        self.set_duration(value)
