@@ -53,11 +53,12 @@ class Application:
 
         # Lazy imports to avoid circular dependencies
         from ui.register import RegisterView
+        from ui.login import LoginView
         
         # Register Views
         self.views["register"] = RegisterView(self.main_container, self)
         self.views["home"] = HomePlaceholderView(self.main_container, self)
-        self.views["login"] = LoginPlaceholderView(self.main_container, self)
+        self.views["login"] = LoginView(self.main_container, self)
         
         # Default starting screen is RegisterView
         self.show_view("register")
@@ -106,21 +107,4 @@ class HomePlaceholderView(BaseView):
         ).pack(pady=10)
 
 
-class LoginPlaceholderView(BaseView):
-    """Temporary login view panel stub."""
-    def __init__(self, parent, controller, **kwargs):
-        super().__init__(parent, controller, **kwargs)
-        self.main_frame = ttk.Frame(self, padding=20)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        ttk.Label(
-            self.main_frame, 
-            text="TypeMaster Login Screen (TM-007 stub)", 
-            font=("Helvetica", 18, "bold")
-        ).pack(pady=20)
-        
-        ttk.Button(
-            self.main_frame,
-            text="Ro'yxatdan o'tish sahifasiga qaytish",
-            command=lambda: self.controller.show_view("register")
-        ).pack(pady=10)
+# LoginPlaceholderView deleted as LoginView is fully integrated.

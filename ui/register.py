@@ -120,17 +120,21 @@ class RegisterView(BaseView):
         if not self.validate_inputs():
             return
             
-        # Get details
         username = self.username_var.get().strip()
-        display_name = self.display_name_var.get().strip() or username
+        display_name = self.display_name_var.get().strip()
+        password = self.password_var.get().strip()
         
-        # Successfully validated inputs, notify user via alert wrapper.
-        messagebox.showinfo(
-            "Muvaffaqiyat",
-            f"Foydalanuvchi '{display_name}' ({username}) muvaffaqiyatli validatsiya qilindi.\n\n"
-            "Ro'yxatdan o'tish jarayoni yakunlandi!"
-        )
-        self.clear_form()
+        from services.auth_service import register_user
+        try:
+            register_user(username, display_name, password)
+            messagebox.showinfo(
+                "Muvaffaqiyatli",
+                f"Foydalanuvchi '{username}' tizimga muvaffaqiyatli ro'yxatdan o'tdi!"
+            )
+            self.clear_form()
+            self.controller.show_view("login")
+        except ValueError as err:
+            self.error_label.config(text=str(err), foreground="red")
 
     def navigate_to_login(self):
         """Link navigation stub hook."""
