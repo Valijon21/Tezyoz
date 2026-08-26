@@ -7,8 +7,8 @@ This file monitors development advancement, tracking completed sprints, verifyin
 ## 📊 Summary Metrics
 
 - **Total Backlog Tasks**: 62
-- **Completed Tasks**: 20 (32.3%)
-- **Remaining Tasks**: 42 (67.7%)
+- **Completed Tasks**: 24 (38.7%)
+- **Remaining Tasks**: 38 (61.3%)
 - **Active Sprint**: Sprint 3 — Results (In Progress)
 
 ---
@@ -41,16 +41,18 @@ This file monitors development advancement, tracking completed sprints, verifyin
 - [x] **TM-019 --- Error Counter**: Logs and increments mistake keystrokes correctly.
 - [x] **TM-020 --- Test Completion**: Handles duration bounds, disables edits, and triggers completion callbacks.
 
+### Sprint 3 — Results (Completed: 4/5)
+- [x] **TM-021 --- Result Screen**: Modern results UI panel displaying WPM speed, accuracy, errors count, XP rewards, level indicators, and PB new records state.
+- [x] **TM-022 --- Save Test**: Repository mapping and database connector methods persisting typing test statistics in SQLite.
+- [x] **TM-023 --- Personal Best**: Triggers highscore checkpoints (mode, duration), verifying and persisting record-breaking typing runs.
+- [x] **TM-024 --- XP Calculation**: Calculates typing score XP and applies accuracy and Personal Best bonuses to total XP earned.
+
 ---
 
 ## 🚀 Active & Remaining Backlog
 
-### Sprint 3 — Results (Remaining: 5)
-- [ ] **TM-021 --- Result Screen** (P0) — *Next in Queue*
-- [ ] **TM-022 --- Save Test** (P0)
-- [ ] **TM-023 --- Personal Best** (P0)
-- [ ] **TM-024 --- XP Calculation** (P0)
-- [ ] **TM-025 --- Streak Update** (P0)
+### Sprint 3 — Results (Remaining: 1)
+- [ ] **TM-025 --- Streak Update** (P0) — *Next in Queue*
 
 ### Sprint 4 — Dashboard (Remaining: 8)
 - [ ] TM-026 --- Today Statistics (P0)
