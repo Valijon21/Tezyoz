@@ -112,6 +112,11 @@ class TypingEngine:
             
         return time.time() - self.start_time
 
+    def get_remaining_time(self) -> float:
+        """Calculates remaining time in seconds, capped at zero."""
+        return max(0.0, self.config.duration - self.get_elapsed_time())
+
+
     def get_correct_characters_count(self) -> int:
         """Compares target and typed buffers to calculate current matching characters count."""
         correct_count = 0
