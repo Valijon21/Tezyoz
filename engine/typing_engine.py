@@ -145,3 +145,35 @@ class TypingEngine:
             
         correct_chars = self.get_correct_characters_count()
         return (correct_chars / self.total_typed_count) * 100.0
+
+    def get_char_status(self, index: int) -> str:
+        """
+        Returns 'correct', 'incorrect', or 'untyped' status for a target text letter index.
+        Used by UI layers to highlight typist input correctness.
+        """
+        if index < 0 or index >= len(self.target_text):
+            return "untyped"
+            
+        if index >= len(self.typed_text):
+            return "untyped"
+            
+        if self.typed_text[index] == self.target_text[index]:
+            return "correct"
+        return "incorrect"
+
+    def get_target_chars_statuses(self) -> list[str]:
+        """
+        Returns a list of status strings ('correct', 'incorrect', 'untyped')
+        corresponding to all target_text indices.
+        """
+        statuses = []
+        typed_len = len(self.typed_text)
+        for i in range(len(self.target_text)):
+            if i >= typed_len:
+                statuses.append("untyped")
+            elif self.typed_text[i] == self.target_text[i]:
+                statuses.append("correct")
+            else:
+                statuses.append("incorrect")
+        return statuses
+
