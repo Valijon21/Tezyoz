@@ -54,11 +54,13 @@ class Application:
         # Lazy imports to avoid circular dependencies
         from ui.register import RegisterView
         from ui.login import LoginView
+        from ui.results import ResultsView
         
         # Register Views
         self.views["register"] = RegisterView(self.main_container, self)
         self.views["home"] = HomePlaceholderView(self.main_container, self)
         self.views["login"] = LoginView(self.main_container, self)
+        self.views["results"] = ResultsView(self.main_container, self)
         
         # Check auto-login session
         from services.auth_service import load_session_user
@@ -67,6 +69,7 @@ class Application:
             self.show_view("home")
         else:
             self.show_view("login")
+
 
     def show_view(self, view_name: str):
         """Transition views content dynamically."""
