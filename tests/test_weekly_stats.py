@@ -113,5 +113,35 @@ class TestWeeklyStats(unittest.TestCase):
         self.assertEqual(days[6]["tests_count"], 1)
         self.assertEqual(days[6]["average_wpm"], 60.0)
 
+    def test_weekly_growth_calculations(self):
+        """Verify weekly growth calculations when previous week contains data and when it is empty."""
+        # Current Week: 2026-08-20 to 2026-08-26 (WPM average = 50.0)
+        self.test_repo.save_test(
+            self.user_id, "15s", 15, "English",
+            50.0, 50.0, 100.0, 50, 50, 0,
+            completed_at="2026-08-24 10:00:00", xp_earned=10
+        )
+        self.stats_repo.update_daily_stats(self.user_id, "2026-08-24")
+
+        # Case 1: Previous Week (2026-08-13 to 2026-08-19) had stats:
+        # e.g., 2026-08-15 had 40 WPM. WPM average = 40.0.
+        # Growth = (50 - 40) / 40 * 100 = 25.0%
+        self.test_repo.save_test(
+            self.user_id, "15s", 15, "English",
+            40.0, 40.0, 100.0, 50, 50, 0,
+            completed_at="2026-08-15 10:00:00", xp_earned=10
+        )
+        self.stats_repo.update_daily_stats(self.user_id, "2026-08-15")
+
+        res = self.stats_repo.get_weekly_stats(self.user_id, "2026-08-26")
+        self.assertEqual(res["summary"]["growth"], 25.0)
+
+        # Case 2: Previous Week (2026-08-06 to 2026-08-12) had no stats.
+        # Request weekly stats ending on 2026-08-19 (Range: 2026-08-13 to 2026-08-19).
+        # Previous week had no stats (0.0 WPM). Current week (ends 08-19) has 2026-08-15 (40.0 WPM).
+        # Growth should be 100.0
+        res_empty_prev = self.stats_repo.get_weekly_stats(self.user_id, "2026-08-19")
+        self.assertEqual(res_empty_prev["summary"]["growth"], 100.0)
+
 if __name__ == '__main__':
     unittest.main()

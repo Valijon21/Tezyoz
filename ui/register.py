@@ -35,27 +35,27 @@ class RegisterView(BaseView):
         form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
         
         # Username Field
-        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *", font=("Helvetica", 11)).grid(row=0, column=0, sticky="w", pady=5)
-        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *").grid(row=0, column=0, sticky="w", pady=5)
+        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, width=30)
         self.username_entry.grid(row=1, column=0, columnspan=2, sticky="w", pady=5)
         
         # Display Name Field
-        ttk.Label(form_frame, text="Ko'rinadigan ism (Display Name):", font=("Helvetica", 11)).grid(row=2, column=0, sticky="w", pady=5)
-        self.display_name_entry = ttk.Entry(form_frame, textvariable=self.display_name_var, font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Ko'rinadigan ism (Display Name):").grid(row=2, column=0, sticky="w", pady=5)
+        self.display_name_entry = ttk.Entry(form_frame, textvariable=self.display_name_var, width=30)
         self.display_name_entry.grid(row=3, column=0, columnspan=2, sticky="w", pady=5)
         
         # Password Field
-        ttk.Label(form_frame, text="Parol: *", font=("Helvetica", 11)).grid(row=4, column=0, sticky="w", pady=5)
-        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Parol: *").grid(row=4, column=0, sticky="w", pady=5)
+        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", width=30)
         self.password_entry.grid(row=5, column=0, columnspan=2, sticky="w", pady=5)
         
         # Confirm Password Field
-        ttk.Label(form_frame, text="Parolni tasdiqlang: *", font=("Helvetica", 11)).grid(row=6, column=0, sticky="w", pady=5)
-        self.confirm_password_entry = ttk.Entry(form_frame, textvariable=self.confirm_password_var, show="*", font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Parolni tasdiqlang: *").grid(row=6, column=0, sticky="w", pady=5)
+        self.confirm_password_entry = ttk.Entry(form_frame, textvariable=self.confirm_password_var, show="*", width=30)
         self.confirm_password_entry.grid(row=7, column=0, columnspan=2, sticky="w", pady=5)
         
         # Feedback/Error Label
-        self.error_label = ttk.Label(form_frame, text="", font=("Helvetica", 10, "italic"))
+        self.error_label = ttk.Label(form_frame, text="", style="Secondary.TLabel")
         self.error_label.grid(row=8, column=0, columnspan=2, sticky="w", pady=5)
         
         # Buttons Container inside form_frame
@@ -74,7 +74,7 @@ class RegisterView(BaseView):
         self.login_link = ttk.Label(
             btn_frame,
             text="Tizimga kirish",
-            font=("Helvetica", 10, "underline"),
+            style="Secondary.TLabel",
             cursor="hand2",
             foreground="blue"
         )

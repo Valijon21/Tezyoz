@@ -230,6 +230,21 @@ def load_session_user() -> dict:
     _current_user = dict(row)
     return _current_user
 
+def refresh_current_user():
+    """Queries DB and updates cached in-memory current user model statistics."""
+    global _current_user
+    if not _current_user:
+        return
+    with db.get_connection() as conn:
+        cursor = conn.execute(
+            "SELECT id, username, display_name, xp, level, current_streak, longest_streak FROM users WHERE id = ?;",
+            (_current_user["id"],)
+        )
+        row = cursor.fetchone()
+    if row:
+        _current_user = dict(row)
+
 def logout_user():
     """Logs out the active user session, clearing memory and session file."""
     set_current_user(None)
+

@@ -62,3 +62,19 @@ class PersonalBestRepository:
             return True
 
         return False
+
+    def get_all_personal_bests(self, user_id: int) -> list:
+        """
+        Retrieves all personal best records for a user, sorted by achieved date descending.
+        """
+        query = """
+            SELECT id, user_id, mode, duration, best_wpm, best_accuracy, achieved_at
+            FROM personal_bests
+            WHERE user_id = ?
+            ORDER BY achieved_at DESC
+        """
+        with db.get_connection() as conn:
+            cursor = conn.execute(query, (user_id,))
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+

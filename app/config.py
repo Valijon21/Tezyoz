@@ -16,11 +16,18 @@ DEFAULT_WINDOW_HEIGHT = 600
 DATABASE_FILENAME = "typemaster.db"
 LOG_FILENAME = "app.log"
 
-# Path Strategy (Derived relative to project root)
-BASE_DIR = Path(__file__).resolve().parent.parent
+import sys
 
-DATA_DIR = BASE_DIR / "data"
-LOG_DIR = BASE_DIR / "logs"
+# Path Strategy (Derived relative to project root)
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    BASE_DIR = Path(sys._MEIPASS)
+    # Store writeable user database and logs next to the executable
+    DATA_DIR = Path(sys.executable).parent / "data"
+    LOG_DIR = Path(sys.executable).parent / "logs"
+else:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    DATA_DIR = BASE_DIR / "data"
+    LOG_DIR = BASE_DIR / "logs"
 
 DATABASE_PATH = DATA_DIR / DATABASE_FILENAME
 LOG_PATH = LOG_DIR / LOG_FILENAME

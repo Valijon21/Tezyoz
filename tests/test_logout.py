@@ -87,11 +87,11 @@ class TestLogoutFlow(unittest.TestCase):
         mock_controller = MockController()
         
         try:
-            from app.application import HomePlaceholderView
-            home_view = HomePlaceholderView(root, mock_controller)
+            from ui.dashboard import DashboardView
+            home_view = DashboardView(root, mock_controller)
             
             # Trigger logout action
-            home_view.handle_logout()
+            home_view._handle_logout()
             
             # AssertIONS
             self.assertIsNone(get_current_user())

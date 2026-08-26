@@ -126,5 +126,38 @@ class TestDailyStatsRepository(unittest.TestCase):
             row_count = cursor.fetchone()[0]
         self.assertEqual(row_count, 1)
 
+    def test_daily_growth_calculations(self):
+        """Verify daily growth calculations for active days, empty fallback, and zero previous days."""
+        # Case 1: Yesterday has 40 WPM, Today has 50 WPM (25% Growth)
+        self.test_repo.save_test(
+            self.user_id, "15s", 15, "English",
+            40.0, 40.0, 100.0, 50, 50, 0,
+            completed_at="2026-08-25 10:00:00", xp_earned=10
+        )
+        self.stats_repo.update_daily_stats(self.user_id, "2026-08-25")
+
+        self.test_repo.save_test(
+            self.user_id, "15s", 15, "English",
+            50.0, 50.0, 100.0, 50, 50, 0,
+            completed_at="2026-08-26 10:00:00", xp_earned=10
+        )
+        stats = self.stats_repo.update_daily_stats(self.user_id, "2026-08-26")
+
+        self.assertEqual(stats["growth"], 25.0)
+
+        # Case 2: Today has stats but Yesterday had no stats (Fallback/Zero previous, growth should be 100.0)
+        self.test_repo.save_test(
+            self.user_id, "15s", 15, "English",
+            60.0, 60.0, 100.0, 50, 50, 0,
+            completed_at="2026-08-28 10:00:00", xp_earned=10
+        )
+        stats_28 = self.stats_repo.update_daily_stats(self.user_id, "2026-08-28")
+        self.assertEqual(stats_28["growth"], 100.0)
+
+        # Case 3: Empty fallback today when no tests are done
+        empty_stats = self.stats_repo.get_daily_stats(self.user_id, "2026-08-29")
+        # 2026-08-28 had 60 WPM, 2026-08-29 has 0.0 WPM. Growth should be -100.0%
+        self.assertEqual(empty_stats["growth"], -100.0)
+
 if __name__ == '__main__':
     unittest.main()

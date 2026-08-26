@@ -23,6 +23,8 @@ class TypingEngine:
         self.is_finished = False
         
         self.callbacks = []
+        self.character_errors = {}
+        self.keystroke_times = []
         self.compile_target_text()
 
     def compile_target_text(self):
@@ -73,11 +75,15 @@ class TypingEngine:
             
         self.typed_text += char
         self.total_typed_count += 1
+        self.keystroke_times.append(time.time())
         
         # Check correctness of newly added character
         expected_char = self.target_text[len(self.typed_text) - 1]
         if char != expected_char:
             self.error_count += 1
+            tgt_char_lower = expected_char.lower()
+            if len(tgt_char_lower) == 1:
+                self.character_errors[tgt_char_lower] = self.character_errors.get(tgt_char_lower, 0) + 1
             
         # Complete test if target boundary reached
         if len(self.typed_text) == len(self.target_text):
@@ -181,4 +187,29 @@ class TypingEngine:
             else:
                 statuses.append("incorrect")
         return statuses
+
+    def get_consistency(self) -> float:
+        """
+        Calculates consistency of typing pace.
+        Calculated based on standard deviation of inter-key intervals (latencies).
+        Consistency = max(0.0, (1.0 - Standard_Deviation / Mean) * 100.0)
+        """
+        if len(self.keystroke_times) < 3:
+            return 100.0
+
+        intervals = []
+        for i in range(1, len(self.keystroke_times)):
+            intervals.append(self.keystroke_times[i] - self.keystroke_times[i-1])
+
+        n = len(intervals)
+        mean = sum(intervals) / n
+        if mean == 0:
+            return 0.0
+
+        variance = sum((x - mean) ** 2 for x in intervals) / n
+        std_dev = variance ** 0.5
+
+        cv = std_dev / mean
+        consistency = max(0.0, (1.0 - cv) * 100.0)
+        return consistency
 

@@ -41,7 +41,11 @@ def load_words_for_language(language: str) -> list[str]:
     
     # Resolve project assets path relative to this script directory
     # text_loader.py is inside engine/, base directory is parent/
-    base_dir = Path(__file__).resolve().parent.parent
+    import sys
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        base_dir = Path(sys._MEIPASS)
+    else:
+        base_dir = Path(__file__).resolve().parent.parent
     text_file_path = base_dir / "assets" / "texts" / f"{lang_key}.txt"
     
     # Fallback lists mapping

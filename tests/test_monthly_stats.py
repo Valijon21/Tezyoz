@@ -110,5 +110,35 @@ class TestMonthlyStats(unittest.TestCase):
         self.assertEqual(days[29]["date"], "2026-08-26")
         self.assertEqual(days[29]["tests_count"], 0)
 
+    def test_monthly_growth_calculations(self):
+        """Verify monthly growth calculations when previous month contains data and when it is empty."""
+        # Current Month: 2026-07-28 to 2026-08-26 (WPM average = 50.0)
+        self.test_repo.save_test(
+            self.user_id, "60s", 60, "English",
+            50.0, 50.0, 100.0, 100, 100, 0,
+            completed_at="2026-08-10 10:00:00", xp_earned=20
+        )
+        self.stats_repo.update_daily_stats(self.user_id, "2026-08-10")
+
+        # Case 1: Previous Month (2026-06-28 to 2026-07-27) had stats:
+        # e.g., 2026-07-10 had 40 WPM. WPM average = 40.0.
+        # Growth = (50 - 40) / 40 * 100 = 25.0%
+        self.test_repo.save_test(
+            self.user_id, "60s", 60, "English",
+            40.0, 40.0, 100.0, 100, 100, 0,
+            completed_at="2026-07-10 10:00:00", xp_earned=20
+        )
+        self.stats_repo.update_daily_stats(self.user_id, "2026-07-10")
+
+        res = self.stats_repo.get_monthly_stats(self.user_id, "2026-08-26")
+        self.assertEqual(res["summary"]["growth"], 25.0)
+
+        # Case 2: Previous Month had no stats. WPM average = 0.0.
+        # Request monthly stats ending on 2026-07-27 (Range: 2026-06-28 to 2026-07-27).
+        # Previous of that month (2026-05-29 to 2026-06-27) had no stats (0.0 WPM).
+        # Current month (ends 07-27) has 2026-07-10 (40.0 WPM). Growth should be 100.0.
+        res_empty_prev = self.stats_repo.get_monthly_stats(self.user_id, "2026-07-27")
+        self.assertEqual(res_empty_prev["summary"]["growth"], 100.0)
+
 if __name__ == '__main__':
     unittest.main()

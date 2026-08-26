@@ -35,7 +35,24 @@ def setup_logging():
 def main():
     """Main application runner."""
     setup_logging()
+    
+    # Enable DPI awareness before bootstrapping Tkinter
+    import sys
+    if sys.platform.startswith("win"):
+        try:
+            import ctypes
+            try:
+                ctypes.windll.shcore.SetProcessDpiAwareness(2) # PROCESS_PER_MONITOR_DPI_AWARE
+            except Exception:
+                ctypes.windll.shcore.SetProcessDpiAwareness(1) # PROCESS_SYSTEM_DPI_AWARE
+        except Exception:
+            try:
+                ctypes.windll.user32.SetProcessDPIAware()
+            except Exception:
+                pass
+
     logger = logging.getLogger("main")
+
     logger.info(f"Starting {APP_NAME} v{APP_VERSION}...")
     
     try:

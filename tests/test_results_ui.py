@@ -41,7 +41,7 @@ class TestResultsUI(unittest.TestCase):
     def test_set_results_updates_values(self):
         """Verify set_results sets text values on metric card labels correctly."""
         # Call results mapping loader
-        # wpm=45.5, raw_wpm=48.0, accuracy=94.5, errors=3, duration=60, xp=12, level=3, is_pb=True
+        # wpm=45.5, raw_wpm=48.0, accuracy=94.5, errors=3, duration=60, xp=12, level=3, is_pb=True, streak=5, longest_streak=10
         self.view.set_results(
             wpm=45.5,
             raw_wpm=48.0,
@@ -50,7 +50,9 @@ class TestResultsUI(unittest.TestCase):
             duration=60,
             xp_earned=12,
             level=3,
-            is_pb=True
+            is_pb=True,
+            streak=5,
+            longest_streak=10
         )
 
         # Check values mappings matches suffix and precision specs
@@ -64,6 +66,10 @@ class TestResultsUI(unittest.TestCase):
         # Verify PB badge is packed and visible
         self.assertEqual(self.view.pb_badge.winfo_manager(), "pack")
 
+        # Verify Streak badge is packed and visible
+        self.assertEqual(self.view.streak_badge.winfo_manager(), "pack")
+        self.assertEqual(self.view.streak_badge.cget("text"), "Joriy Streak: 5 kun 🔥")
+
     def test_pb_badge_visibility_toggle(self):
         """Verify PB badge packs and unpacks dynamically based on is_pb bool state."""
         # If not pb
@@ -74,16 +80,35 @@ class TestResultsUI(unittest.TestCase):
         self.view.set_results(40, 40, 100, 0, 30, 5, 2, is_pb=True)
         self.assertEqual(self.view.pb_badge.winfo_manager(), "pack")
 
+    def test_streak_badge_visibility_and_pb(self):
+        """Verify streak badge packs, unpacks, and highlights record streaks dynamically."""
+        # 1. Streak is 0 -> should not display
+        self.view.set_results(40, 40, 100, 0, 30, 5, 2, streak=0)
+        self.assertEqual(self.view.streak_badge.winfo_manager(), "")
+
+        # 2. Streak > 0 but not personal best -> should display standard text
+        self.view.set_results(40, 40, 100, 0, 30, 5, 2, streak=3, longest_streak=5)
+        self.assertEqual(self.view.streak_badge.winfo_manager(), "pack")
+        self.assertEqual(self.view.streak_badge.cget("text"), "Joriy Streak: 3 kun 🔥")
+        self.assertEqual(str(self.view.streak_badge.cget("foreground")), "#f59e0b")
+
+        # 3. Streak >= longest_streak -> should display new record text and darker highlight
+        self.view.set_results(40, 40, 100, 0, 30, 5, 2, streak=6, longest_streak=5)
+        self.assertEqual(self.view.streak_badge.winfo_manager(), "pack")
+        self.assertEqual(self.view.streak_badge.cget("text"), "★ YANGI REKORD STREAK: 6 kun 🔥 ★")
+        self.assertEqual(str(self.view.streak_badge.cget("foreground")), "#ea580c")
+
     def test_navigation_buttons(self):
         """Verify navigation buttons trigger routing actions on the controller."""
         # Retry click button action mapping
         self.view.retry_btn.invoke()
-        self.assertEqual(self.app.shown_view, "home")
+        self.assertEqual(self.app.shown_view, "typing_test")
 
         # Home click button action mapping
         self.app.shown_view = None
         self.view.home_btn.invoke()
         self.assertEqual(self.app.shown_view, "home")
+
 
 if __name__ == '__main__':
     unittest.main()

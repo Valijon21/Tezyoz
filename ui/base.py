@@ -27,3 +27,22 @@ class BaseView(ttk.Frame):
         Can be overridden by subclasses for clean up.
         """
         pass
+
+    def apply_theme(self, theme_name: str):
+        """
+        Called when the active UI theme changes.
+        Can be overridden by subclasses to update custom drawing elements.
+        """
+        pass
+
+    def get_scale_factor(self) -> float:
+        """Calculates screen DPI scaling factor using Tk coordinate system ratios."""
+        try:
+            return float(self.tk.call("tk", "scaling")) / 1.33333333
+        except Exception:
+            return 1.0
+
+    def scale_px(self, px: int) -> int:
+        """Converts raw pixel size to scaled integer values based on current DPI."""
+        return int(px * self.get_scale_factor())
+

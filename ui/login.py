@@ -34,17 +34,17 @@ class LoginView(BaseView):
         # form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
         
         # Username
-        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *", font=("Helvetica", 11)).grid(row=0, column=0, sticky="w", pady=5)
-        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *").grid(row=0, column=0, sticky="w", pady=5)
+        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, width=30)
         self.username_entry.grid(row=1, column=0, columnspan=2, sticky="w", pady=5)
         
         # Password
-        ttk.Label(form_frame, text="Parol: *", font=("Helvetica", 11)).grid(row=2, column=0, sticky="w", pady=5)
-        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", font=("Helvetica", 11), width=30)
+        ttk.Label(form_frame, text="Parol: *").grid(row=2, column=0, sticky="w", pady=5)
+        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", width=30)
         self.password_entry.grid(row=3, column=0, columnspan=2, sticky="w", pady=5)
         
         # Error Label
-        self.error_label = ttk.Label(form_frame, text="", font=("Helvetica", 10, "italic"))
+        self.error_label = ttk.Label(form_frame, text="", style="Secondary.TLabel")
         self.error_label.grid(row=4, column=0, columnspan=2, sticky="w", pady=5)
         
         # Buttons
@@ -61,7 +61,7 @@ class LoginView(BaseView):
         self.register_link = ttk.Label(
             btn_frame,
             text="Ro'yxatdan o'tish",
-            font=("Helvetica", 10, "underline"),
+            style="Secondary.TLabel",
             cursor="hand2",
             foreground="blue"
         )
