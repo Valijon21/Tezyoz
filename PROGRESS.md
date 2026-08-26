@@ -7,9 +7,9 @@ This file monitors development advancement, tracking completed sprints, verifyin
 ## 📊 Summary Metrics
 
 - **Total Backlog Tasks**: 62
-- **Completed Tasks**: 9 (14.5%)
-- **Remaining Tasks**: 53 (85.5%)
-- **Active Sprint**: Sprint 2 — Typing Engine (Preparing)
+- **Completed Tasks**: 20 (32.3%)
+- **Remaining Tasks**: 42 (67.7%)
+- **Active Sprint**: Sprint 3 — Results (In Progress)
 
 ---
 
@@ -28,29 +28,29 @@ This file monitors development advancement, tracking completed sprints, verifyin
 - [x] **TM-008 --- Current User Session**: JSON-based persistency auto login active user bypass.
 - [x] **TM-009 --- Logout**: Redirect flows, session unlinking, and UI logouts.
 
+### Sprint 2 — Typing Engine (Completed: 11/11)
+- [x] **TM-010 --- Text Loader**: Reads space/newline separated typing target vocabularies from files with memory fallbacks.
+- [x] **TM-011 --- Test Configuration**: Validates and tracks language options and duration parameters for typing practice.
+- [x] **TM-012 --- TypingEngine**: State machine coordinator tracking typing inputs, errors, and real-time accuracy and words per minute calculations.
+- [x] **TM-013 --- Keyboard Event Processing**: Validates and filters Tkinter keypress inputs, ignoring control/utility shortcuts and parsing backspace/printable keys.
+- [x] **TM-014 --- Character Comparison**: Evaluates typed inputs against target prompt characters, computing correct, incorrect, and untyped state designations.
+- [x] **TM-015 --- Timer**: Manages countdown constraints, elapsed margins, and disables keystroke modifications upon test expiration.
+- [x] **TM-016 --- WPM Calculator**: Real-time Net Words Per Minute calculator (correct_characters / 5) / elapsed_minutes.
+- [x] **TM-017 --- Raw WPM**: Real-time Raw Words Per Minute calculator (total_typed_characters / 5) / elapsed_minutes.
+- [x] **TM-018 --- Accuracy**: Real-time Accuracy calculator (correct_characters / total_typed_characters) * 100.
+- [x] **TM-019 --- Error Counter**: Logs and increments mistake keystrokes correctly.
+- [x] **TM-020 --- Test Completion**: Handles duration bounds, disables edits, and triggers completion callbacks.
+
 ---
 
 ## 🚀 Active & Remaining Backlog
 
-### Sprint 2 — Typing Engine (Remaining: 11)
-- [ ] **TM-010 --- Text Loader** (P0) — *Next in Queue*
-- [ ] **TM-011 --- Test Configuration** (P0)
-- [ ] **TM-012 --- TypingEngine** (P0)
-- [ ] **TM-013 --- Keyboard Event Processing** (P0)
-- [ ] **TM-014 --- Character Comparison** (P0)
-- [ ] **TM-015 --- Timer** (P0)
-- [ ] **TM-016 --- WPM Calculator** (P0)
-- [ ] **TM-017 --- Raw WPM** (P0)
-- [ ] **TM-018 --- Accuracy** (P0)
-- [ ] **TM-019 --- Error Counter** (P0)
-- [ ] **TM-020 --- Test Completion** (P0)
-
 ### Sprint 3 — Results (Remaining: 5)
-- [ ] TM-021 --- Result Screen (P0)
-- [ ] TM-022 --- Save Test (P0)
-- [ ] TM-023 --- Personal Best (P0)
-- [ ] TM-024 --- XP Calculation (P0)
-- [ ] TM-025 --- Streak Update (P0)
+- [ ] **TM-021 --- Result Screen** (P0) — *Next in Queue*
+- [ ] **TM-022 --- Save Test** (P0)
+- [ ] **TM-023 --- Personal Best** (P0)
+- [ ] **TM-024 --- XP Calculation** (P0)
+- [ ] **TM-025 --- Streak Update** (P0)
 
 ### Sprint 4 — Dashboard (Remaining: 8)
 - [ ] TM-026 --- Today Statistics (P0)
