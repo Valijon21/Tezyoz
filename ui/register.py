@@ -213,7 +213,7 @@ class RegisterView(BaseView):
         return True
 
     def handle_register(self):
-        """Processes form inputs and executes validation success flows."""
+        """Processes form inputs and executes validation success flows in background."""
         if not self.validate_inputs():
             return
             
@@ -221,17 +221,36 @@ class RegisterView(BaseView):
         display_name = self.display_name_var.get().strip()
         password = self.password_var.get().strip()
         
+        self.register_button.configure(state="disabled", text="Kutilmoqda...")
+        
         from services.auth_service import register_user
-        try:
-            register_user(username, display_name, password)
-            messagebox.showinfo(
-                "Muvaffaqiyatli",
-                f"Foydalanuvchi '{username}' tizimga muvaffaqiyatli ro'yxatdan o'tdi!"
-            )
-            self.clear_form()
-            self.controller.show_view("login")
-        except ValueError as err:
-            self.error_label.configure(text=str(err), text_color="#ef4444")
+        import threading
+        
+        def worker():
+            try:
+                register_user(username, display_name, password)
+                self.after(0, self._on_register_success, username)
+            except ValueError as err:
+                self.after(0, self._on_register_error, str(err))
+            except Exception as err:
+                self.after(0, self._on_register_error, f"Tizim xatoligi: {err}")
+                
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_register_success(self, username):
+        """Callback for successful user registration."""
+        self.register_button.configure(state="normal", text="Ro'yxatdan o'tish")
+        messagebox.showinfo(
+            "Muvaffaqiyatli",
+            f"Foydalanuvchi '{username}' tizimga muvaffaqiyatli ro'yxatdan o'tdi!"
+        )
+        self.clear_form()
+        self.controller.show_view("login")
+
+    def _on_register_error(self, error_message):
+        """Callback for registration failures."""
+        self.register_button.configure(state="normal", text="Ro'yxatdan o'tish")
+        self.error_label.configure(text=error_message, text_color="#ef4444")
 
     def navigate_to_login(self):
         """Link navigation stub hook."""

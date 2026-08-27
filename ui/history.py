@@ -20,6 +20,8 @@ class HistoryView(BaseView):
         super().__init__(parent, controller, **kwargs)
         self.test_repo = TestRepository()
         self.active_chart_key = "wpm" # default to wpm chart
+        self.current_page = 0
+        self.page_size = 10
         self._setup_ui()
 
     def _setup_ui(self):
@@ -108,6 +110,42 @@ class HistoryView(BaseView):
         )
         self.back_btn.pack(side=tk.LEFT, ipady=4)
 
+        # Pagination Controls
+        self.page_controls = ctk.CTkFrame(self.nav_bar, fg_color="transparent")
+        self.page_controls.pack(side=tk.RIGHT)
+
+        self.prev_btn = ctk.CTkButton(
+            self.page_controls,
+            text="< Oldingi",
+            width=80,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=theme_colors["card_bg"],
+            text_color=theme_colors["fg"],
+            hover_color=theme_colors["select_bg"],
+            command=self._prev_page
+        )
+        self.prev_btn.pack(side=tk.LEFT, padx=5)
+
+        self.page_lbl = ctk.CTkLabel(
+            self.page_controls,
+            text="Sahifa 1 / 1",
+            font=("Segoe UI", 12, "bold"),
+            text_color=theme_colors["fg"]
+        )
+        self.page_lbl.pack(side=tk.LEFT, padx=10)
+
+        self.next_btn = ctk.CTkButton(
+            self.page_controls,
+            text="Keyingi >",
+            width=80,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=theme_colors["card_bg"],
+            text_color=theme_colors["fg"],
+            hover_color=theme_colors["select_bg"],
+            command=self._next_page
+        )
+        self.next_btn.pack(side=tk.LEFT, padx=5)
+
         # Left Panel (Table) - direct container child
         self.table_frame = ctk.CTkFrame(self.container, fg_color="transparent", corner_radius=0)
         self.table_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
@@ -192,7 +230,21 @@ class HistoryView(BaseView):
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
     def on_show(self):
-        """Lifecycle hook reloading user test logs and updating dynamic charts."""
+        """Lifecycle hook resetting page position and loading records."""
+        self.current_page = 0
+        self._update_list()
+
+    def _prev_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self._update_list()
+
+    def _next_page(self):
+        self.current_page += 1
+        self._update_list()
+
+    def _update_list(self):
+        """Fetches history records and updates chart & paginated Treeview dynamically."""
         theme = "dark"
         if self.controller and hasattr(self.controller, "current_theme"):
             theme = self.controller.current_theme
@@ -253,14 +305,30 @@ class HistoryView(BaseView):
             self._transition_empty_state(True)
             self.wpm_chart.clear()
             self.acc_chart.clear()
+            self.prev_btn.configure(state="disabled")
+            self.next_btn.configure(state="disabled")
+            self.page_lbl.configure(text="Sahifa 1 / 1")
         else:
             self._transition_empty_state(False)
             
-            # Map chronological stats datasets (newest returns first, so we reverse it!)
-            reversed_tests = list(reversed(tests))
-            chart_data = []
+            # Pagination borders
+            total_pages = max(1, (len(tests) + self.page_size - 1) // self.page_size)
+            if self.current_page >= total_pages:
+                self.current_page = total_pages - 1
+            if self.current_page < 0:
+                self.current_page = 0
 
-            for row in tests:
+            self.prev_btn.configure(state="normal" if self.current_page > 0 else "disabled")
+            self.next_btn.configure(state="normal" if self.current_page < total_pages - 1 else "disabled")
+            self.page_lbl.configure(text=f"Sahifa {self.current_page + 1} / {total_pages}")
+            
+            # Slice current page to show in Treeview
+            start_idx = self.current_page * self.page_size
+            end_idx = start_idx + self.page_size
+            page_list = tests[start_idx:end_idx]
+
+            # Populate Treeview
+            for row in page_list:
                 # Format date string
                 date_str = row.get("completed_at", "")
                 try:
@@ -291,6 +359,9 @@ class HistoryView(BaseView):
                     )
                 )
 
+            # Map chronological stats datasets (newest returns first, so we reverse it!)
+            reversed_tests = list(reversed(tests))
+            chart_data = []
             for r in reversed_tests:
                 # Truncate date to simple YYYY-MM-DD
                 timestamp = r.get("completed_at", "")[:10]
@@ -300,7 +371,7 @@ class HistoryView(BaseView):
                     "accuracy": r.get("accuracy", 0.0)
                 })
 
-            # Feed datasets into both LineChart and AccuracyChart
+            # Feed datasets into both LineChart and AccuracyChart (shows full directory history progress!)
             self.wpm_chart.set_data(chart_data, x_key="date", y_key="wpm")
             self.acc_chart.set_data(chart_data, x_key="date", y_key="accuracy")
 
@@ -351,12 +422,28 @@ class HistoryView(BaseView):
         
         if hasattr(self, "chart_panel") and self.chart_panel:
             self.chart_panel.configure(fg_color=theme["card_bg"])
-        if hasattr(self, "back_btn") and self.back_btn:
-            self.back_btn.configure(
-                fg_color=theme["card_bg"],
-                text_color=theme["fg"],
-                hover_color=theme["select_bg"]
-            )
+            
+        for btn in (self.back_btn, self.prev_btn, self.next_btn):
+            if hasattr(self, btn.winfo_name()) and btn:
+                try:
+                    btn.configure(
+                        fg_color=theme["card_bg"],
+                        text_color=theme["fg"],
+                        hover_color=theme["select_bg"]
+                    )
+                except Exception:
+                    pass
+
+        for btn in self.toggle_buttons.values():
+            if btn:
+                try:
+                    btn.configure(
+                        fg_color=theme["card_bg"],
+                        text_color=theme["fg"],
+                        hover_color=theme["select_bg"]
+                    )
+                except Exception:
+                    pass
         
         # Configure dynamic charts theme colours
         if hasattr(self, "wpm_chart") and self.wpm_chart:
@@ -373,3 +460,6 @@ class HistoryView(BaseView):
                 grid_color=theme["border"],
                 text_color=theme["secondary_fg"]
             )
+
+        if self.winfo_ismapped():
+            self._update_list()

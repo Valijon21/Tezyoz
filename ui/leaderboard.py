@@ -17,6 +17,8 @@ class LeaderboardView(BaseView):
         super().__init__(parent, controller, **kwargs)
         self.cards_frame = None
         self.rows_list = []
+        self.current_page = 0
+        self.page_size = 10
         self._setup_ui()
 
     def _setup_ui(self):
@@ -107,26 +109,92 @@ class LeaderboardView(BaseView):
         )
         self.back_btn.pack(side=tk.LEFT, ipady=4)
 
+        # Pagination Controls
+        self.page_controls = ctk.CTkFrame(self.nav_frame, fg_color="transparent")
+        self.page_controls.pack(side=tk.RIGHT)
+
+        self.prev_btn = ctk.CTkButton(
+            self.page_controls,
+            text="< Oldingi",
+            width=80,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=theme_colors["card_bg"],
+            text_color=theme_colors["fg"],
+            hover_color=theme_colors["select_bg"],
+            command=self._prev_page
+        )
+        self.prev_btn.pack(side=tk.LEFT, padx=5)
+
+        self.page_lbl = ctk.CTkLabel(
+            self.page_controls,
+            text="Sahifa 1 / 1",
+            font=("Segoe UI", 12, "bold"),
+            text_color=theme_colors["fg"]
+        )
+        self.page_lbl.pack(side=tk.LEFT, padx=10)
+
+        self.next_btn = ctk.CTkButton(
+            self.page_controls,
+            text="Keyingi >",
+            width=80,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=theme_colors["card_bg"],
+            text_color=theme_colors["fg"],
+            hover_color=theme_colors["select_bg"],
+            command=self._next_page
+        )
+        self.next_btn.pack(side=tk.LEFT, padx=5)
+
     def on_show(self):
-        """Lifecycle hook refreshing the users rankings list."""
+        """Lifecycle hook resetting page position and loading records."""
+        self.current_page = 0
+        self._update_list()
+
+    def _prev_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self._update_list()
+
+    def _next_page(self):
+        self.current_page += 1
+        self._update_list()
+
+    def _update_list(self):
+        """Fetches rankings from db and updates current display slice."""
         theme = "dark"
         if self.controller and hasattr(self.controller, "current_theme"):
             theme = self.controller.current_theme
         theme_colors = THEMES.get(theme, THEMES["dark"])
 
-        # Fetch rankings from db safely
+        # Fetch rankings from db safely (up to 100 users)
         try:
-            top_list = get_leaderboard(limit=25)
+            top_list = get_leaderboard(limit=100)
         except Exception:
             top_list = []
+
+        total_pages = max(1, (len(top_list) + self.page_size - 1) // self.page_size)
+        if self.current_page >= total_pages:
+            self.current_page = total_pages - 1
+        if self.current_page < 0:
+            self.current_page = 0
+
+        # Enable/Disable direction buttons
+        self.prev_btn.configure(state="normal" if self.current_page > 0 else "disabled")
+        self.next_btn.configure(state="normal" if self.current_page < total_pages - 1 else "disabled")
+        self.page_lbl.configure(text=f"Sahifa {self.current_page + 1} / {total_pages}")
 
         # Clear existing row cards
         for row in self.rows_list:
             row.destroy()
         self.rows_list.clear()
 
-        # Render rows dynamically
-        for i, u in enumerate(top_list, 1):
+        # Render rows dynamically for the current page slice
+        start_idx = self.current_page * self.page_size
+        end_idx = start_idx + self.page_size
+        page_list = top_list[start_idx:end_idx]
+
+        for idx, u in enumerate(page_list, 1):
+            i = start_idx + idx
             is_highlighted = i <= 3
             
             # Custom card background and border colors for top 3
@@ -258,21 +326,23 @@ class LeaderboardView(BaseView):
         from ui.theme import THEMES
         theme = THEMES.get(theme_name, THEMES["dark"])
         
-        if hasattr(self, "refresh_btn") and self.refresh_btn:
-            self.refresh_btn.configure(
-                fg_color=theme["card_bg"],
-                text_color=theme["fg"],
-                hover_color=theme["select_bg"]
-            )
-        if hasattr(self, "back_btn") and self.back_btn:
-            self.back_btn.configure(
-                fg_color=theme["card_bg"],
-                text_color=theme["fg"],
-                hover_color=theme["select_bg"]
-            )
+        for btn in (self.refresh_btn, self.back_btn, self.prev_btn, self.next_btn):
+            if hasattr(self, btn.winfo_name()) and btn:
+                try:
+                    btn.configure(
+                        fg_color=theme["card_bg"],
+                        text_color=theme["fg"],
+                        hover_color=theme["select_bg"]
+                    )
+                except Exception:
+                    pass
+                    
+        if hasattr(self, "page_lbl") and self.page_lbl:
+            self.page_lbl.configure(text_color=theme["fg"])
+
         # Reload card lists to repaint correct item backgrounds matching active highlights if visible
         if self.winfo_ismapped():
-            self.on_show()
+            self._update_list()
 
     def _handle_back(self):
         """Action navigating back to Dashboard."""

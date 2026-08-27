@@ -179,9 +179,19 @@ class TypingTestView(BaseView):
         from engine.keyboard_handler import process_key_event
         action, val = process_key_event(event)
 
+        from services.sound_service import sound_player
         if action == "backspace":
             self.engine.backspace()
+            sound_player.play_click()
         elif action == "input" and val is not None:
+            # Check typing accuracy before sending to engine for audio cue selection
+            typed_len = len(self.engine.typed_text)
+            if typed_len < len(self.engine.target_text):
+                expected_char = self.engine.target_text[typed_len]
+                if val == expected_char:
+                    sound_player.play_click()
+                else:
+                    sound_player.play_error()
             self.engine.input_character(val)
 
         return "break"
@@ -316,14 +326,19 @@ class TypingTestView(BaseView):
         # 6. Update user's aggregate XP and level in users table
         from gamification.levels import calculate_level
         with db.transaction() as conn:
-            cursor = conn.execute("SELECT xp FROM users WHERE id = ?;", (user_id,))
+            cursor = conn.execute("SELECT xp, level FROM users WHERE id = ?;", (user_id,))
             row = cursor.fetchone()
             current_xp = row["xp"] or 0
+            old_level = row["level"] or 1
             
             new_xp = current_xp + xp_earned
             new_level = calculate_level(new_xp)
             
             conn.execute("UPDATE users SET xp = ?, level = ? WHERE id = ?;", (new_xp, new_level, user_id))
+
+        if new_level > old_level:
+            from services.sound_service import sound_player
+            sound_player.play_level_up()
 
         refresh_current_user()
 
@@ -416,12 +431,16 @@ class TypingTestView(BaseView):
         
         self.reset_test()
         
-        # Bind keyboard events at window container level
-        self.controller.root.bind("<Key>", self._on_key_press)
-        self.bind("<Button-1>", lambda e: self.focus_set())
+        # Bind keyboard events directly to the Text widget
+        self.text_widget.bind("<Key>", self._on_key_press)
+        self.bind("<Button-1>", lambda e: self.text_widget.focus_set())
+        self.text_widget.bind("<Button-1>", lambda e: self.text_widget.focus_set())
+        
+        # Immediately focus the text widget
+        self.text_widget.focus_set()
 
     def on_hide(self):
-        self.controller.root.unbind("<Key>")
+        self.text_widget.unbind("<Key>")
         self.cancel_timer()
 
     def apply_theme(self, theme_name: str):

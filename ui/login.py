@@ -131,7 +131,7 @@ class LoginView(BaseView):
         self.register_link.bind("<Button-1>", lambda e: self.navigate_to_register())
 
     def handle_login(self):
-        """Invoke auth login service and trigger transitions."""
+        """Invoke auth login service and trigger transitions using background thread."""
         username = self.username_var.get().strip()
         password = self.password_var.get().strip()
         
@@ -145,8 +145,19 @@ class LoginView(BaseView):
             self.error_label.configure(text="Parol kiritilishi shart!")
             return
             
-        # Call logging validation
-        user = login_user(username, password)
+        # Disable button and update text to show loading state
+        self.login_button.configure(state="disabled", text="Kutilmoqda...")
+        
+        import threading
+        def worker():
+            user = login_user(username, password)
+            self.after(0, self._on_login_complete, user, username)
+            
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_login_complete(self, user, username):
+        """Callback executed on main UI thread upon background login completion."""
+        self.login_button.configure(state="normal", text="Kirish")
         if user:
             messagebox.showinfo("Muvaffaqiyatli", f"Xush kelibsiz, {user.get('display_name', username)}!")
             self.clear_form()
