@@ -242,6 +242,14 @@ class Application:
         if hasattr(self, "sidebar_font_size_combo") and self.sidebar_font_size_combo:
             self.sidebar_font_size_combo.set(str(self.current_font_size))
             
+        # Sync sound switch states in sidebar settings frame
+        if hasattr(self, "sidebar_sound_switch") and self.sidebar_sound_switch:
+            from services.sound_service import sound_player
+            if sound_player._is_sound_enabled():
+                self.sidebar_sound_switch.select()
+            else:
+                self.sidebar_sound_switch.deselect()
+            
         # Re-layout active nav highlights
         if hasattr(self, "current_view") and self.current_view:
             self._update_nav_highlights(self.current_view.__class__.__name__.lower().replace("view", ""))
@@ -396,6 +404,15 @@ class Application:
         )
         self.sidebar_font_size_combo.pack(fill=tk.X, pady=(2, 2))
 
+        # Sound Switch Toggle
+        self.sidebar_sound_switch = ctk.CTkSwitch(
+            settings_inner,
+            text="Ovozli effektlar",
+            command=self._handle_sidebar_sound_toggle,
+            font=("Segoe UI", 11)
+        )
+        self.sidebar_sound_switch.pack(anchor="w", pady=(6, 2))
+
     def _handle_sidebar_settings_change(self, choice=None):
         """Action handler when any of the sidebar combobox elements is changed."""
         theme_name = self.sidebar_theme_combo.get()
@@ -405,6 +422,13 @@ class Application:
         except ValueError:
             font_size = 14
         self.apply_theme(theme_name, font_family, font_size)
+
+    def _handle_sidebar_sound_toggle(self):
+        """Action handler when the sound toggle switch is flipped."""
+        from services.sound_service import sound_player
+        enabled = sound_player.toggle_sound()
+        if enabled:
+            sound_player.play_click()
 
     def _update_nav_highlights(self, active_view_name: str):
         """Highlights the active navigation button in the left sidebar menu."""

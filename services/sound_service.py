@@ -37,6 +37,7 @@ class SoundService:
             return
         self._initialized = True
         self.sound_queue = queue.Queue()
+        self.guest_sound_enabled = True
         self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
         self.worker_thread.start()
 
@@ -75,7 +76,7 @@ class SoundService:
             from services.auth_service import get_current_user
             user = get_current_user()
             if not user:
-                return True # Default to True if no session is active yet
+                return self.guest_sound_enabled
                 
             from database.repositories.settings_repository import SettingsRepository
             settings = SettingsRepository().get_settings(user["id"])
@@ -84,7 +85,29 @@ class SoundService:
                 return settings.get("sound_enabled", 1) == 1
         except Exception as err:
             logger.error(f"Error checking sound settings: {err}")
-        return True
+        return self.guest_sound_enabled
+
+    def toggle_sound(self) -> bool:
+        """Toggles the sound enabled state. Returns the new sound enabled state."""
+        try:
+            from services.auth_service import get_current_user
+            user = get_current_user()
+            
+            # Resolve current status
+            current_state = self._is_sound_enabled()
+            new_state = not current_state
+            
+            if user:
+                from database.repositories.settings_repository import SettingsRepository
+                SettingsRepository().update_setting(user["id"], "sound_enabled", 1 if new_state else 0)
+            else:
+                self.guest_sound_enabled = new_state
+                
+            return new_state
+        except Exception as err:
+            logger.error(f"Error toggling sound setting: {err}")
+            self.guest_sound_enabled = not self.guest_sound_enabled
+            return self.guest_sound_enabled
 
     def play_click(self):
         """Queue a standard keystroke click sound."""
