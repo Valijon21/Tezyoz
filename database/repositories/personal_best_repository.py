@@ -2,9 +2,9 @@
 Personal best database repository for TypeMaster.
 """
 from datetime import datetime
-from database.connection import db
+from database.repositories.base_repository import BaseRepository
 
-class PersonalBestRepository:
+class PersonalBestRepository(BaseRepository):
     """
     Handles database operations for checking and tracking user personal bests.
     """
@@ -17,12 +17,8 @@ class PersonalBestRepository:
             FROM personal_bests
             WHERE user_id = ? AND mode = ? AND duration = ?
         """
-        with db.transaction() as conn:
-            cursor = conn.execute(query, (user_id, mode, duration))
-            row = cursor.fetchone()
-            if row:
-                return dict(row)
-            return None
+        rows = self.execute_query(query, (user_id, mode, duration), use_transaction=True)
+        return rows[0] if rows else None
 
     def check_and_update_pb(self, user_id: int, mode: str, duration: int,
                             wpm: float, accuracy: float) -> bool:
@@ -40,8 +36,7 @@ class PersonalBestRepository:
                 VALUES (?, ?, ?, ?, ?, ?)
             """
             achieved_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            with db.transaction() as conn:
-                conn.execute(insert_query, (user_id, mode, duration, wpm, accuracy, achieved_at))
+            self.execute_write(insert_query, (user_id, mode, duration, wpm, accuracy, achieved_at))
             return True
 
         current_wpm = existing["best_wpm"]
@@ -57,8 +52,7 @@ class PersonalBestRepository:
                 WHERE user_id = ? AND mode = ? AND duration = ?
             """
             achieved_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            with db.transaction() as conn:
-                conn.execute(update_query, (wpm, accuracy, achieved_at, user_id, mode, duration))
+            self.execute_write(update_query, (wpm, accuracy, achieved_at, user_id, mode, duration))
             return True
 
         return False
@@ -73,8 +67,6 @@ class PersonalBestRepository:
             WHERE user_id = ?
             ORDER BY achieved_at DESC
         """
-        with db.get_connection() as conn:
-            cursor = conn.execute(query, (user_id,))
-            rows = cursor.fetchall()
-            return [dict(row) for row in rows]
+        return self.execute_query(query, (user_id,))
+
 

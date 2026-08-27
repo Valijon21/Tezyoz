@@ -7,57 +7,64 @@ from tkinter import ttk
 
 THEMES = {
     "dark": {
-        "bg": "#1e1e2e",
-        "fg": "#cdd6f4",
-        "card_bg": "#313244",
-        "border": "#45475a",
-        "accent": "#f5c2e7",
-        "accent_fg": "#11111b",
-        "secondary_fg": "#a6adc8",
-        "chart_grid": "#45475a",
-        "chart_line": "#f5c2e7",
-        "chart_line2": "#89b4fa",
-        "entry_bg": "#181825",
-        "entry_fg": "#cdd6f4",
-        "select_bg": "#313244"
+        "bg": "#15161f",          # Slate/charcoal background
+        "fg": "#ffffff",          # White foreground
+        "card_bg": "#1e1f29",     # Elevated card background
+        "border": "#282a36",      # Premium thin border
+        "accent": "#00f0ff",      # Glowing cyan accent
+        "accent_fg": "#14151f",   # Dark text for accent buttons
+        "secondary_fg": "#8e9196", # Muted slate text
+        "chart_grid": "#24283b",
+        "chart_line": "#00f0ff",
+        "chart_line2": "#3b82f6",
+        "entry_bg": "#10111a",
+        "entry_fg": "#ffffff",
+        "select_bg": "#24283b",
+        "sidebar_bg": "#14151f"
     },
     "light": {
-        "bg": "#f4f4f7",
-        "fg": "#1e1e2e",
+        "bg": "#f9fafb",
+        "fg": "#111827",
         "card_bg": "#ffffff",
-        "border": "#e2e8f0",
+        "border": "#e5e7eb",
         "accent": "#4f46e5",
         "accent_fg": "#ffffff",
-        "secondary_fg": "#64748b",
-        "chart_grid": "#cbd5e1",
+        "secondary_fg": "#4b5563",
+        "chart_grid": "#f3f4f6",
         "chart_line": "#4f46e5",
         "chart_line2": "#06b6d4",
         "entry_bg": "#ffffff",
-        "entry_fg": "#1e1e2e",
-        "select_bg": "#e2e8f0"
+        "entry_fg": "#111827",
+        "select_bg": "#e5e7eb",
+        "sidebar_bg": "#f3f4f6"
     },
     "cyberpunk": {
-        "bg": "#0d021c",
-        "fg": "#00ffcc",
-        "card_bg": "#1a0833",
+        "bg": "#050515",
+        "fg": "#00f0ff",
+        "card_bg": "#0d0d2b",
         "border": "#ff007f",
         "accent": "#ff007f",
-        "accent_fg": "#0d021c",
-        "secondary_fg": "#ff00ff",
-        "chart_grid": "#330d66",
+        "accent_fg": "#050515",
+        "secondary_fg": "#a100ff",
+        "chart_grid": "#1f003d",
         "chart_line": "#ff007f",
-        "chart_line2": "#00ffcc",
-        "entry_bg": "#0a0014",
-        "entry_fg": "#00ffcc",
-        "select_bg": "#330d66"
+        "chart_line2": "#00f0ff",
+        "entry_bg": "#02020a",
+        "entry_fg": "#00f0ff",
+        "select_bg": "#1f003d",
+        "sidebar_bg": "#03030b"
     }
 }
 
-def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Consolas", font_size: int = 14):
+def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Segoe UI", font_size: int = 11):
     """
     Applies overrides to the given ttk.Style instance using colors from the selected theme,
     and scales standard text displays using the selected font configurations.
     """
+    # Force Segoe UI (fluent system font) for main UI, but allow Consolas fallback for code
+    if font_family in ("Helvetica", "TkDefaultFont", "Arial"):
+        font_family = "Segoe UI"
+
     theme = THEMES.get(theme_name, THEMES["dark"])
     bg = theme["bg"]
     fg = theme["fg"]
@@ -73,14 +80,21 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Co
     # Frames
     style.configure("TFrame", background=bg)
     style.configure("Card.TFrame", background=card_bg)
+    style.configure("Sidebar.TFrame", background=theme.get("sidebar_bg", bg))
     
     # Labels
     style.configure("TLabel", background=bg, foreground=fg, font=(font_family, font_size))
     style.configure("Title.TLabel", background=bg, foreground=fg, font=(font_family, int(font_size * 1.5), "bold"))
     style.configure("Secondary.TLabel", background=bg, foreground=sec_fg, font=(font_family, int(font_size * 0.95)))
+    style.configure("Link.TLabel", background=bg, foreground=accent, font=(font_family, int(font_size * 0.95), "underline"))
     style.configure("Card.TLabel", background=card_bg, foreground=fg, font=(font_family, font_size))
     style.configure("CardSecondary.TLabel", background=card_bg, foreground=sec_fg, font=(font_family, int(font_size * 0.95)))
-    style.configure("CardValue.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.3), "bold"))
+    style.configure("CardValue.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.4), "bold"))
+    style.configure("CardTitle.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.4), "bold"))
+    style.configure("CardLink.TLabel", background=card_bg, foreground=accent, font=(font_family, int(font_size * 0.95), "underline"))
+    style.configure("Sidebar.TLabel", background=theme.get("sidebar_bg", bg), foreground=fg, font=(font_family, font_size))
+    style.configure("SidebarTitle.TLabel", background=theme.get("sidebar_bg", bg), foreground=fg, font=(font_family, int(font_size * 1.3), "bold"))
+
     
     # LabelFrames
     style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=border)
@@ -88,22 +102,49 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Co
     style.configure("Card.TLabelframe", background=card_bg, foreground=fg, bordercolor=border)
     style.configure("Card.TLabelframe.Label", background=card_bg, foreground=fg, font=(font_family, font_size, "bold"))
 
-    # Buttons
-    style.configure("TButton", background=card_bg, foreground=fg, bordercolor=border, relief="flat", font=(font_family, font_size))
+    # Modern flat buttons padding and styles
+    style.configure("TButton", background=card_bg, foreground=fg, bordercolor=border, relief="flat", font=(font_family, font_size, "bold"), padding=(15, 6))
     style.map("TButton",
               background=[("active", border), ("pressed", bg)],
               foreground=[("active", fg)])
               
-    style.configure("Accent.TButton", background=accent, foreground=accent_fg, bordercolor=accent, relief="flat", font=(font_family, font_size, "bold"))
+    style.configure("Accent.TButton", background=accent, foreground=accent_fg, bordercolor=accent, relief="flat", font=(font_family, font_size, "bold"), padding=(15, 6))
     style.map("Accent.TButton",
               background=[("active", accent), ("pressed", accent)],
               foreground=[("active", accent_fg)])
 
+    # Navigation Buttons (Sidebar)
+    style.configure("Nav.TButton", background=theme.get("sidebar_bg", bg), foreground=theme["secondary_fg"], relief="flat", font=(font_family, font_size, "bold"), padding=(10, 8))
+    style.map("Nav.TButton",
+              background=[("active", theme["select_bg"]), ("selected", theme["select_bg"])],
+              foreground=[("active", fg), ("selected", fg)])
+              
+    style.configure("NavActive.TButton", background=theme["select_bg"], foreground=fg, relief="flat", font=(font_family, font_size, "bold"), padding=(10, 8))
+    style.map("NavActive.TButton",
+              background=[("active", theme["select_bg"])],
+              foreground=[("active", fg)])
+
     # Entry
-    style.configure("TEntry", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], bordercolor=border, font=(font_family, font_size))
+    style.configure("TEntry", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], bordercolor=border, font=(font_family, font_size), padding=6)
+    style.map("TEntry",
+              fieldbackground=[("active", theme["entry_bg"]), ("focus", theme["entry_bg"]), ("disabled", bg)],
+              foreground=[("active", theme["entry_fg"]), ("focus", theme["entry_fg"]), ("disabled", sec_fg)],
+              bordercolor=[("focus", accent), ("active", border)])
     
     # Combobox
     style.configure("TCombobox", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], selectbackground=theme["select_bg"], font=(font_family, font_size))
+    style.map("TCombobox",
+              fieldbackground=[("readonly", theme["entry_bg"]), ("disabled", bg)],
+              background=[("readonly", theme["entry_bg"]), ("active", border)],
+              foreground=[("readonly", theme["entry_fg"]), ("disabled", sec_fg)],
+              bordercolor=[("focus", accent), ("active", border)])
+              
+    # Option database style overrides for the popup listbox of the Comboboxes
+    style.master.option_add("*TCombobox*Listbox.background", theme["entry_bg"])
+    style.master.option_add("*TCombobox*Listbox.foreground", theme["entry_fg"])
+    style.master.option_add("*TCombobox*Listbox.selectBackground", theme["select_bg"])
+    style.master.option_add("*TCombobox*Listbox.selectForeground", fg)
+    style.master.option_add("*TCombobox*Listbox.font", (font_family, font_size))
     
     # Progressbar
     style.configure("Horizontal.TProgressbar",
@@ -125,7 +166,7 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Co
                     foreground=fg,
                     fieldbackground=card_bg,
                     bordercolor=border,
-                    rowheight=int(font_size * 1.8),
+                    rowheight=int(font_size * 2.2),
                     font=(font_family, font_size))
     style.configure("Treeview.Heading",
                     background=border,
@@ -135,3 +176,4 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Co
     style.map("Treeview",
               background=[("selected", theme["select_bg"])],
               foreground=[("selected", fg)])
+

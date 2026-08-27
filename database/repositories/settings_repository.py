@@ -2,11 +2,11 @@
 User settings database repository for TypeMaster.
 """
 import logging
-from database.connection import db
+from database.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger("database.repositories.settings_repository")
 
-class SettingsRepository:
+class SettingsRepository(BaseRepository):
     """
     Handles user preferences retrieval and updates, including theme, font, and interface settings.
     """
@@ -32,12 +32,8 @@ class SettingsRepository:
             FROM user_settings
             WHERE user_id = ?
         """
-        with db.get_connection() as conn:
-            cursor = conn.execute(query, (user_id,))
-            row = cursor.fetchone()
-            if row:
-                return dict(row)
-            return None
+        rows = self.execute_query(query, (user_id,))
+        return rows[0] if rows else None
 
     def update_setting(self, user_id: int, key: str, value: any) -> bool:
         """
@@ -52,9 +48,9 @@ class SettingsRepository:
         query = f"UPDATE user_settings SET {key} = ? WHERE user_id = ?"
         
         try:
-            with db.transaction() as conn:
-                cursor = conn.execute(query, (value, user_id))
-                return cursor.rowcount > 0
+            self.execute_write(query, (value, user_id))
+            return True
         except Exception as e:
             logger.error(f"Failed to update user setting: {e}", exc_info=True)
             return False
+

@@ -85,12 +85,11 @@ class TestDashboardView(unittest.TestCase):
         # Verify card labels are populated from the repository summary
         self.assertEqual(view.cards["wpm"].cget("text"), "45.0 WPM")
         self.assertEqual(view.cards["accuracy"].cget("text"), "96.0%")
-        self.assertEqual(view.cards["tests_count"].cget("text"), "8")
-        self.assertEqual(view.cards["practice_time"].cget("text"), "10m")
-        self.assertEqual(view.cards["growth"].cget("text"), "+12.5%")
+        self.assertEqual(view.cards["consistency"].cget("text"), "0.0%")
+        self.assertEqual(view.cards["streak"].cget("text"), "3 Kun")
         
         # Verify daily goal values are populated correctly
-        self.assertEqual(view.daily_goal_bar.cget("value"), 45.0)
+        self.assertEqual(view.daily_goal_bar.get(), 0.45)
         self.assertEqual(view.daily_goal_label.cget("text"), "Bugungi Maqsad: 45.0% (45/100 XP)")
         
         # Verify Daily Missions UI bindings

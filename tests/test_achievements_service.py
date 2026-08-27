@@ -26,11 +26,6 @@ class TestAchievementsFeatures(unittest.TestCase):
         self.test_repo = TestRepository()
         self.ach_service = AchievementsService()
         
-        # TK resources
-        self.root = tk.Tk()
-        self.root.withdraw()
-        self.controller = MagicMock()
-        
         self.user_id = 99
         with connection.db.transaction() as conn:
             conn.execute(
@@ -54,7 +49,6 @@ class TestAchievementsFeatures(unittest.TestCase):
             os.unlink(self.db_path_str)
         except OSError:
             pass
-        self.root.destroy()
 
     def test_get_all_achievements_initially_locked(self):
         """Verify that all default achievements are registered and locked by default."""
@@ -161,21 +155,32 @@ class TestAchievementsFeatures(unittest.TestCase):
         with connection.db.transaction() as conn:
             conn.execute("INSERT INTO user_achievements (user_id, achievement_id) VALUES (?, ?);", (self.user_id, 1))
 
-        view = AchievementsView(self.root, self.controller)
-        view.on_show()
-        
-        self.assertTrue(view.tree.winfo_manager())
-        children = view.tree.get_children()
-        self.assertEqual(len(children), 7)
-        
-        # Check first achievement tag (unlocked)
-        first_row_tags = view.tree.item(children[0], "tags")
-        self.assertIn("unlocked", first_row_tags)
-        
-        # Check second achievement tag (locked)
-        second_row_tags = view.tree.item(children[1], "tags")
-        self.assertIn("locked", second_row_tags)
-        view.destroy()
+        root = tk.Tk()
+        root.withdraw()
+        controller = MagicMock()
+        controller.current_theme = "dark"
+        controller.current_font_family = "Consolas"
+        controller.current_font_size = 14
+        controller.root = root
+
+        try:
+            view = AchievementsView(root, controller)
+            view.on_show()
+            
+            self.assertTrue(view.tree.winfo_manager())
+            children = view.tree.get_children()
+            self.assertEqual(len(children), 7)
+            
+            # Check first achievement tag (unlocked)
+            first_row_tags = view.tree.item(children[0], "tags")
+            self.assertIn("unlocked", first_row_tags)
+            
+            # Check second achievement tag (locked)
+            second_row_tags = view.tree.item(children[1], "tags")
+            self.assertIn("locked", second_row_tags)
+            view.destroy()
+        finally:
+            root.destroy()
 
 if __name__ == '__main__':
     unittest.main()

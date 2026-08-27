@@ -2,9 +2,9 @@
 Key error statistics database repository for TypeMaster.
 Provides interfaces to increment attempt/error metrics and query weak keys.
 """
-from database.connection import db
+from database.repositories.base_repository import BaseRepository
 
-class KeyStatsRepository:
+class KeyStatsRepository(BaseRepository):
     """
     Handles database operations for character-level key attempts and error rates.
     """
@@ -35,8 +35,7 @@ class KeyStatsRepository:
                 attempts = attempts + excluded.attempts,
                 errors = errors + excluded.errors
         """
-        with db.transaction() as conn:
-            conn.executemany(query, records)
+        self.execute_many(query, records, use_transaction=True)
 
     def get_top_error_keys(self, user_id: int, limit: int = 10) -> list[dict]:
         """
@@ -49,9 +48,7 @@ class KeyStatsRepository:
             ORDER BY errors DESC, attempts DESC
             LIMIT ?
         """
-        with db.get_connection() as conn:
-            cursor = conn.execute(query, (user_id, limit))
-            return [dict(row) for row in cursor.fetchall()]
+        return self.execute_query(query, (user_id, limit))
 
     def get_weak_keys(self, user_id: int, min_attempts: int = 5, limit: int = 5) -> list[dict]:
         """
@@ -66,9 +63,7 @@ class KeyStatsRepository:
             ORDER BY error_rate DESC, attempts DESC
             LIMIT ?
         """
-        with db.get_connection() as conn:
-            cursor = conn.execute(query, (user_id, min_attempts, limit))
-            return [dict(row) for row in cursor.fetchall()]
+        return self.execute_query(query, (user_id, min_attempts, limit))
 
     def get_all_key_stats(self, user_id: int) -> dict[str, dict]:
         """
@@ -80,6 +75,6 @@ class KeyStatsRepository:
             FROM user_key_stats
             WHERE user_id = ?
         """
-        with db.get_connection() as conn:
-            cursor = conn.execute(query, (user_id,))
-            return {row["char_key"]: dict(row) for row in cursor.fetchall()}
+        rows = self.execute_query(query, (user_id,))
+        return {row["char_key"]: dict(row) for row in rows}
+

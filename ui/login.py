@@ -3,8 +3,8 @@ Login UI module for TypeMaster.
 Provides LoginView form widgets, inputs validation, and callbacks linking to auth services.
 """
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
+import customtkinter as ctk
 from ui.base import BaseView
 from services.auth_service import login_user
 
@@ -28,42 +28,104 @@ class LoginView(BaseView):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(2, weight=1)
         
-        form_frame = ttk.LabelFrame(self, text=" Tizimga Kirish ", padding=25)
-        form_frame.grid(row=1, column=1, fg_bg_color=None, sticky="nsew", pady=10)
-        # Wait, fg_bg_color is not standard in LabelFrame. Let's make it standard:
-        # form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
+        from ui.theme import THEMES
+        theme = "dark"
+        if self.controller and hasattr(self.controller, "current_theme"):
+            theme = self.controller.current_theme
+        theme_colors = THEMES.get(theme, THEMES["dark"])
+
+        form_frame = ctk.CTkFrame(
+            self, 
+            fg_color=theme_colors["card_bg"],
+            corner_radius=12,
+            width=360
+        )
+        form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
+        
+        # Center Title inside Card
+        title_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Tizimga Kirish", 
+            font=("Segoe UI", 24, "bold"),
+            text_color=theme_colors["fg"]
+        )
+        title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
         
         # Username
-        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *").grid(row=0, column=0, sticky="w", pady=5)
-        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, width=30)
-        self.username_entry.grid(row=1, column=0, columnspan=2, sticky="w", pady=5)
+        username_label = ctk.CTkLabel(
+            form_frame, 
+            text="Foydalanuvchi nomi (Username): *", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        username_label.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.username_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.username_var, 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.username_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Password
-        ttk.Label(form_frame, text="Parol: *").grid(row=2, column=0, sticky="w", pady=5)
-        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", width=30)
-        self.password_entry.grid(row=3, column=0, columnspan=2, sticky="w", pady=5)
+        password_label = ctk.CTkLabel(
+            form_frame, 
+            text="Parol: *", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        password_label.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.password_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.password_var, 
+            show="*", 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.password_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Error Label
-        self.error_label = ttk.Label(form_frame, text="", style="Secondary.TLabel")
-        self.error_label.grid(row=4, column=0, columnspan=2, sticky="w", pady=5)
+        self.error_label = ctk.CTkLabel(
+            form_frame, 
+            text="", 
+            font=("Segoe UI", 11),
+            text_color="#ef4444"
+        )
+        self.error_label.pack(anchor="w", padx=30, pady=5)
         
-        # Buttons
-        btn_frame = ttk.Frame(form_frame)
-        btn_frame.grid(row=5, column=0, columnspan=2, sticky="ew", pady=10)
+        # Buttons Container (with Card/Elevated Frame background)
+        btn_frame = ctk.CTkFrame(form_frame, fg_color="transparent", corner_radius=0)
+        btn_frame.pack(fill=tk.X, padx=30, pady=(15, 30))
         
-        self.login_button = ttk.Button(
+        self.login_button = ctk.CTkButton(
             btn_frame,
             text="Kirish",
+            fg_color=theme_colors["accent"],
+            hover_color=theme_colors["select_bg"],
+            text_color=theme_colors["bg"],
+            font=("Segoe UI", 12, "bold"),
+            height=36,
+            corner_radius=8,
             command=self.handle_login
         )
         self.login_button.pack(side="left", padx=(0, 10))
         
-        self.register_link = ttk.Label(
+        self.register_link = ctk.CTkLabel(
             btn_frame,
             text="Ro'yxatdan o'tish",
-            style="Secondary.TLabel",
-            cursor="hand2",
-            foreground="blue"
+            font=("Segoe UI", 11, "underline"),
+            text_color=theme_colors["accent"],
+            cursor="hand2"
         )
         self.register_link.pack(side="left", padx=10)
         self.register_link.bind("<Button-1>", lambda e: self.navigate_to_register())
@@ -73,25 +135,25 @@ class LoginView(BaseView):
         username = self.username_var.get().strip()
         password = self.password_var.get().strip()
         
-        self.error_label.config(text="", foreground="red")
+        self.error_label.configure(text="", text_color="#ef4444")
         
         if not username:
-            self.error_label.config(text="Foydalanuvchi nomi kiritilishi shart!")
+            self.error_label.configure(text="Foydalanuvchi nomi kiritilishi shart!")
             return
             
         if not password:
-            self.error_label.config(text="Parol kiritilishi shart!")
+            self.error_label.configure(text="Parol kiritilishi shart!")
             return
             
         # Call logging validation
         user = login_user(username, password)
         if user:
-            messagebox.showinfo("Muvaffaqiyat", f"Xush kelibsiz, {user.get('display_name', username)}!")
+            messagebox.showinfo("Muvaffaqiyatli", f"Xush kelibsiz, {user.get('display_name', username)}!")
             self.clear_form()
             # Redirect to home shell
             self.controller.show_view("home")
         else:
-            self.error_label.config(text="Foydalanuvchi nomi yoki parol noto'g'ri!")
+            self.error_label.configure(text="Foydalanuvchi nomi yoki parol noto'g'ri!")
 
     def navigate_to_register(self):
         """Transition back to registration view."""
@@ -102,4 +164,4 @@ class LoginView(BaseView):
         """Reset forms entry variables."""
         self.username_var.set("")
         self.password_var.set("")
-        self.error_label.config(text="")
+        self.error_label.configure(text="")

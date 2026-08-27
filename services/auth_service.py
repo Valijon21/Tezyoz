@@ -248,3 +248,17 @@ def logout_user():
     """Logs out the active user session, clearing memory and session file."""
     set_current_user(None)
 
+def get_leaderboard(limit: int = 20) -> list:
+    """
+    Retrieves the top users ranked by total XP (and level as tie-breaker).
+    Returns list of dictionaries representing the user models.
+    """
+    with db.get_connection() as conn:
+        cursor = conn.execute(
+            "SELECT id, username, display_name, xp, level, longest_streak FROM users "
+            "ORDER BY xp DESC, level DESC LIMIT ?;",
+            (limit,)
+        )
+        rows = cursor.fetchall()
+    return [dict(row) for row in rows]
+

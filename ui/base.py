@@ -3,16 +3,36 @@ Base classes for TypeMaster user interface.
 """
 import tkinter as tk
 from tkinter import ttk
+import customtkinter as ctk
 
-class BaseView(ttk.Frame):
+class BaseView(ctk.CTkFrame):
     """
     Base view contract class for all screens/views in TypeMaster.
     All view panels should subclass this to get uniform structure.
     """
     def __init__(self, parent, controller, **kwargs):
+        # Configure CTkFrame options safely with transparent bg or default
+        if "fg_color" not in kwargs:
+            kwargs["fg_color"] = "transparent"
         super().__init__(parent, **kwargs)
         self.parent = parent
         self.controller = controller
+        # Bind hover effects once child widgets are fully constructed and mapped
+        self.bind("<Map>", lambda e: self._bind_hover_effects(self), add="+")
+
+    def _bind_hover_effects(self, widget):
+        """Recursively scans and binds standard Ttk active state triggers on hover."""
+        try:
+            classname = widget.winfo_class()
+            if "Button" in classname:
+                widget.bind("<Enter>", lambda e, w=widget: w.state(["active"]), add="+")
+                widget.bind("<Leave>", lambda e, w=widget: w.state(["!active"]), add="+")
+        except Exception:
+            pass
+
+        for child in widget.winfo_children():
+            self._bind_hover_effects(child)
+
 
     def on_show(self):
         """

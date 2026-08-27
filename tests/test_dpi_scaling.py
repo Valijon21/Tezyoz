@@ -54,8 +54,8 @@ class TestDPIScaling(unittest.TestCase):
             "sound_enabled": True
         }
         
-        # Patch tkinter.Tk to return a mock root widget
-        with patch("tkinter.Tk") as mock_tk_class:
+        # Patch customtkinter.CTk to return a mock root widget
+        with patch("customtkinter.CTk") as mock_tk_class:
             mock_root = MagicMock()
             mock_tk_class.return_value = mock_root
             mock_root.tk.call.return_value = 2.0

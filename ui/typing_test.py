@@ -327,22 +327,22 @@ class TypingTestView(BaseView):
 
         refresh_current_user()
 
-        # 7. Render results in ResultsView and transition screen
-        results_view = self.controller.views.get("results")
-        if results_view:
-            results_view.set_results(
-                wpm=wpm,
-                raw_wpm=raw_wpm,
-                accuracy=accuracy,
-                errors=errors,
-                duration=duration,
-                xp_earned=xp_earned,
-                level=new_level,
-                is_pb=is_pb,
-                streak=current_streak,
-                longest_streak=longest_streak,
-                consistency=consistency
-            )
+        # 7. Publish results via EventBus
+        self.controller.event_bus.publish(
+            "test:completed",
+            wpm=wpm,
+            raw_wpm=raw_wpm,
+            accuracy=accuracy,
+            errors=errors,
+            duration=duration,
+            xp_earned=xp_earned,
+            level=new_level,
+            is_pb=is_pb,
+            streak=current_streak,
+            longest_streak=longest_streak,
+            consistency=consistency
+        )
+
 
         # 7.5 Record key attempts and errors for analytics
         char_attempts = {}

@@ -13,6 +13,9 @@ class ResultsView(BaseView):
     def __init__(self, parent, controller, **kwargs):
         super().__init__(parent, controller, **kwargs)
         self._setup_ui()
+        # Subscribe to typing test completion events
+        self.controller.event_bus.subscribe("test:completed", self.set_results)
+
 
     def _setup_ui(self):
         # Master padding container with stylish padding

@@ -48,8 +48,7 @@ class TestXPProgressBar(unittest.TestCase):
         self.assertTrue(hasattr(view, "xp_percent_label"))
         
         # Verify guest defaults
-        self.assertEqual(view.xp_bar["maximum"], 100)
-        self.assertEqual(view.xp_bar["value"], 0)
+        self.assertAlmostEqual(view.xp_bar.get(), 0.0)
         self.assertIn("0.0%", view.xp_percent_label.cget("text"))
 
     @patch("ui.dashboard.get_current_user")
@@ -73,8 +72,7 @@ class TestXPProgressBar(unittest.TestCase):
         view.on_show()
         
         # Verify progressive values setting
-        self.assertEqual(view.xp_bar["maximum"], 300)
-        self.assertEqual(view.xp_bar["value"], 50)
+        self.assertAlmostEqual(view.xp_bar.get(), 50 / 300)
         
         # 50 / 300 = 16.666...%
         self.assertIn("16.7%", view.xp_percent_label.cget("text"))

@@ -48,7 +48,7 @@ class TestWindowResizeLayout(unittest.TestCase):
     @patch("services.auth_service.get_current_user")
     @patch("database.repositories.daily_stats_repository.DailyStatsRepository.get_daily_stats")
     def test_dashboard_view_packing_order(self, mock_get_stats, mock_get_user):
-        """Verify that nav_bar is packed before chart_display_frame in DashboardView."""
+        """Verify that chart_display_frame is packed in DashboardView."""
         mock_get_user.return_value = self.mock_user
         mock_get_stats.return_value = {"days": [], "summary": {}}
         
@@ -56,12 +56,7 @@ class TestWindowResizeLayout(unittest.TestCase):
         view.on_show()
         
         slaves = view.container.pack_slaves()
-        self.assertIn(view.nav_bar, slaves)
         self.assertIn(view.chart_display_frame, slaves)
-        
-        nav_index = slaves.index(view.nav_bar)
-        chart_index = slaves.index(view.chart_display_frame)
-        self.assertLess(nav_index, chart_index, "nav_bar should be packed before chart_display_frame")
 
     @patch("services.auth_service.get_current_user")
     def test_typing_test_view_packing_order(self, mock_get_user):

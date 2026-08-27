@@ -49,3 +49,8 @@ AGENT_*.md
 
 # PyInstaller
 *.spec
+
+# Test outputs
+pytest_out.txt
+test_errors.txt
+

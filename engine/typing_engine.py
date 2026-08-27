@@ -134,28 +134,20 @@ class TypingEngine:
 
     def get_wpm(self) -> float:
         """Calculates Net Words Per Minute."""
-        elapsed_minutes = self.get_elapsed_time() / 60.0
-        if elapsed_minutes <= 0:
-            return 0.0
-            
+        from engine.calculators import WpmCalculator
         correct_chars = self.get_correct_characters_count()
-        return (correct_chars / 5.0) / elapsed_minutes
+        return WpmCalculator.calculate(correct_chars, self.get_elapsed_time())
 
     def get_raw_wpm(self) -> float:
         """Calculates Raw Words Per Minute inclusive of errors."""
-        elapsed_minutes = self.get_elapsed_time() / 60.0
-        if elapsed_minutes <= 0:
-            return 0.0
-            
-        return (self.total_typed_count / 5.0) / elapsed_minutes
+        from engine.calculators import RawWpmCalculator
+        return RawWpmCalculator.calculate(self.total_typed_count, self.get_elapsed_time())
 
     def get_accuracy(self) -> float:
         """Calculates typing accuracy percentage."""
-        if self.total_typed_count == 0:
-            return 0.0
-            
+        from engine.calculators import AccuracyCalculator
         correct_chars = self.get_correct_characters_count()
-        return (correct_chars / self.total_typed_count) * 100.0
+        return AccuracyCalculator.calculate(correct_chars, self.total_typed_count)
 
     def get_char_status(self, index: int) -> str:
         """
@@ -192,24 +184,8 @@ class TypingEngine:
         """
         Calculates consistency of typing pace.
         Calculated based on standard deviation of inter-key intervals (latencies).
-        Consistency = max(0.0, (1.0 - Standard_Deviation / Mean) * 100.0)
         """
-        if len(self.keystroke_times) < 3:
-            return 100.0
+        from engine.calculators import ConsistencyCalculator
+        return ConsistencyCalculator.calculate(self.keystroke_times)
 
-        intervals = []
-        for i in range(1, len(self.keystroke_times)):
-            intervals.append(self.keystroke_times[i] - self.keystroke_times[i-1])
-
-        n = len(intervals)
-        mean = sum(intervals) / n
-        if mean == 0:
-            return 0.0
-
-        variance = sum((x - mean) ** 2 for x in intervals) / n
-        std_dev = variance ** 0.5
-
-        cv = std_dev / mean
-        consistency = max(0.0, (1.0 - cv) * 100.0)
-        return consistency
 

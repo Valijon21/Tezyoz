@@ -7,13 +7,17 @@ import tkinter as tk
 from tkinter import ttk
 from ui.results import ResultsView
 
+from app.event_bus import EventBus
+
 class MockApplication:
     """Mock main container controller to track route changes."""
     def __init__(self):
         self.shown_view = None
+        self.event_bus = EventBus()
 
     def show_view(self, view_name: str):
         self.shown_view = view_name
+
 
 class TestResultsUI(unittest.TestCase):
     def setUp(self):

@@ -2,9 +2,9 @@
 Daily statistics database repository for TypeMaster.
 """
 from datetime import datetime, timedelta
-from database.connection import db
+from database.repositories.base_repository import BaseRepository
 
-class DailyStatsRepository:
+class DailyStatsRepository(BaseRepository):
     """
     Handles database operations for aggregating, upserting, and retrieving daily user stats.
     """
@@ -40,13 +40,12 @@ class DailyStatsRepository:
         """
         yesterday_query = "SELECT average_wpm FROM daily_stats WHERE user_id = ? AND date = ?"
 
-        with db.transaction() as conn:
-            cursor = conn.execute(query, (user_id, date_str))
-            row = cursor.fetchone()
-            
-            cursor_y = conn.execute(yesterday_query, (user_id, yesterday_str))
-            row_y = cursor_y.fetchone()
-            yesterday_wpm = row_y["average_wpm"] if (row_y and row_y["average_wpm"] is not None) else 0.0
+        row_list = self.execute_query(query, (user_id, date_str), use_transaction=True)
+        row = row_list[0] if row_list else None
+        
+        row_y_list = self.execute_query(yesterday_query, (user_id, yesterday_str), use_transaction=True)
+        row_y = row_y_list[0] if row_y_list else None
+        yesterday_wpm = row_y["average_wpm"] if (row_y and row_y["average_wpm"] is not None) else 0.0
 
         if row:
             stats = dict(row)
@@ -117,54 +116,53 @@ class DailyStatsRepository:
             date_str = curr_dt.strftime("%Y-%m-%d")
         yesterday_str = (curr_dt - timedelta(days=1)).strftime("%Y-%m-%d")
 
-        with db.transaction() as conn:
-            cursor = conn.execute(aggregate_query, (user_id, date_str))
-            row = cursor.fetchone()
-            
-            # If no tests exist for this user on the date, we default values
-            tests_count = row["tests_count"] or 0
-            if tests_count == 0:
-                # No tests done, stats are zeros
-                stats = {
-                    "tests_count": 0,
-                    "practice_seconds": 0,
-                    "average_wpm": 0.0,
-                    "best_wpm": 0.0,
-                    "average_accuracy": 0.0,
-                    "best_accuracy": 0.0,
-                    "total_characters": 0,
-                    "total_errors": 0,
-                    "xp_earned": 0,
-                    "average_consistency": 0.0
-                }
-            else:
-                stats = {
-                    "tests_count": tests_count,
-                    "practice_seconds": row["total_duration"] or 0,
-                    "average_wpm": round(row["average_wpm"] or 0.0, 2),
-                    "best_wpm": round(row["best_wpm"] or 0.0, 2),
-                    "average_accuracy": round(row["average_accuracy"] or 0.0, 2),
-                    "best_accuracy": round(row["best_accuracy"] or 0.0, 2),
-                    "total_characters": row["total_characters"] or 0,
-                    "total_errors": row["total_errors"] or 0,
-                    "xp_earned": row["total_xp"] or 0,
-                    "average_consistency": round(row["average_consistency"] or 0.0, 2)
-                }
+        row_list = self.execute_query(aggregate_query, (user_id, date_str), use_transaction=True)
+        row = row_list[0] if row_list else None
+        
+        # If no tests exist for this user on the date, we default values
+        tests_count = row["tests_count"] or 0 if row else 0
+        if tests_count == 0:
+            # No tests done, stats are zeros
+            stats = {
+                "tests_count": 0,
+                "practice_seconds": 0,
+                "average_wpm": 0.0,
+                "best_wpm": 0.0,
+                "average_accuracy": 0.0,
+                "best_accuracy": 0.0,
+                "total_characters": 0,
+                "total_errors": 0,
+                "xp_earned": 0,
+                "average_consistency": 0.0
+            }
+        else:
+            stats = {
+                "tests_count": tests_count,
+                "practice_seconds": row["total_duration"] or 0,
+                "average_wpm": round(row["average_wpm"] or 0.0, 2),
+                "best_wpm": round(row["best_wpm"] or 0.0, 2),
+                "average_accuracy": round(row["average_accuracy"] or 0.0, 2),
+                "best_accuracy": round(row["best_accuracy"] or 0.0, 2),
+                "total_characters": row["total_characters"] or 0,
+                "total_errors": row["total_errors"] or 0,
+                "xp_earned": row["total_xp"] or 0,
+                "average_consistency": round(row["average_consistency"] or 0.0, 2)
+            }
 
-            if tests_count > 0:
-                conn.execute(upsert_query, (
-                    user_id, date_str,
-                    stats["tests_count"], stats["practice_seconds"],
-                    stats["average_wpm"], stats["best_wpm"],
-                    stats["average_accuracy"], stats["best_accuracy"],
-                    stats["total_characters"], stats["total_errors"], stats["xp_earned"],
-                    stats["average_consistency"]
-                ))
-            
-            # Query yesterday's average WPM to calculate growth
-            cursor_y = conn.execute("SELECT average_wpm FROM daily_stats WHERE user_id = ? AND date = ?", (user_id, yesterday_str))
-            row_y = cursor_y.fetchone()
-            yesterday_wpm = row_y["average_wpm"] if (row_y and row_y["average_wpm"] is not None) else 0.0
+        if tests_count > 0:
+            self.execute_write(upsert_query, (
+                user_id, date_str,
+                stats["tests_count"], stats["practice_seconds"],
+                stats["average_wpm"], stats["best_wpm"],
+                stats["average_accuracy"], stats["best_accuracy"],
+                stats["total_characters"], stats["total_errors"], stats["xp_earned"],
+                stats["average_consistency"]
+            ), use_transaction=True)
+        
+        # Query yesterday's average WPM to calculate growth
+        row_y_list = self.execute_query("SELECT average_wpm FROM daily_stats WHERE user_id = ? AND date = ?", (user_id, yesterday_str), use_transaction=True)
+        row_y = row_y_list[0] if row_y_list else None
+        yesterday_wpm = row_y["average_wpm"] if (row_y and row_y["average_wpm"] is not None) else 0.0
 
         stats["growth"] = self._calculate_growth(stats["average_wpm"], yesterday_wpm)
         return stats
@@ -217,20 +215,20 @@ class DailyStatsRepository:
         prev_end_str = prev_end_dt.strftime("%Y-%m-%d")
         prev_start_str = prev_start_dt.strftime("%Y-%m-%d")
 
-        with db.transaction() as conn:
-            cursor = conn.execute(summary_query, (user_id, start_date_str, end_date_str))
-            row = cursor.fetchone()
-            
-            cursor_days = conn.execute(days_query, (user_id, start_date_str, end_date_str))
-            db_days = {r["date"]: dict(r) for r in cursor_days.fetchall()}
+        row_list = self.execute_query(summary_query, (user_id, start_date_str, end_date_str), use_transaction=True)
+        row = row_list[0] if row_list else None
+        
+        days_rows = self.execute_query(days_query, (user_id, start_date_str, end_date_str), use_transaction=True)
+        db_days = {r["date"]: r for r in days_rows}
 
-            # Query average WPM for previous week to calculate growth
-            cursor_prev = conn.execute(
-                "SELECT AVG(average_wpm) as average_wpm FROM daily_stats WHERE user_id = ? AND date BETWEEN ? AND ?",
-                (user_id, prev_start_str, prev_end_str)
-            )
-            row_prev = cursor_prev.fetchone()
-            prev_average_wpm = row_prev["average_wpm"] if (row_prev and row_prev["average_wpm"] is not None) else 0.0
+        # Query average WPM for previous week to calculate growth
+        prev_row_list = self.execute_query(
+            "SELECT AVG(average_wpm) as average_wpm FROM daily_stats WHERE user_id = ? AND date BETWEEN ? AND ?",
+            (user_id, prev_start_str, prev_end_str),
+            use_transaction=True
+        )
+        row_prev = prev_row_list[0] if prev_row_list else None
+        prev_average_wpm = row_prev["average_wpm"] if (row_prev and row_prev["average_wpm"] is not None) else 0.0
 
         # Build summary dict
         if row and row["total_tests"] and row["total_tests"] > 0:
@@ -338,20 +336,20 @@ class DailyStatsRepository:
         prev_end_str = prev_end_dt.strftime("%Y-%m-%d")
         prev_start_str = prev_start_dt.strftime("%Y-%m-%d")
 
-        with db.transaction() as conn:
-            cursor = conn.execute(summary_query, (user_id, start_date_str, end_date_str))
-            row = cursor.fetchone()
-            
-            cursor_days = conn.execute(days_query, (user_id, start_date_str, end_date_str))
-            db_days = {r["date"]: dict(r) for r in cursor_days.fetchall()}
+        row_list = self.execute_query(summary_query, (user_id, start_date_str, end_date_str), use_transaction=True)
+        row = row_list[0] if row_list else None
+        
+        days_rows = self.execute_query(days_query, (user_id, start_date_str, end_date_str), use_transaction=True)
+        db_days = {r["date"]: r for r in days_rows}
 
-            # Query average WPM for previous month to calculate growth
-            cursor_prev = conn.execute(
-                "SELECT AVG(average_wpm) as average_wpm FROM daily_stats WHERE user_id = ? AND date BETWEEN ? AND ?",
-                (user_id, prev_start_str, prev_end_str)
-            )
-            row_prev = cursor_prev.fetchone()
-            prev_average_wpm = row_prev["average_wpm"] if (row_prev and row_prev["average_wpm"] is not None) else 0.0
+        # Query average WPM for previous month to calculate growth
+        prev_row_list = self.execute_query(
+            "SELECT AVG(average_wpm) as average_wpm FROM daily_stats WHERE user_id = ? AND date BETWEEN ? AND ?",
+            (user_id, prev_start_str, prev_end_str),
+            use_transaction=True
+        )
+        row_prev = prev_row_list[0] if prev_row_list else None
+        prev_average_wpm = row_prev["average_wpm"] if (row_prev and row_prev["average_wpm"] is not None) else 0.0
 
         # Build summary dict
         if row and row["total_tests"] and row["total_tests"] > 0:
@@ -410,3 +408,4 @@ class DailyStatsRepository:
             "summary": summary,
             "days": days_list
         }
+

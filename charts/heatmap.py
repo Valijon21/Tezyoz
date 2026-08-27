@@ -64,9 +64,22 @@ class KeyboardHeatmap(ttk.Frame):
         self.canvas.bind("<Motion>", self._on_mouse_move)
         self.canvas.bind("<Leave>", self._on_mouse_leave)
 
+    def _create_rounded_rect(self, x1, y1, x2, y2, r, **kwargs):
+        points = [
+            x1+r, y1, x1+r, y1, x2-r, y1, x2-r, y1, x2, y1,
+            x2, y1+r, x2, y1+r, x2, y2-r, x2, y2-r, x2, y2,
+            x2-r, y2, x2-r, y2, x1+r, y2, x1+r, y2, x1, y2,
+            x1, y2-r, x1, y2-r, x1, y1+r, x1, y1+r, x1, y1
+        ]
+        return self.canvas.create_polygon(points, smooth=True, **kwargs)
+
     def _draw_keyboard(self):
         self.canvas.delete("all")
         self.keys.clear()
+
+        bg_untyped = getattr(self, "card_bg", "#f1f5f9")
+        border_col = getattr(self, "border_color", "#cbd5e1")
+        text_col = getattr(self, "text_color", "#1e293b")
 
         # 1. Draw character rows
         for row_idx, chars in enumerate(self.keyboard_rows):
@@ -74,17 +87,17 @@ class KeyboardHeatmap(ttk.Frame):
             for col_idx, char in enumerate(chars):
                 x = start_x + col_idx * (self.key_width + self.key_gap)
                 
-                # Draw key backing
-                rect_id = self.canvas.create_rectangle(
-                    x, y, x + self.key_width, y + self.key_height,
-                    fill="#f1f5f9", outline="#cbd5e1", width=1, tags="key"
+                # Draw key backing (rounded)
+                rect_id = self._create_rounded_rect(
+                    x, y, x + self.key_width, y + self.key_height, r=6,
+                    fill=bg_untyped, outline=border_col, width=1, tags="key"
                 )
                 
                 # Draw letter label
                 text_id = self.canvas.create_text(
                     x + self.key_width/2, y + self.key_height/2,
                     text=char.upper(), font=("Helvetica", 11, "bold"),
-                    fill="#1e293b"
+                    fill=text_col
                 )
 
                 self.keys[char] = {
@@ -97,14 +110,14 @@ class KeyboardHeatmap(ttk.Frame):
         # 2. Draw Spacebar row
         space_x, space_y = self.row_offsets[3]
         space_w = 260
-        rect_id = self.canvas.create_rectangle(
-            space_x, space_y, space_x + space_w, space_y + self.key_height,
-            fill="#f1f5f9", outline="#cbd5e1", width=1, tags="key"
+        rect_id = self._create_rounded_rect(
+            space_x, space_y, space_x + space_w, space_y + self.key_height, r=6,
+            fill=bg_untyped, outline=border_col, width=1, tags="key"
         )
         text_id = self.canvas.create_text(
             space_x + space_w/2, space_y + self.key_height/2,
             text="Spacebar", font=("Helvetica", 10, "bold"),
-            fill="#1e293b"
+            fill=text_col
         )
         self.keys[" "] = {
             "rect_id": rect_id,
@@ -113,19 +126,46 @@ class KeyboardHeatmap(ttk.Frame):
             "coords": (space_x, space_y, space_x + space_w, space_y + self.key_height)
         }
 
+    def apply_theme_colors(self, bg_color: str, card_bg: str, border_color: str, text_color: str, font_family: str):
+        """
+        Applies system theme colors to the keyboard canvas drawing and rebuilds key labels.
+        """
+        self.bg_color = bg_color
+        self.card_bg = card_bg
+        self.border_color = border_color
+        self.text_color = text_color
+        
+        self.canvas.configure(bg=card_bg)
+        self.details_label.configure(foreground=text_color, font=(font_family, 10, "italic"))
+        
+        # Redraw all labels or just set text configurations to update font
+        for char, widgets in self.keys.items():
+            self.canvas.itemconfig(widgets["rect_id"], outline=border_color)
+            self.canvas.itemconfig(widgets["text_id"], fill=text_color, font=(font_family, 11, "bold"))
+            
+        # Re-set details label to standard instruction
+        self.details_label.config(text="Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring")
+        
+        # Reload colors dynamically based on stats
+        self.set_data(self.key_stats)
+
     def set_data(self, key_stats: dict):
         """
         Refreshes key backing colors based on error rate intensity.
         """
         self.key_stats = key_stats or {}
         
+        bg_untyped = getattr(self, "card_bg", "#f1f5f9")
+        border_col = getattr(self, "border_color", "#cbd5e1")
+        fg_untyped = getattr(self, "text_color", "#1e293b")
+        
         for char, widgets in self.keys.items():
             stats = self.key_stats.get(char)
             
             if not stats or stats.get("attempts", 0) == 0:
                 # Untyped key gets standard gray appearance
-                bg_color = "#f1f5f9"
-                fg_color = "#1e293b"
+                bg_color = bg_untyped
+                fg_color = fg_untyped
             else:
                 attempts = stats.get("attempts", 0)
                 errors = stats.get("errors", 0)
@@ -141,9 +181,9 @@ class KeyboardHeatmap(ttk.Frame):
                 else:
                     bg_color = self._interpolate_color(intensity)
                     # Text should be white for high intensity warm colors, dark for low yellow
-                    fg_color = "#ffffff" if intensity > 0.4 else "#1e293b"
+                    fg_color = "#ffffff" if intensity > 0.4 else fg_untyped
 
-            self.canvas.itemconfig(widgets["rect_id"], fill=bg_color)
+            self.canvas.itemconfig(widgets["rect_id"], fill=bg_color, outline=border_col)
             self.canvas.itemconfig(widgets["text_id"], fill=fg_color)
 
     def _interpolate_color(self, val: float) -> str:

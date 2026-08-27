@@ -3,8 +3,8 @@ Registration UI module for TypeMaster.
 Provides RegisterView form widgets, client-side input validations, and navigation handles.
 """
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
+import customtkinter as ctk
 from ui.base import BaseView
 
 class RegisterView(BaseView):
@@ -30,53 +30,150 @@ class RegisterView(BaseView):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(2, weight=1)
         
+        from ui.theme import THEMES
+        theme = "dark"
+        if self.controller and hasattr(self.controller, "current_theme"):
+            theme = self.controller.current_theme
+        theme_colors = THEMES.get(theme, THEMES["dark"])
+
         # Container frame for form fields (to keep them centered)
-        form_frame = ttk.LabelFrame(self, text=" Ro'yxatdan O'tish ", padding=25)
+        form_frame = ctk.CTkFrame(
+            self, 
+            fg_color=theme_colors["card_bg"],
+            corner_radius=12,
+            width=360
+        )
         form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
         
+        # Center Title inside Card
+        title_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Ro'yxatdan O'tish", 
+            font=("Segoe UI", 24, "bold"),
+            text_color=theme_colors["fg"]
+        )
+        title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
+        
         # Username Field
-        ttk.Label(form_frame, text="Foydalanuvchi nomi (Username): *").grid(row=0, column=0, sticky="w", pady=5)
-        self.username_entry = ttk.Entry(form_frame, textvariable=self.username_var, width=30)
-        self.username_entry.grid(row=1, column=0, columnspan=2, sticky="w", pady=5)
+        username_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Foydalanuvchi nomi (Username): *", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        username_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.username_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.username_var, 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.username_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Display Name Field
-        ttk.Label(form_frame, text="Ko'rinadigan ism (Display Name):").grid(row=2, column=0, sticky="w", pady=5)
-        self.display_name_entry = ttk.Entry(form_frame, textvariable=self.display_name_var, width=30)
-        self.display_name_entry.grid(row=3, column=0, columnspan=2, sticky="w", pady=5)
+        display_name_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Ko'rinadigan ism (Display Name):", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        display_name_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.display_name_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.display_name_var, 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.display_name_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Password Field
-        ttk.Label(form_frame, text="Parol: *").grid(row=4, column=0, sticky="w", pady=5)
-        self.password_entry = ttk.Entry(form_frame, textvariable=self.password_var, show="*", width=30)
-        self.password_entry.grid(row=5, column=0, columnspan=2, sticky="w", pady=5)
+        password_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Parol: *", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.password_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.password_var, 
+            show="*", 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.password_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Confirm Password Field
-        ttk.Label(form_frame, text="Parolni tasdiqlang: *").grid(row=6, column=0, sticky="w", pady=5)
-        self.confirm_password_entry = ttk.Entry(form_frame, textvariable=self.confirm_password_var, show="*", width=30)
-        self.confirm_password_entry.grid(row=7, column=0, columnspan=2, sticky="w", pady=5)
+        confirm_password_lbl = ctk.CTkLabel(
+            form_frame, 
+            text="Parolni tasdiqlang: *", 
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"]
+        )
+        confirm_password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        
+        self.confirm_password_entry = ctk.CTkEntry(
+            form_frame, 
+            textvariable=self.confirm_password_var, 
+            show="*", 
+            width=300,
+            height=36,
+            fg_color=theme_colors["bg"],
+            text_color=theme_colors["fg"],
+            border_color=theme_colors["border"],
+            corner_radius=8
+        )
+        self.confirm_password_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Feedback/Error Label
-        self.error_label = ttk.Label(form_frame, text="", style="Secondary.TLabel")
-        self.error_label.grid(row=8, column=0, columnspan=2, sticky="w", pady=5)
+        self.error_label = ctk.CTkLabel(
+            form_frame, 
+            text="", 
+            font=("Segoe UI", 11),
+            text_color="#ef4444"
+        )
+        self.error_label.pack(anchor="w", padx=30, pady=5)
         
         # Buttons Container inside form_frame
-        btn_frame = ttk.Frame(form_frame)
-        btn_frame.grid(row=9, column=0, columnspan=2, sticky="ew", pady=10)
+        btn_frame = ctk.CTkFrame(form_frame, fg_color="transparent", corner_radius=0)
+        btn_frame.pack(fill=tk.X, padx=30, pady=(15, 30))
         
         # Register Action Button
-        self.register_button = ttk.Button(
+        self.register_button = ctk.CTkButton(
             btn_frame,
             text="Ro'yxatdan o'tish",
+            fg_color=theme_colors["accent"],
+            hover_color=theme_colors["select_bg"],
+            text_color=theme_colors["bg"],
+            font=("Segoe UI", 12, "bold"),
+            height=36,
+            corner_radius=8,
             command=self.handle_register
         )
         self.register_button.pack(side="left", padx=(0, 10))
         
         # Login Redirect Link Label (simulated)
-        self.login_link = ttk.Label(
+        self.login_link = ctk.CTkLabel(
             btn_frame,
             text="Tizimga kirish",
-            style="Secondary.TLabel",
-            cursor="hand2",
-            foreground="blue"
+            font=("Segoe UI", 11, "underline"),
+            text_color=theme_colors["accent"],
+            cursor="hand2"
         )
         self.login_link.pack(side="left", padx=10)
         
@@ -93,24 +190,24 @@ class RegisterView(BaseView):
         confirm_password = self.confirm_password_var.get().strip()
         
         # Clean previous error state
-        self.error_label.config(text="", foreground="red")
+        self.error_label.configure(text="", text_color="#ef4444")
         
         # Username Check
         if not username:
-            self.error_label.config(text="Foydalanuvchi nomi kiritilishi shart!")
+            self.error_label.configure(text="Foydalanuvchi nomi kiritilishi shart!")
             return False
             
         # Password Check
         if not password:
-            self.error_label.config(text="Parol kiritilishi shart!")
+            self.error_label.configure(text="Parol kiritilishi shart!")
             return False
             
         if len(password) < 6:
-            self.error_label.config(text="Parol kamida 6 ta belgidan iborat bo'lishi kerak!")
+            self.error_label.configure(text="Parol kamida 6 ta belgidan iborat bo'lishi kerak!")
             return False
             
         if password != confirm_password:
-            self.error_label.config(text="Parollar o'zaro mos kelmadi!")
+            self.error_label.configure(text="Parollar o'zaro mos kelmadi!")
             return False
             
         return True
@@ -134,11 +231,11 @@ class RegisterView(BaseView):
             self.clear_form()
             self.controller.show_view("login")
         except ValueError as err:
-            self.error_label.config(text=str(err), foreground="red")
+            self.error_label.configure(text=str(err), text_color="#ef4444")
 
     def navigate_to_login(self):
         """Link navigation stub hook."""
-        self.error_label.config(text="Login sahifasiga o'tish bosildi.", foreground="blue")
+        self.error_label.configure(text="Login sahifasiga o'tish bosildi.", text_color="#3b82f6")
         try:
             self.controller.show_view("login")
         except Exception:
@@ -150,4 +247,4 @@ class RegisterView(BaseView):
         self.display_name_var.set("")
         self.password_var.set("")
         self.confirm_password_var.set("")
-        self.error_label.config(text="")
+        self.error_label.configure(text="")
