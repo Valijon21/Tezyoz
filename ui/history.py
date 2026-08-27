@@ -50,7 +50,7 @@ class HistoryView(BaseView):
         ctk.CTkLabel(self.filter_bar, text="Kategoriya:", font=("Segoe UI", 11, "bold")).pack(side=tk.LEFT, padx=(0, 5))
         self.mode_combo = ctk.CTkComboBox(
             self.filter_bar,
-            values=["Barchasi", "words", "time", "quotes"],
+            values=["Barchasi", "words", "time", "quotes", "file"],
             width=100,
             state="readonly"
         )

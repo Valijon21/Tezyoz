@@ -10,7 +10,7 @@ from engine.text_loader import load_words_for_language
 
 class TypingEngine:
     """Core state coordinator for active typing test practice sessions."""
-    def __init__(self, config: TestConfig):
+    def __init__(self, config: TestConfig, custom_text: str = None):
         self.config = config
         self.target_text = ""
         self.typed_text = ""
@@ -25,7 +25,11 @@ class TypingEngine:
         self.callbacks = []
         self.character_errors = {}
         self.keystroke_times = []
-        self.compile_target_text()
+        
+        if custom_text:
+            self.target_text = custom_text
+        else:
+            self.compile_target_text()
 
     def compile_target_text(self):
         """Loads repository words and compiles a randomized typing prompt block."""

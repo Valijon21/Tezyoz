@@ -67,6 +67,18 @@ class TypingTestView(BaseView):
         self.dur_combo.pack(side=tk.LEFT, padx=(0, 15))
         self.dur_combo.bind("<<ComboboxSelected>>", self._on_config_change)
 
+        # Custom file upload button (styled to match theme)
+        import customtkinter as ctk
+        self.upload_btn = ctk.CTkButton(
+            self.config_frame,
+            text="Fayl yuklash 📁",
+            width=100,
+            height=28,
+            font=("Segoe UI", 11, "bold"),
+            command=self._handle_file_upload
+        )
+        self.upload_btn.pack(side=tk.LEFT, padx=(15, 0))
+
         # Metrics Display row
         self.metrics_frame = ttk.Frame(self.container)
         self.metrics_frame.pack(fill=tk.X, pady=10)
@@ -126,8 +138,41 @@ class TypingTestView(BaseView):
         self.text_widget.pack(fill=tk.BOTH, expand=True)
 
     def _on_config_change(self, event=None):
-        """Called when language or duration is changed."""
+        # Called when language or duration is changed.
+        language = self.lang_var.get()
+        # If the user switched to a standard language, clear custom settings
+        if not (language.startswith("Fayl:") or language.startswith("File:")):
+            self.custom_file_text = None
+            self.custom_file_name = None
         self.reset_test()
+
+    def _handle_file_upload(self):
+        """Opens file dialog, extracts first 200 words, and resets active engine."""
+        from tkinter import filedialog, messagebox
+        import os
+        
+        file_path = filedialog.askopenfilename(
+            title="Matn faylini tanlang",
+            filetypes=[("Hujjatlar", "*.txt *.docx *.md")]
+        )
+        if not file_path:
+            return
+            
+        try:
+            from services.file_parser import extract_typing_text
+            self.custom_file_text = extract_typing_text(file_path, max_words=200)
+            self.custom_file_name = os.path.basename(file_path)
+            
+            # Update display state
+            self.lang_var.set(f"Fayl: {self.custom_file_name}")
+            self.reset_test()
+            
+            messagebox.showinfo(
+                "Muvaffaqiyatli",
+                f"Foydalanuvchi fayli muvaffaqiyatli yuklandi!\nFayl nomi: {self.custom_file_name}"
+            )
+        except Exception as err:
+            messagebox.showerror("Xatolik", str(err))
 
     def reset_test(self):
         """Cancels current timer and builds a fresh TypingEngine instance."""
@@ -140,8 +185,12 @@ class TypingTestView(BaseView):
         except ValueError:
             duration = 60
 
+        custom_text = None
+        if hasattr(self, "custom_file_text") and self.custom_file_text:
+            custom_text = self.custom_file_text
+
         config = TestConfig(language, duration)
-        self.engine = TypingEngine(config)
+        self.engine = TypingEngine(config, custom_text=custom_text)
         self.engine.add_callback(self._on_engine_change)
 
         # Update input text displaying target text
@@ -276,8 +325,11 @@ class TypingTestView(BaseView):
         accuracy = self.engine.get_accuracy()
         errors = self.engine.error_count
         duration = self.engine.config.duration
-        mode = f"{duration}s"
         language = self.engine.config.language
+        if language.startswith("Fayl:") or language.startswith("File:"):
+            mode = "file"
+        else:
+            mode = f"{duration}s"
         characters = len(self.engine.typed_text)
         correct_characters = self.engine.get_correct_characters_count()
         incorrect_characters = errors
@@ -459,3 +511,13 @@ class TypingTestView(BaseView):
         self.text_widget.tag_configure("correct", foreground=fg)
         self.text_widget.tag_configure("incorrect", foreground="#ef4444", underline=True)
         self.text_widget.tag_configure("current", background=theme["select_bg"])
+
+        if hasattr(self, "upload_btn") and self.upload_btn:
+            try:
+                self.upload_btn.configure(
+                    fg_color=theme["card_bg"],
+                    text_color=theme["accent"],
+                    hover_color=theme["select_bg"]
+                )
+            except Exception:
+                pass
