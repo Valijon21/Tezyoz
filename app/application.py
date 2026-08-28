@@ -52,6 +52,9 @@ class Application:
         self.current_theme = "dark"
         self.current_font_family = "Consolas"
         self.current_font_size = 14
+        self.current_ui_language = "uz"
+        from services.i18n_service import set_locale
+        set_locale(self.current_ui_language)
         
         # View manager initialization
         self.current_view = None
@@ -93,6 +96,7 @@ class Application:
         from ui.typing_test import TypingTestView
         from ui.achievements import AchievementsView
         from ui.leaderboard import LeaderboardView
+        from ui.settings import SettingsView
         
         # Register Views (login and register use main_container, others use content_container)
         self.views["register"] = RegisterView(self.main_container, self)
@@ -105,6 +109,7 @@ class Application:
         self.views["typing_test"] = TypingTestView(self.content_container, self)
         self.views["achievements"] = AchievementsView(self.content_container, self)
         self.views["leaderboard"] = LeaderboardView(self.content_container, self)
+        self.views["settings"] = SettingsView(self.content_container, self)
         
         # Build persistent sidebar contents
         self._build_sidebar()
@@ -119,11 +124,20 @@ class Application:
                 self.current_theme = setting["theme"]
                 self.current_font_family = setting["font_family"]
                 self.current_font_size = setting["font_size"]
+                self.current_ui_language = setting.get("ui_language", "uz")
             else:
                 self.current_theme = "dark"
+                self.current_ui_language = "uz"
+            from services.i18n_service import set_locale
+            set_locale(self.current_ui_language)
+            self.retranslate_ui()
             self.show_view("home")
         else:
             self.current_theme = "dark"
+            self.current_ui_language = "uz"
+            from services.i18n_service import set_locale
+            set_locale(self.current_ui_language)
+            self.retranslate_ui()
             self.show_view("login")
 
     def _bind_global_shortcuts(self):
@@ -174,6 +188,10 @@ class Application:
                     self.current_theme = setting["theme"]
                     self.current_font_family = setting["font_family"]
                     self.current_font_size = setting["font_size"]
+                    self.current_ui_language = setting.get("ui_language", "uz")
+                    from services.i18n_service import set_locale
+                    set_locale(self.current_ui_language)
+                    self.retranslate_ui()
 
         # Apply active theme and font colors
         self.apply_theme(self.current_theme, self.current_font_family, self.current_font_size)
@@ -185,6 +203,8 @@ class Application:
             view = self.views.get(view_name)
             if view:
                 view.pack(fill=tk.BOTH, expand=True)
+                if hasattr(view, "retranslate_ui"):
+                    view.retranslate_ui()
                 view.on_show()
                 self.current_view = view
         else:
@@ -197,6 +217,8 @@ class Application:
             view = self.views.get(view_name)
             if view:
                 view.pack(fill=tk.BOTH, expand=True)
+                if hasattr(view, "retranslate_ui"):
+                    view.retranslate_ui()
                 view.on_show()
                 self.current_view = view
 
@@ -241,6 +263,9 @@ class Application:
             self.sidebar_font_family_combo.set(self.current_font_family)
         if hasattr(self, "sidebar_font_size_combo") and self.sidebar_font_size_combo:
             self.sidebar_font_size_combo.set(str(self.current_font_size))
+        if hasattr(self, "sidebar_language_combo") and self.sidebar_language_combo:
+            lang_label = "O'zbekcha" if self.current_ui_language == "uz" else "English"
+            self.sidebar_language_combo.set(lang_label)
             
         # Sync sound switch states in sidebar settings frame
         if hasattr(self, "sidebar_sound_switch") and self.sidebar_sound_switch:
@@ -326,7 +351,8 @@ class Application:
             ("history", "📜  Test History"),
             ("achievements", "🏆  Achievements"),
             ("personal_bests", "🥇  Personal Bests"),
-            ("leaderboard", "🏆  Leaderboard")
+            ("leaderboard", "🏆  Leaderboard"),
+            ("settings", "⚙️  Settings")
         ]
 
         for view_key, label_txt in nav_config:
@@ -361,74 +387,31 @@ class Application:
         logout_btn.pack(fill=tk.X, pady=(20, 3), anchor="w")
         self.nav_btns["logout"] = logout_btn
 
-        # 4. Settings Section (Theme, Font, Size Selection)
-        self.settings_card = ctk.CTkFrame(inner_frame, fg_color=theme_colors["card_bg"], corner_radius=12)
-        self.settings_card.pack(side=tk.BOTTOM, fill=tk.X, pady=(15, 0), padx=0)
-        
-        settings_inner = ctk.CTkFrame(self.settings_card, fg_color="transparent", corner_radius=0)
-        settings_inner.pack(fill=tk.X, padx=10, pady=10)
+        # Settings section removed from sidebar. Replaced by dedicated Settings view.
+        pass
 
-        # Title
-        ctk.CTkLabel(settings_inner, text="Sozlamalar", font=("Segoe UI", 11, "bold")).pack(anchor="w", pady=(0, 5))
-
-        # Theme Combo
-        ctk.CTkLabel(settings_inner, text="Mavzu:", font=("Segoe UI", 10)).pack(anchor="w")
-        self.sidebar_theme_combo = ctk.CTkOptionMenu(
-            settings_inner,
-            values=["dark", "light", "cyberpunk"],
-            command=self._handle_sidebar_settings_change,
-            height=26,
-            font=("Segoe UI", 11)
-        )
-        self.sidebar_theme_combo.pack(fill=tk.X, pady=(2, 6))
-
-        # Font Combo
-        ctk.CTkLabel(settings_inner, text="Shrift:", font=("Segoe UI", 10)).pack(anchor="w")
-        self.sidebar_font_family_combo = ctk.CTkOptionMenu(
-            settings_inner,
-            values=["Segoe UI", "Consolas", "Courier New", "Arial"],
-            command=self._handle_sidebar_settings_change,
-            height=26,
-            font=("Segoe UI", 11)
-        )
-        self.sidebar_font_family_combo.pack(fill=tk.X, pady=(2, 6))
-
-        # Font Size Combo
-        ctk.CTkLabel(settings_inner, text="O'lcham:", font=("Segoe UI", 10)).pack(anchor="w")
-        self.sidebar_font_size_combo = ctk.CTkOptionMenu(
-            settings_inner,
-            values=["11", "12", "13", "14", "15", "16", "18"],
-            command=self._handle_sidebar_settings_change,
-            height=26,
-            font=("Segoe UI", 11)
-        )
-        self.sidebar_font_size_combo.pack(fill=tk.X, pady=(2, 2))
-
-        # Sound Switch Toggle
-        self.sidebar_sound_switch = ctk.CTkSwitch(
-            settings_inner,
-            text="Ovozli effektlar",
-            command=self._handle_sidebar_sound_toggle,
-            font=("Segoe UI", 11)
-        )
-        self.sidebar_sound_switch.pack(anchor="w", pady=(6, 2))
-
-    def _handle_sidebar_settings_change(self, choice=None):
-        """Action handler when any of the sidebar combobox elements is changed."""
-        theme_name = self.sidebar_theme_combo.get()
-        font_family = self.sidebar_font_family_combo.get()
-        try:
-            font_size = int(self.sidebar_font_size_combo.get())
-        except ValueError:
-            font_size = 14
-        self.apply_theme(theme_name, font_family, font_size)
-
-    def _handle_sidebar_sound_toggle(self):
-        """Action handler when the sound toggle switch is flipped."""
-        from services.sound_service import sound_player
-        enabled = sound_player.toggle_sound()
-        if enabled:
-            sound_player.play_click()
+    def retranslate_ui(self):
+        """Dynamic text configuration mapping for persistent sidebar controls."""
+        from services.i18n_service import t
+        # Navigation menus
+        if "home" in self.nav_btns:
+            self.nav_btns["home"].configure(text=t("title_home"))
+        if "typing_test" in self.nav_btns:
+            self.nav_btns["typing_test"].configure(text=t("title_practice"))
+        if "history" in self.nav_btns:
+            self.nav_btns["history"].configure(text=t("title_history"))
+        if "achievements" in self.nav_btns:
+            self.nav_btns["achievements"].configure(text=t("title_achievements"))
+        if "personal_bests" in self.nav_btns:
+            self.nav_btns["personal_bests"].configure(text=t("title_personal_bests"))
+        if "leaderboard" in self.nav_btns:
+            self.nav_btns["leaderboard"].configure(text=t("title_leaderboard"))
+        if "logout" in self.nav_btns:
+            self.nav_btns["logout"].configure(text=t("logout"))
+            
+        # Settings labels and headers
+        if "settings" in self.nav_btns:
+            self.nav_btns["settings"].configure(text=t("title_settings"))
 
     def _update_nav_highlights(self, active_view_name: str):
         """Highlights the active navigation button in the left sidebar menu."""

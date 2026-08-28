@@ -128,10 +128,11 @@ class TestHistory(unittest.TestCase):
         children = view.tree.get_children()
         self.assertEqual(len(children), 2)
         
+        from services.i18n_service import t
         # Check first item: personal best (should have star prefix value)
         val1 = view.tree.item(children[0], "values")
         self.assertEqual(val1[0], "2026-08-26 14:00")
-        self.assertEqual(val1[1], "words")
+        self.assertEqual(val1[1], t("mode_words"))
         self.assertEqual(val1[2], "30s")
         self.assertEqual(val1[3], "★ 65.0")
         self.assertEqual(val1[4], "97.0%")
@@ -140,7 +141,7 @@ class TestHistory(unittest.TestCase):
         # Check second item: normal
         val2 = view.tree.item(children[1], "values")
         self.assertEqual(val2[0], "2026-08-26 12:00")
-        self.assertEqual(val2[1], "time")
+        self.assertEqual(val2[1], t("mode_time"))
         self.assertEqual(val2[3], "55.0")
         self.assertNotIn("★", val2[3])
         view.destroy()

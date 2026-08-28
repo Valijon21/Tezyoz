@@ -55,6 +55,13 @@ class BaseView(ctk.CTkFrame):
         """
         pass
 
+    def retranslate_ui(self):
+        """
+        Called when the active UI language is changed.
+        Can be overridden by subclasses to update their widget text labels.
+        """
+        pass
+
     def get_scale_factor(self) -> float:
         """Calculates screen DPI scaling factor using Tk coordinate system ratios."""
         try:

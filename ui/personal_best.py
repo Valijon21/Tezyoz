@@ -96,17 +96,17 @@ class PersonalBestView(BaseView):
         self.tree = ttk.Treeview(self.table_frame, columns=columns, show="headings", selectmode="browse")
         
         # Configure headings
-        self.tree.heading("mode", text="Kategoriya")
-        self.tree.heading("duration", text="Vaqt")
-        self.tree.heading("best_wpm", text="Tezlik (WPM)")
-        self.tree.heading("best_accuracy", text="Aniqlik")
-        self.tree.heading("achieved_at", text="Erishilgan sana")
+        self.tree.heading("mode", text="Kategoriya", anchor="center")
+        self.tree.heading("duration", text="Vaqt", anchor="center")
+        self.tree.heading("best_wpm", text="Tezlik (WPM)", anchor="center")
+        self.tree.heading("best_accuracy", text="Aniqlik", anchor="center")
+        self.tree.heading("achieved_at", text="Erishilgan sana", anchor="center")
         
         # Configure columns layout properties
         self.tree.column("mode", anchor="center", width=100)
         self.tree.column("duration", anchor="center", width=80)
-        self.tree.column("best_wpm", anchor="center", width=110)
-        self.tree.column("best_accuracy", anchor="center", width=90)
+        self.tree.column("best_wpm", anchor="e", width=110)
+        self.tree.column("best_accuracy", anchor="e", width=90)
         self.tree.column("achieved_at", anchor="center", width=140)
 
         # Scrollbar binding
@@ -166,6 +166,7 @@ class PersonalBestView(BaseView):
                 except Exception:
                     pass
                 
+                from services.i18n_service import t
                 wpm_val = row.get("best_wpm", 0.0)
                 accuracy_val = row.get("best_accuracy", 0.0)
                 
@@ -173,7 +174,7 @@ class PersonalBestView(BaseView):
                     "",
                     "end",
                     values=(
-                        row.get("mode", ""),
+                        t("mode_" + row.get("mode", "")),
                         f"{row.get('duration', 0)}s",
                         f"★ {wpm_val:.1f} WPM",
                         f"{accuracy_val:.1f}%",
@@ -183,7 +184,7 @@ class PersonalBestView(BaseView):
 
                 # Append data point comparison entry
                 bar_data.append({
-                    "category": f"{row.get('mode', '')} {row.get('duration', 0)}s",
+                    "category": f"{t('mode_' + row.get('mode', ''))} {row.get('duration', 0)}s",
                     "wpm": wpm_val
                 })
             
@@ -212,6 +213,13 @@ class PersonalBestView(BaseView):
         from ui.theme import THEMES
         theme = THEMES.get(theme_name, THEMES["dark"])
         
+        if hasattr(self, "title_label") and self.title_label:
+            self.title_label.configure(text_color=theme["fg"])
+        if hasattr(self, "chart_title") and self.chart_title:
+            self.chart_title.configure(text_color=theme["fg"])
+        if hasattr(self, "empty_label") and self.empty_label:
+            self.empty_label.configure(text_color=theme["secondary_fg"])
+            
         if hasattr(self, "chart_panel") and self.chart_panel:
             self.chart_panel.configure(fg_color=theme["card_bg"])
         if hasattr(self, "back_btn") and self.back_btn:
@@ -230,3 +238,28 @@ class PersonalBestView(BaseView):
                 grid_color=theme["border"],
                 text_color=theme["secondary_fg"]
             )
+
+    def retranslate_ui(self):
+        """Translates view titles, headers, and comparison chart titles dynamically."""
+        from services.i18n_service import t
+        # Page Title
+        self.title_label.configure(text=t("personal_best_title"))
+        
+        # Chart Header Title
+        if hasattr(self, "chart_title") and self.chart_title:
+            self.chart_title.configure(text=t("personal_best_chart_title"))
+            
+        # Back Button
+        if hasattr(self, "back_btn") and self.back_btn:
+            self.back_btn.configure(text=t("btn_back_to_dashboard"))
+            
+        # Empty notice label
+        if hasattr(self, "empty_label") and self.empty_label:
+            self.empty_label.configure(text=t("personal_best_empty"))
+            
+        # Table Columns Headers
+        self.tree.heading("mode", text=t("history_category"), anchor="center")
+        self.tree.heading("duration", text=t("history_duration"), anchor="center")
+        self.tree.heading("best_wpm", text=t("history_speed"), anchor="center")
+        self.tree.heading("best_accuracy", text=t("history_accuracy"), anchor="center")
+        self.tree.heading("achieved_at", text=t("personal_best_achieved_date"), anchor="center")

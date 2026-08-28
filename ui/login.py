@@ -41,24 +41,25 @@ class LoginView(BaseView):
             width=360
         )
         form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
+        self.form_frame = form_frame
         
         # Center Title inside Card
-        title_lbl = ctk.CTkLabel(
+        self.title_lbl = ctk.CTkLabel(
             form_frame, 
             text="Tizimga Kirish", 
             font=("Segoe UI", 24, "bold"),
             text_color=theme_colors["fg"]
         )
-        title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
+        self.title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
         
         # Username
-        username_label = ctk.CTkLabel(
+        self.username_label = ctk.CTkLabel(
             form_frame, 
             text="Foydalanuvchi nomi (Username): *", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        username_label.pack(anchor="w", padx=30, pady=(5, 2))
+        self.username_label.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.username_entry = ctk.CTkEntry(
             form_frame, 
@@ -73,13 +74,13 @@ class LoginView(BaseView):
         self.username_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Password
-        password_label = ctk.CTkLabel(
+        self.password_label = ctk.CTkLabel(
             form_frame, 
             text="Parol: *", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        password_label.pack(anchor="w", padx=30, pady=(5, 2))
+        self.password_label.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.password_entry = ctk.CTkEntry(
             form_frame, 
@@ -137,16 +138,17 @@ class LoginView(BaseView):
         
         self.error_label.configure(text="", text_color="#ef4444")
         
+        from services.i18n_service import t
         if not username:
-            self.error_label.configure(text="Foydalanuvchi nomi kiritilishi shart!")
+            self.error_label.configure(text=t("login_err_username_required"))
             return
             
         if not password:
-            self.error_label.configure(text="Parol kiritilishi shart!")
+            self.error_label.configure(text=t("login_err_password_required"))
             return
             
         # Disable button and update text to show loading state
-        self.login_button.configure(state="disabled", text="Kutilmoqda...")
+        self.login_button.configure(state="disabled", text=t("kutilmoqda") if t("kutilmoqda") != "kutilmoqda" else "Kutilmoqda...")
         
         import threading
         def worker():
@@ -157,14 +159,15 @@ class LoginView(BaseView):
 
     def _on_login_complete(self, user, username):
         """Callback executed on main UI thread upon background login completion."""
-        self.login_button.configure(state="normal", text="Kirish")
+        from services.i18n_service import t
+        self.login_button.configure(state="normal", text=t("login_btn"))
         if user:
-            messagebox.showinfo("Muvaffaqiyatli", f"Xush kelibsiz, {user.get('display_name', username)}!")
+            messagebox.showinfo(t("success_title"), t("login_success_msg").format(name=user.get('display_name', username)))
             self.clear_form()
             # Redirect to home shell
             self.controller.show_view("home")
         else:
-            self.error_label.configure(text="Foydalanuvchi nomi yoki parol noto'g'ri!")
+            self.error_label.configure(text=t("login_err_invalid_credentials"))
 
     def navigate_to_register(self):
         """Transition back to registration view."""
@@ -176,3 +179,53 @@ class LoginView(BaseView):
         self.username_var.set("")
         self.password_var.set("")
         self.error_label.configure(text="")
+
+    def retranslate_ui(self):
+        """Dynamic text configuration mapping for login view form labels and redirect link."""
+        from services.i18n_service import t
+        if hasattr(self, "title_lbl") and self.title_lbl:
+            self.title_lbl.configure(text=t("login_title"))
+        if hasattr(self, "username_label") and self.username_label:
+            self.username_label.configure(text=t("login_username") + ": *")
+        if hasattr(self, "password_label") and self.password_label:
+            self.password_label.configure(text=t("login_password") + ": *")
+        if hasattr(self, "login_button") and self.login_button:
+            if self.login_button.cget("state") == "normal":
+                self.login_button.configure(text=t("login_btn"))
+        if hasattr(self, "register_link") and self.register_link:
+            self.register_link.configure(text=t("login_no_account"))
+
+    def apply_theme(self, theme_name: str):
+        """Applies theme variables to active widgets dynamically."""
+        from ui.theme import THEMES
+        theme = THEMES.get(theme_name, THEMES["dark"])
+        
+        self.configure(fg_color="transparent")
+        if hasattr(self, "form_frame") and self.form_frame:
+            self.form_frame.configure(fg_color=theme["card_bg"])
+        if hasattr(self, "title_lbl") and self.title_lbl:
+            self.title_lbl.configure(text_color=theme["fg"])
+        if hasattr(self, "username_label") and self.username_label:
+            self.username_label.configure(text_color=theme["secondary_fg"])
+        if hasattr(self, "username_entry") and self.username_entry:
+            self.username_entry.configure(
+                fg_color=theme["bg"],
+                text_color=theme["fg"],
+                border_color=theme["border"]
+            )
+        if hasattr(self, "password_label") and self.password_label:
+            self.password_label.configure(text_color=theme["secondary_fg"])
+        if hasattr(self, "password_entry") and self.password_entry:
+            self.password_entry.configure(
+                fg_color=theme["bg"],
+                text_color=theme["fg"],
+                border_color=theme["border"]
+            )
+        if hasattr(self, "login_button") and self.login_button:
+            self.login_button.configure(
+                fg_color=theme["accent"],
+                hover_color=theme["select_bg"],
+                text_color=theme["bg"]
+            )
+        if hasattr(self, "register_link") and self.register_link:
+            self.register_link.configure(text_color=theme["accent"])

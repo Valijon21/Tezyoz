@@ -44,24 +44,25 @@ class RegisterView(BaseView):
             width=360
         )
         form_frame.grid(row=1, column=1, sticky="nsew", pady=10)
+        self.form_frame = form_frame
         
         # Center Title inside Card
-        title_lbl = ctk.CTkLabel(
+        self.title_lbl = ctk.CTkLabel(
             form_frame, 
             text="Ro'yxatdan O'tish", 
             font=("Segoe UI", 24, "bold"),
             text_color=theme_colors["fg"]
         )
-        title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
+        self.title_lbl.pack(pady=(30, 20), padx=30, anchor="n")
         
         # Username Field
-        username_lbl = ctk.CTkLabel(
+        self.username_lbl = ctk.CTkLabel(
             form_frame, 
             text="Foydalanuvchi nomi (Username): *", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        username_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        self.username_lbl.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.username_entry = ctk.CTkEntry(
             form_frame, 
@@ -76,13 +77,13 @@ class RegisterView(BaseView):
         self.username_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Display Name Field
-        display_name_lbl = ctk.CTkLabel(
+        self.display_name_lbl = ctk.CTkLabel(
             form_frame, 
             text="Ko'rinadigan ism (Display Name):", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        display_name_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        self.display_name_lbl.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.display_name_entry = ctk.CTkEntry(
             form_frame, 
@@ -97,13 +98,13 @@ class RegisterView(BaseView):
         self.display_name_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Password Field
-        password_lbl = ctk.CTkLabel(
+        self.password_lbl = ctk.CTkLabel(
             form_frame, 
             text="Parol: *", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        self.password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.password_entry = ctk.CTkEntry(
             form_frame, 
@@ -119,13 +120,13 @@ class RegisterView(BaseView):
         self.password_entry.pack(fill=tk.X, padx=30, pady=(0, 10))
         
         # Confirm Password Field
-        confirm_password_lbl = ctk.CTkLabel(
+        self.confirm_password_lbl = ctk.CTkLabel(
             form_frame, 
             text="Parolni tasdiqlang: *", 
             font=("Segoe UI", 12),
             text_color=theme_colors["secondary_fg"]
         )
-        confirm_password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
+        self.confirm_password_lbl.pack(anchor="w", padx=30, pady=(5, 2))
         
         self.confirm_password_entry = ctk.CTkEntry(
             form_frame, 
@@ -192,22 +193,23 @@ class RegisterView(BaseView):
         # Clean previous error state
         self.error_label.configure(text="", text_color="#ef4444")
         
+        from services.i18n_service import t
         # Username Check
         if not username:
-            self.error_label.configure(text="Foydalanuvchi nomi kiritilishi shart!")
+            self.error_label.configure(text=t("login_err_username_required"))
             return False
             
         # Password Check
         if not password:
-            self.error_label.configure(text="Parol kiritilishi shart!")
+            self.error_label.configure(text=t("login_err_password_required"))
             return False
             
         if len(password) < 6:
-            self.error_label.configure(text="Parol kamida 6 ta belgidan iborat bo'lishi kerak!")
+            self.error_label.configure(text=t("register_err_length"))
             return False
             
         if password != confirm_password:
-            self.error_label.configure(text="Parollar o'zaro mos kelmadi!")
+            self.error_label.configure(text=t("register_err_mismatch"))
             return False
             
         return True
@@ -221,7 +223,8 @@ class RegisterView(BaseView):
         display_name = self.display_name_var.get().strip()
         password = self.password_var.get().strip()
         
-        self.register_button.configure(state="disabled", text="Kutilmoqda...")
+        from services.i18n_service import t
+        self.register_button.configure(state="disabled", text=t("kutilmoqda") if t("kutilmoqda") != "kutilmoqda" else "Kutilmoqda...")
         
         from services.auth_service import register_user
         import threading
@@ -239,17 +242,19 @@ class RegisterView(BaseView):
 
     def _on_register_success(self, username):
         """Callback for successful user registration."""
-        self.register_button.configure(state="normal", text="Ro'yxatdan o'tish")
+        from services.i18n_service import t
+        self.register_button.configure(state="normal", text=t("register_btn"))
         messagebox.showinfo(
-            "Muvaffaqiyatli",
-            f"Foydalanuvchi '{username}' tizimga muvaffaqiyatli ro'yxatdan o'tdi!"
+            t("success_title"),
+            t("register_success_msg").format(username=username)
         )
         self.clear_form()
         self.controller.show_view("login")
 
     def _on_register_error(self, error_message):
         """Callback for registration failures."""
-        self.register_button.configure(state="normal", text="Ro'yxatdan o'tish")
+        from services.i18n_service import t
+        self.register_button.configure(state="normal", text=t("register_btn"))
         self.error_label.configure(text=error_message, text_color="#ef4444")
 
     def navigate_to_login(self):
@@ -267,3 +272,65 @@ class RegisterView(BaseView):
         self.password_var.set("")
         self.confirm_password_var.set("")
         self.error_label.configure(text="")
+
+    def retranslate_ui(self):
+        """Dynamic text configuration mapping for registration form labels and redirect link."""
+        from services.i18n_service import t
+        if hasattr(self, "title_lbl") and self.title_lbl:
+            self.title_lbl.configure(text=t("register_title"))
+        if hasattr(self, "username_lbl") and self.username_lbl:
+            self.username_lbl.configure(text=t("login_username") + ": *")
+        if hasattr(self, "display_name_lbl") and self.display_name_lbl:
+            self.display_name_lbl.configure(text=t("register_display_name") + ":")
+        if hasattr(self, "password_lbl") and self.password_lbl:
+            self.password_lbl.configure(text=t("login_password") + ": *")
+        if hasattr(self, "confirm_password_lbl") and self.confirm_password_lbl:
+            from services.i18n_service import get_locale
+            self.confirm_password_lbl.configure(
+                text="Parolni tasdiqlang: *" if get_locale() == "uz" else "Confirm Password: *"
+            )
+        if hasattr(self, "register_button") and self.register_button:
+            if self.register_button.cget("state") == "normal":
+                self.register_button.configure(text=t("register_btn"))
+        if hasattr(self, "login_link") and self.login_link:
+            self.login_link.configure(text=t("register_have_account"))
+
+    def apply_theme(self, theme_name: str):
+        """Applies theme variables to active widgets dynamically."""
+        from ui.theme import THEMES
+        theme = THEMES.get(theme_name, THEMES["dark"])
+        
+        self.configure(fg_color="transparent")
+        if hasattr(self, "form_frame") and self.form_frame:
+            self.form_frame.configure(fg_color=theme["card_bg"])
+        if hasattr(self, "title_lbl") and self.title_lbl:
+            self.title_lbl.configure(text_color=theme["fg"])
+        if hasattr(self, "username_lbl") and self.username_lbl:
+            self.username_lbl.configure(text_color=theme["secondary_fg"])
+        if hasattr(self, "display_name_lbl") and self.display_name_lbl:
+            self.display_name_lbl.configure(text_color=theme["secondary_fg"])
+        if hasattr(self, "password_lbl") and self.password_lbl:
+            self.password_lbl.configure(text_color=theme["secondary_fg"])
+        if hasattr(self, "confirm_password_lbl") and self.confirm_password_lbl:
+            self.confirm_password_lbl.configure(text_color=theme["secondary_fg"])
+            
+        for entry_name in ("username_entry", "display_name_entry", "password_entry", "confirm_password_entry"):
+            entry = getattr(self, entry_name, None)
+            if entry:
+                try:
+                    entry.configure(
+                        fg_color=theme["bg"],
+                        text_color=theme["fg"],
+                        border_color=theme["border"]
+                    )
+                except Exception:
+                    pass
+                    
+        if hasattr(self, "register_button") and self.register_button:
+            self.register_button.configure(
+                fg_color=theme["accent"],
+                hover_color=theme["select_bg"],
+                text_color=theme["bg"]
+            )
+        if hasattr(self, "login_link") and self.login_link:
+            self.login_link.configure(text_color=theme["accent"])

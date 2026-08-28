@@ -53,4 +53,7 @@ AGENT_*.md
 # Test outputs
 pytest_out.txt
 test_errors.txt
+test_out.txt
+err*.txt
+tmp/
 

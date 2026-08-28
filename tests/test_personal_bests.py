@@ -125,7 +125,8 @@ class TestPersonalBests(unittest.TestCase):
         self.assertEqual(len(children), 1)
         
         vals = view.tree.item(children[0], "values")
-        self.assertEqual(vals[0], "words")
+        from services.i18n_service import t
+        self.assertEqual(vals[0], t("mode_words"))
         self.assertEqual(vals[1], "30s")
         self.assertEqual(vals[2], "★ 48.0 WPM")
         self.assertEqual(vals[3], "95.0%")

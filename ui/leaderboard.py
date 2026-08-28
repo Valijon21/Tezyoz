@@ -75,20 +75,20 @@ class LeaderboardView(BaseView):
         self.headers_frame.columnconfigure(3, weight=0, minsize=120) # Total XP
         self.headers_frame.columnconfigure(4, weight=0, minsize=120) # Max Streak
 
-        h_rank = ctk.CTkLabel(self.headers_frame, text="O'rin", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
-        h_rank.grid(row=0, column=0, sticky="w", padx=(10, 0))
+        self.h_rank = ctk.CTkLabel(self.headers_frame, text="O'rin", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
+        self.h_rank.grid(row=0, column=0, sticky="w", padx=(10, 0))
 
-        h_name = ctk.CTkLabel(self.headers_frame, text="Foydalanuvchi", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="w")
-        h_name.grid(row=0, column=1, sticky="w", padx=10)
+        self.h_name = ctk.CTkLabel(self.headers_frame, text="Foydalanuvchi", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="w")
+        self.h_name.grid(row=0, column=1, sticky="w", padx=10)
 
-        h_lvl = ctk.CTkLabel(self.headers_frame, text="Daraja", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
-        h_lvl.grid(row=0, column=2)
+        self.h_lvl = ctk.CTkLabel(self.headers_frame, text="Daraja", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
+        self.h_lvl.grid(row=0, column=2)
 
-        h_xp = ctk.CTkLabel(self.headers_frame, text="Umumiy XP", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
-        h_xp.grid(row=0, column=3)
+        self.h_xp = ctk.CTkLabel(self.headers_frame, text="Umumiy XP", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
+        self.h_xp.grid(row=0, column=3)
 
-        h_str = ctk.CTkLabel(self.headers_frame, text="Eng Uzun Streak", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
-        h_str.grid(row=0, column=4, padx=(0, 10))
+        self.h_str = ctk.CTkLabel(self.headers_frame, text="Eng Uzun Streak", font=("Segoe UI", 11, "bold"), text_color=theme_colors["secondary_fg"], anchor="center")
+        self.h_str.grid(row=0, column=4, padx=(0, 10))
 
         # Main Scrollable list frame
         self.scroll_frame = ctk.CTkScrollableFrame(self.container, fg_color="transparent", corner_radius=0)
@@ -179,9 +179,10 @@ class LeaderboardView(BaseView):
             self.current_page = 0
 
         # Enable/Disable direction buttons
+        from services.i18n_service import t
         self.prev_btn.configure(state="normal" if self.current_page > 0 else "disabled")
         self.next_btn.configure(state="normal" if self.current_page < total_pages - 1 else "disabled")
-        self.page_lbl.configure(text=f"Sahifa {self.current_page + 1} / {total_pages}")
+        self.page_lbl.configure(text=f"{t('page')} {self.current_page + 1} / {total_pages}")
 
         # Clear existing row cards
         for row in self.rows_list:
@@ -278,7 +279,8 @@ class LeaderboardView(BaseView):
             rank_lbl.grid(row=0, column=0, sticky="w", padx=(15, 0), pady=6)
 
             # Display name (or username)
-            name_suffix = " (Oqdilan)" if is_self else ""
+            from services.i18n_service import get_locale
+            name_suffix = (" (Siz)" if get_locale() == "uz" else " (You)") if is_self else ""
             display_name = u.get("display_name") or u.get("username")
             name_lbl = ctk.CTkLabel(
                 row_frame,
@@ -311,7 +313,7 @@ class LeaderboardView(BaseView):
 
             # Streak
             streak_val = u.get("longest_streak", 0)
-            streak_txt = f"🔥 {streak_val} kun" if streak_val > 0 else "-"
+            streak_txt = f"🔥 {streak_val} " + ("kun" if get_locale() == "uz" else "days") if streak_val > 0 else "-"
             str_lbl = ctk.CTkLabel(
                 row_frame,
                 text=streak_txt,
@@ -326,8 +328,27 @@ class LeaderboardView(BaseView):
         from ui.theme import THEMES
         theme = THEMES.get(theme_name, THEMES["dark"])
         
-        for btn in (self.refresh_btn, self.back_btn, self.prev_btn, self.next_btn):
-            if hasattr(self, btn.winfo_name()) and btn:
+        if hasattr(self, "title_label") and self.title_label:
+            self.title_label.configure(text_color=theme["fg"])
+        if hasattr(self, "subtitle_label") and self.subtitle_label:
+            self.subtitle_label.configure(text_color=theme["secondary_fg"])
+            
+        header_labels = ["h_rank", "h_name", "h_lvl", "h_xp", "h_str"]
+        for hl in header_labels:
+            if hasattr(self, hl):
+                widget = getattr(self, hl)
+                if widget:
+                    try:
+                        widget.configure(text_color=theme["secondary_fg"])
+                    except Exception:
+                        pass
+        
+        if hasattr(self, "scroll_frame") and self.scroll_frame:
+            self.scroll_frame.configure(fg_color=theme["bg"], bg_color=theme["bg"])
+
+        for btn_name in ("refresh_btn", "back_btn", "prev_btn", "next_btn"):
+            btn = getattr(self, btn_name, None)
+            if btn:
                 try:
                     btn.configure(
                         fg_color=theme["card_bg"],
@@ -340,7 +361,38 @@ class LeaderboardView(BaseView):
         if hasattr(self, "page_lbl") and self.page_lbl:
             self.page_lbl.configure(text_color=theme["fg"])
 
-        # Reload card lists to repaint correct item backgrounds matching active highlights if visible
+        # Reload card lists to repaint correct item backgrounds matching active highlights
+        self._update_list()
+
+    def retranslate_ui(self):
+        """Dynamic text configuration mapping for leaderboard ranks and dynamic user cards."""
+        from services.i18n_service import t
+        # Page Title
+        self.title_label.configure(text=t("leaderboard_title"))
+        self.subtitle_label.configure(text=t("leaderboard_subtitle"))
+        
+        # Action Buttons
+        if hasattr(self, "refresh_btn") and self.refresh_btn:
+            self.refresh_btn.configure(text=t("btn_refresh"))
+        if hasattr(self, "back_btn") and self.back_btn:
+            self.back_btn.configure(text=t("btn_back_to_dashboard"))
+        if hasattr(self, "prev_btn") and self.prev_btn:
+            self.prev_btn.configure(text="< " + t("btn_prev"))
+        if hasattr(self, "next_btn") and self.next_btn:
+            self.next_btn.configure(text=t("btn_next") + " >")
+            
+        # Table Headers Labels
+        if hasattr(self, "h_rank") and self.h_rank:
+            self.h_rank.configure(text=t("leaderboard_rank"))
+        if hasattr(self, "h_name") and self.h_name:
+            self.h_name.configure(text=t("leaderboard_user"))
+        if hasattr(self, "h_lvl") and self.h_lvl:
+            self.h_lvl.configure(text=t("leaderboard_level"))
+        if hasattr(self, "h_xp") and self.h_xp:
+            self.h_xp.configure(text=t("leaderboard_total_xp"))
+        if hasattr(self, "h_str") and self.h_str:
+            self.h_str.configure(text=t("leaderboard_longest_streak"))
+            
         if self.winfo_ismapped():
             self._update_list()
 

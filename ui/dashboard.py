@@ -110,12 +110,12 @@ class DashboardView(BaseView):
         missions_inner = ctk.CTkFrame(self.missions_frame, fg_color="transparent", corner_radius=0)
         missions_inner.pack(fill=tk.BOTH, expand=True, padx=12, pady=12)
 
-        missions_title = ctk.CTkLabel(
+        self.missions_title = ctk.CTkLabel(
             missions_inner,
             text="Bugungi Vazifalar (Daily Missions)",
             font=("Segoe UI", 12, "bold")
         )
-        missions_title.pack(anchor="w", pady=(0, 8))
+        self.missions_title.pack(anchor="w", pady=(0, 8))
 
         cols_container = ctk.CTkFrame(missions_inner, fg_color="transparent", corner_radius=0)
         cols_container.pack(fill=tk.BOTH, expand=True)
@@ -214,37 +214,8 @@ class DashboardView(BaseView):
             btn.pack(side=tk.LEFT, padx=3)
             self.period_buttons[key] = btn
 
-        # Database backup/restore buttons next to filter period frame
-        self.backup_frame = ctk.CTkFrame(self.filter_bar, fg_color="transparent", corner_radius=0)
-        self.backup_frame.pack(side=tk.RIGHT, padx=(0, 20))
-        
-        self.backup_btn = ctk.CTkButton(
-            self.backup_frame,
-            text="Zaxira (Backup)",
-            fg_color=theme_colors["card_bg"],
-            hover_color=theme_colors["select_bg"],
-            text_color=theme_colors["fg"],
-            font=("Segoe UI", 11, "bold"),
-            width=110,
-            height=30,
-            corner_radius=8,
-            command=self._handle_backup
-        )
-        self.backup_btn.pack(side=tk.LEFT, padx=3)
-        
-        self.restore_btn = ctk.CTkButton(
-            self.backup_frame,
-            text="Tiklash (Restore)",
-            fg_color=theme_colors["card_bg"],
-            hover_color=theme_colors["select_bg"],
-            text_color=theme_colors["fg"],
-            font=("Segoe UI", 11, "bold"),
-            width=110,
-            height=30,
-            corner_radius=8,
-            command=self._handle_restore
-        )
-        self.restore_btn.pack(side=tk.LEFT, padx=3)
+        # Database backup/restore buttons removed (moved to dedicated Settings view)
+        pass
 
         # 3. Summary Cards Grid Layout (4 columns matching mockup in Sokin Neon style)
         self.cards_frame = ctk.CTkFrame(self.container, fg_color="transparent", corner_radius=0)
@@ -318,6 +289,7 @@ class DashboardView(BaseView):
             
             # Keep view.cards[key] as value_lbl for compatibility with existing tests
             self.cards[key] = value_lbl
+            self.cards[key].title = title_lbl
             self.cards[key].left = left_lbl
             self.cards[key].right = right_lbl
             self.cards[key].bar = prog_bar
@@ -380,6 +352,7 @@ class DashboardView(BaseView):
         self.apply_theme(self.controller.current_theme)
 
         # 1. Update user identity header information
+        from services.i18n_service import t
         user = get_current_user()
         if user:
             name = user.get("display_name") or user.get("username", "Mehmon")
@@ -390,13 +363,13 @@ class DashboardView(BaseView):
             from gamification.levels import get_level_progress
             level, xp_in_level, xp_needed = get_level_progress(xp)
             
-            self.welcome_label.configure(text=f"Foydalanuvchi: {name}")
-            self.gamification_label.configure(text=f"Joriy Streak: {streak} 🔥 | Rekord: {longest_streak} kun | Bosqich: {level} ({xp} XP)")
+            self.welcome_label.configure(text=t("welcome_user").format(name))
+            self.gamification_label.configure(text=t("streak_info").format(streak, longest_streak, level, xp))
             
             # CustomTkinter progress bar uses values from 0.0 to 1.0
             self.xp_bar.set(xp_in_level / xp_needed if xp_needed > 0 else 0)
             percent = (xp_in_level / xp_needed) * 100 if xp_needed > 0 else 0.0
-            self.xp_percent_label.configure(text=f"{percent:.1f}% ({xp_in_level}/{xp_needed} XP)")
+            self.xp_percent_label.configure(text=t("xp_percent").format(f"{percent:.1f}", xp_in_level, xp_needed))
 
             # Update daily goal progress
             today_str = datetime.now().strftime("%Y-%m-%d")
@@ -405,7 +378,7 @@ class DashboardView(BaseView):
 
             self.daily_goal_bar.set(min(today_xp, XP_DAILY_GOAL) / XP_DAILY_GOAL if XP_DAILY_GOAL > 0 else 0)
             goal_percent = (today_xp / XP_DAILY_GOAL) * 100 if XP_DAILY_GOAL > 0 else 0.0
-            self.daily_goal_label.configure(text=f"Bugungi Maqsad: {goal_percent:.1f}% ({today_xp}/{XP_DAILY_GOAL} XP)")
+            self.daily_goal_label.configure(text=t("daily_goal").format(f"{goal_percent:.1f}", today_xp, XP_DAILY_GOAL))
 
             # Update daily missions
             from services.daily_missions_service import DailyMissionsService
@@ -414,8 +387,11 @@ class DashboardView(BaseView):
             for i, mission in enumerate(missions):
                 if i < len(self.mission_cols):
                     col = self.mission_cols[i]
-                    col["title"].configure(text=f"{mission['title']} (+{mission['xp_reward']} XP)")
-                    col["desc"].configure(text=mission["description"])
+                    m_key = mission.get("mission_key", "")
+                    title_text = t(f"mission_{m_key}_title", mission["title"]) if m_key else mission["title"]
+                    desc_text = t(f"mission_{m_key}_desc", mission["description"]) if m_key else mission["description"]
+                    col["title"].configure(text=f"{title_text} (+{mission['xp_reward']} XP)")
+                    col["desc"].configure(text=desc_text)
                     
                     progress = mission["progress"]
                     target = mission["target"]
@@ -423,24 +399,24 @@ class DashboardView(BaseView):
                     
                     if mission["completed"]:
                         col["chk"].configure(text="☑", text_color="#10b981") # Green
-                        col["status"].configure(text="Bajarildi ✅", text_color="#10b981") # Green
+                        col["status"].configure(text=t("bajarildi"), text_color="#10b981") # Green
                     else:
                         col["chk"].configure(text="☐", text_color="#8e9196") # Grey
                         col["status"].configure(text=f"Progress: {progress}/{target}", text_color="#8e9196") # Grey
         else:
-            self.welcome_label.configure(text="Foydalanuvchi: Mehmon")
-            self.gamification_label.configure(text="Joriy Streak: 0 🔥 | Rekord: 0 kun | Bosqich: 1 (0 XP)")
+            self.welcome_label.configure(text=t("welcome_guest"))
+            self.gamification_label.configure(text=t("streak_info_guest"))
             
             self.xp_bar.set(0)
-            self.xp_percent_label.configure(text="0.0% (0/100 XP)")
+            self.xp_percent_label.configure(text=t("xp_percent").format("0.0", 0, 100))
 
             self.daily_goal_bar.set(0)
-            self.daily_goal_label.configure(text=f"Bugungi Maqsad: 0.0% (0/{XP_DAILY_GOAL} XP)")
+            self.daily_goal_label.configure(text=t("daily_goal").format("0.0", 0, XP_DAILY_GOAL))
 
             # Muted guest defaults
             for col in self.mission_cols:
                 col["title"].configure(text="-")
-                col["desc"].configure(text="Kirib, vazifalarni ochish mumkin")
+                col["desc"].configure(text=t("daily_missions_guest"))
                 col["chk"].configure(text="☐", text_color="#8e9196")
                 col["bar"].set(0)
                 col["status"].configure(text="-", text_color="#8e9196")
@@ -562,12 +538,13 @@ class DashboardView(BaseView):
             days_list = result.get("days", [])
 
         # Populate summary card widgets (main value labels)
+        from services.i18n_service import t, get_locale
         self.cards["wpm"].configure(text=f"{wpm:.1f} WPM")
         self.cards["accuracy"].configure(text=f"{accuracy:.1f}%")
         self.cards["consistency"].configure(text=f"{average_consistency:.1f}%")
         
         user_streak = user.get("current_streak", 0)
-        self.cards["streak"].configure(text=f"{user_streak} Kun")
+        self.cards["streak"].configure(text=f"{user_streak} " + ("Kun" if get_locale() == "uz" else "Days"))
 
         # Dynamically compute and populate sub-indicator details & spark-progress bars
         try:
@@ -575,36 +552,36 @@ class DashboardView(BaseView):
             pb_repo = PersonalBestRepository()
             pbs = pb_repo.get_all_personal_bests(user_id)
             best_wpm = max([pb["best_wpm"] for pb in pbs]) if pbs else wpm
-            self.cards["wpm"].left.configure(text=f"Top Speed: {best_wpm:.0f}")
+            self.cards["wpm"].left.configure(text=t("card_wpm_left").format(f"{best_wpm:.0f}"))
             
             # Calculate daily growth/trend
             trend_val = growth if growth != 0 else 5.2
             trend_sign = "+" if trend_val >= 0 else ""
-            self.cards["wpm"].right.configure(text=f"{trend_sign}{trend_val:.1f}% Today")
+            self.cards["wpm"].right.configure(text=t("card_wpm_right").format(trend_sign, f"{trend_val:.1f}"))
             self.cards["wpm"].bar.set(min(1.0, wpm / 120.0) if wpm > 0 else 0.2)
         except Exception:
             pass
 
         try:
-            self.cards["accuracy"].left.configure(text="Mistake Free: stable")
-            self.cards["accuracy"].right.configure(text="Precise")
+            self.cards["accuracy"].left.configure(text=t("card_accuracy_left"))
+            self.cards["accuracy"].right.configure(text=t("card_accuracy_right"))
             self.cards["accuracy"].bar.set(accuracy / 100.0 if accuracy > 0 else 0.9)
         except Exception:
             pass
 
         try:
-            self.cards["consistency"].left.configure(text="Stable")
-            self.cards["consistency"].right.configure(text=f"Pace Var: 3.4 wpm")
+            self.cards["consistency"].left.configure(text=t("card_consistency_left"))
+            self.cards["consistency"].right.configure(text=t("card_consistency_right").format("3.4"))
             self.cards["consistency"].bar.set(average_consistency / 100.0 if average_consistency > 0 else 0.8)
         except Exception:
             pass
 
         try:
-            self.cards["streak"].left.configure(text=f"Goal: {XP_DAILY_GOAL} XP")
+            self.cards["streak"].left.configure(text=t("card_streak_left").format(XP_DAILY_GOAL))
             today_stats = self.stats_repo.get_daily_stats(user_id, today_str) or {}
             today_xp = today_stats.get("xp_earned", 0) if isinstance(today_stats, dict) else 0
             tests_today = today_stats.get("tests_count", 0) if isinstance(today_stats, dict) else 0
-            self.cards["streak"].right.configure(text=f"Today {tests_today} Sessions")
+            self.cards["streak"].right.configure(text=t("card_streak_right").format(tests_today))
             self.cards["streak"].bar.set(min(1.0, today_xp / XP_DAILY_GOAL) if XP_DAILY_GOAL > 0 else 0.4)
         except Exception:
             pass
@@ -666,7 +643,7 @@ class DashboardView(BaseView):
             
             weak_title = ctk.CTkLabel(
                 self.weak_keys_panel,
-                text="Zaif Tugmalar (Xatolik %)",
+                text=t("weak_keys_title"),
                 font=("Segoe UI", 11, "bold")
             )
             weak_title.pack(anchor="w", padx=10, pady=(10, 5))
@@ -678,7 +655,7 @@ class DashboardView(BaseView):
             if not weak_keys:
                 lbl = ctk.CTkLabel(
                     weak_inner,
-                    text="Tugmalar tahlili uchun matn\nyozish mashqlarini bajaring\n(kamida 5 ta urinish)",
+                    text=t("weak_keys_guest"),
                     font=("Segoe UI", 10),
                     text_color=theme_colors["secondary_fg"],
                     justify="center"
@@ -718,70 +695,8 @@ class DashboardView(BaseView):
          logout_user()
          self.controller.show_view("login")
 
-    def _handle_backup(self):
-        """Creates a safe database backup using SQLite connection backup API."""
-        from tkinter import filedialog, messagebox
-        import sqlite3
-        from database.connection import db
-
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".db",
-            filetypes=[("Database Files", "*.db"), ("All Files", "*.*")],
-            initialfile="typemaster_backup.db",
-            title="Ma'lumotlar bazasini zaxiralash"
-        )
-        if not file_path:
-            return
-
-        try:
-            src_conn = sqlite3.connect(str(db.database_path))
-            dst_conn = sqlite3.connect(file_path)
-            with src_conn, dst_conn:
-                src_conn.backup(dst_conn)
-            src_conn.close()
-            dst_conn.close()
-            messagebox.showinfo("Zaxiralash", "Ma'lumotlar bazasi zaxira nusxasi muvaffaqiyatli saqlandi!")
-        except Exception as err:
-            messagebox.showerror("Xato", f"Zaxiralashda xatolik yuz berdi: {err}")
-
-    def _handle_restore(self):
-        """Restores database content from file copy and reloads current views."""
-        from tkinter import filedialog, messagebox
-        import sqlite3
-        from database.connection import db
-
-        file_path = filedialog.askopenfilename(
-            filetypes=[("Database Files", "*.db"), ("All Files", "*.*")],
-            title="Tiklash uchun zaxira faylini tanlang"
-        )
-        if not file_path:
-            return
-
-        if not messagebox.askyesno("Tasdiqlash", "Tizim ma'lumotlarini ushbu zaxira faylidan tiklamoqchimisiz? Joriy ma'lumotlar o'chib ketadi!"):
-            return
-
-        try:
-            # Validate selected file is a valid database containing users table
-            check_conn = sqlite3.connect(file_path)
-            cursor = check_conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users';")
-            has_users = cursor.fetchone()
-            check_conn.close()
-
-            if not has_users:
-                messagebox.showerror("Xato", "Tanlangan fayl yaroqli TypeMaster zaxira fayli emas!")
-                return
-
-            src_conn = sqlite3.connect(file_path)
-            dst_conn = sqlite3.connect(str(db.database_path))
-            with src_conn, dst_conn:
-                src_conn.backup(dst_conn)
-            src_conn.close()
-            dst_conn.close()
-
-            messagebox.showinfo("Tiklash", "Ma'lumotlar muvaffaqiyatli tiklandi!\nO'zgarishlarni ko'rish uchun ilovani qayta ishga tushiring yoki statsni yangilang.")
-            self.refresh_stats()
-        except Exception as err:
-            messagebox.showerror("Xato", f"Ma'lumotlarni tiklashda xatolik yuz berdi: {err}")
+    # Backup and restore handlers relocated to SettingsView
+    pass
 
     def _handle_settings_change(self, event):
         """Dispatches active settings updates (theme, font, size) to the controller."""
@@ -868,7 +783,7 @@ class DashboardView(BaseView):
                 m["desc"].configure(text_color=theme["secondary_fg"])
                 m["bar"].configure(progress_color=theme["accent"], fg_color=theme["border"])
                 status_text = m["status"].cget("text")
-                m["status"].configure(text_color="#10b981" if "Bajarildi" in status_text else theme["secondary_fg"])
+                m["status"].configure(text_color="#10b981" if "Bajarildi" in status_text or "Completed" in status_text else theme["secondary_fg"])
 
         # LineChart
         self.wpm_chart.apply_theme_colors(
@@ -907,4 +822,47 @@ class DashboardView(BaseView):
                 text_color=text_col,
                 font_family=font_family
             )
+
+    def retranslate_ui(self):
+        """Updates text labels on DashboardView dynamically based on active locale."""
+        from services.i18n_service import t
+        # Title of Dashboard View
+        self.title_label.configure(text=t("stats_title"))
+        self.chart_label.configure(text=t("graph_view"))
+        if hasattr(self, "missions_title") and self.missions_title:
+            self.missions_title.configure(text=t("daily_missions_title"))
+
+        # Period buttons
+        periods = {"today": "period_today", "weekly": "period_weekly", "monthly": "period_monthly"}
+        for k, v in periods.items():
+            if k in self.period_buttons:
+                self.period_buttons[k].configure(text=t(v))
+
+        # Backup / Restore buttons relocated
+        pass
+
+        # Chart switches
+        chart_names = {
+            "wpm": "graph_wpm",
+            "accuracy": "graph_accuracy",
+            "duration": "graph_duration",
+            "consistency": "graph_consistency",
+            "keyboard_heatmap": "graph_heatmap",
+            "advanced_stats": "graph_advanced",
+            "key_errors": "graph_errors"
+        }
+        for k, v in chart_names.items():
+            if k in self.chart_buttons:
+                self.chart_buttons[k].configure(text=t(v))
+
+        # Card headers
+        card_headers = {
+            "wpm": "card_wpm",
+            "accuracy": "card_accuracy",
+            "consistency": "card_consistency",
+            "streak": "card_streak"
+        }
+        for k, v in card_headers.items():
+            if k in self.cards and hasattr(self.cards[k], "title"):
+                self.cards[k].title.configure(text=t(v))
 

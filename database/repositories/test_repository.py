@@ -19,7 +19,7 @@ class TestRepository(BaseRepository):
         Returns the primary key ID of the newly created row.
         """
         if not completed_at:
-            completed_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            completed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         query = """
             INSERT INTO tests (

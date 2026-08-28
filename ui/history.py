@@ -47,7 +47,8 @@ class HistoryView(BaseView):
         self.filter_bar.pack(fill=tk.X, pady=(0, 15))
 
         # Category Combobox
-        ctk.CTkLabel(self.filter_bar, text="Kategoriya:", font=("Segoe UI", 11, "bold")).pack(side=tk.LEFT, padx=(0, 5))
+        self.category_lbl = ctk.CTkLabel(self.filter_bar, text="Kategoriya:", font=("Segoe UI", 11, "bold"))
+        self.category_lbl.pack(side=tk.LEFT, padx=(0, 5))
         self.mode_combo = ctk.CTkComboBox(
             self.filter_bar,
             values=["Barchasi", "words", "time", "quotes", "file"],
@@ -58,7 +59,8 @@ class HistoryView(BaseView):
         self.mode_combo.pack(side=tk.LEFT, padx=(0, 15))
 
         # Difficulty Combobox
-        ctk.CTkLabel(self.filter_bar, text="Qiyinchilik:", font=("Segoe UI", 11, "bold")).pack(side=tk.LEFT, padx=(0, 5))
+        self.difficulty_lbl = ctk.CTkLabel(self.filter_bar, text="Qiyinchilik:", font=("Segoe UI", 11, "bold"))
+        self.difficulty_lbl.pack(side=tk.LEFT, padx=(0, 5))
         self.diff_combo = ctk.CTkComboBox(
             self.filter_bar,
             values=["Barchasi", "normal", "expert", "master"],
@@ -210,19 +212,19 @@ class HistoryView(BaseView):
         self.tree = ttk.Treeview(self.table_frame, columns=columns, show="headings", selectmode="browse")
         
         # Configure headings
-        self.tree.heading("completed_at", text="Sana/Vaqt")
-        self.tree.heading("mode", text="Kategoriya")
-        self.tree.heading("duration", text="Vaqt")
-        self.tree.heading("wpm", text="Tezlik (WPM)")
-        self.tree.heading("accuracy", text="Aniqlik")
-        self.tree.heading("xp_earned", text="XP")
+        self.tree.heading("completed_at", text="Sana/Vaqt", anchor="center")
+        self.tree.heading("mode", text="Kategoriya", anchor="center")
+        self.tree.heading("duration", text="Vaqt", anchor="center")
+        self.tree.heading("wpm", text="Tezlik (WPM)", anchor="center")
+        self.tree.heading("accuracy", text="Aniqlik", anchor="center")
+        self.tree.heading("xp_earned", text="XP", anchor="center")
         
         # Configure columns layout properties
         self.tree.column("completed_at", anchor="center", width=120)
         self.tree.column("mode", anchor="center", width=80)
         self.tree.column("duration", anchor="center", width=70)
-        self.tree.column("wpm", anchor="center", width=95)
-        self.tree.column("accuracy", anchor="center", width=85)
+        self.tree.column("wpm", anchor="e", width=95)
+        self.tree.column("accuracy", anchor="e", width=85)
         self.tree.column("xp_earned", anchor="center", width=75)
 
         # Scrollbar binding
@@ -280,14 +282,18 @@ class HistoryView(BaseView):
         )
 
         # Fetch history records with active filters applied
+        from services.i18n_service import t
         mode = self.mode_combo.get()
         diff = self.diff_combo.get()
         only_pb = self.pb_var.get()
 
+        passed_mode = self._get_db_mode(mode)
+        passed_diff = self._get_db_diff(diff)
+
         tests = self.test_repo.get_tests_by_user(
             user_id=user.get("id"),
-            mode=mode,
-            difficulty=diff,
+            mode=passed_mode,
+            difficulty=passed_diff,
             only_pb=only_pb
         )
         
@@ -307,7 +313,7 @@ class HistoryView(BaseView):
             self.acc_chart.clear()
             self.prev_btn.configure(state="disabled")
             self.next_btn.configure(state="disabled")
-            self.page_lbl.configure(text="Sahifa 1 / 1")
+            self.page_lbl.configure(text=f"{t('page')} 1 / 1")
         else:
             self._transition_empty_state(False)
             
@@ -320,7 +326,7 @@ class HistoryView(BaseView):
 
             self.prev_btn.configure(state="normal" if self.current_page > 0 else "disabled")
             self.next_btn.configure(state="normal" if self.current_page < total_pages - 1 else "disabled")
-            self.page_lbl.configure(text=f"Sahifa {self.current_page + 1} / {total_pages}")
+            self.page_lbl.configure(text=f"{t('page')} {self.current_page + 1} / {total_pages}")
             
             # Slice current page to show in Treeview
             start_idx = self.current_page * self.page_size
@@ -351,7 +357,7 @@ class HistoryView(BaseView):
                     "end",
                     values=(
                         date_str,
-                        row.get("mode", ""),
+                        self._get_display_mode(row.get("mode", "")),
                         f"{row.get('duration', 0)}s",
                         wpm_txt,
                         f"{accuracy_val:.1f}%",
@@ -420,11 +426,39 @@ class HistoryView(BaseView):
         from ui.theme import THEMES
         theme = THEMES.get(theme_name, THEMES["dark"])
         
+        if hasattr(self, "title_label") and self.title_label:
+            self.title_label.configure(text_color=theme["fg"])
+        if hasattr(self, "category_lbl") and self.category_lbl:
+            self.category_lbl.configure(text_color=theme["fg"])
+        if hasattr(self, "difficulty_lbl") and self.difficulty_lbl:
+            self.difficulty_lbl.configure(text_color=theme["fg"])
+        if hasattr(self, "page_lbl") and self.page_lbl:
+            self.page_lbl.configure(text_color=theme["fg"])
+        if hasattr(self, "pb_check") and self.pb_check:
+            self.pb_check.configure(text_color=theme["fg"])
+        if hasattr(self, "empty_label") and self.empty_label:
+            self.empty_label.configure(text_color=theme["secondary_fg"])
+            
+        for combo_name in ("mode_combo", "diff_combo"):
+            combo = getattr(self, combo_name, None)
+            if combo:
+                try:
+                    combo.configure(
+                        fg_color=theme["entry_bg"],
+                        text_color=theme["entry_fg"],
+                        button_color=theme["select_bg"],
+                        button_hover_color=theme["accent"],
+                        border_color=theme["border"]
+                    )
+                except Exception:
+                    pass
+
         if hasattr(self, "chart_panel") and self.chart_panel:
             self.chart_panel.configure(fg_color=theme["card_bg"])
             
-        for btn in (self.back_btn, self.prev_btn, self.next_btn):
-            if hasattr(self, btn.winfo_name()) and btn:
+        for btn_name in ("back_btn", "prev_btn", "next_btn"):
+            btn = getattr(self, btn_name, None)
+            if btn:
                 try:
                     btn.configure(
                         fg_color=theme["card_bg"],
@@ -461,5 +495,118 @@ class HistoryView(BaseView):
                 text_color=theme["secondary_fg"]
             )
 
+        self._update_list()
+
+    def retranslate_ui(self):
+        """Dynamic text configuration mapping for history view filter menus and tables."""
+        from services.i18n_service import t
+        # Page Title
+        self.title_label.configure(text=t("history_title"))
+        
+        # Filters Labels
+        if hasattr(self, "category_lbl") and self.category_lbl:
+            self.category_lbl.configure(text=t("history_filter_category"))
+        if hasattr(self, "difficulty_lbl") and self.difficulty_lbl:
+            self.difficulty_lbl.configure(text=t("history_filter_difficulty"))
+        if hasattr(self, "pb_check") and self.pb_check:
+            self.pb_check.configure(text=t("history_filter_pb_only"))
+            
+        # Combobox options translation
+        mode_val = self.mode_combo.get()
+        diff_val = self.diff_combo.get()
+        
+        # Get previous DB value before translating
+        db_mode = self._get_db_mode(mode_val)
+        db_diff = self._get_db_diff(diff_val)
+        
+        self.mode_combo.configure(values=[t("history_all"), t("mode_words"), t("mode_time"), t("mode_quotes"), t("mode_file")])
+        self.diff_combo.configure(values=[t("history_all"), t("diff_normal"), t("diff_expert"), t("diff_master")])
+        
+        # Set selection to new translated text
+        self.mode_combo.set(self._get_display_mode(db_mode))
+        self.diff_combo.set(self._get_display_diff(db_diff))
+            
+        # Action Buttons
+        if hasattr(self, "back_btn") and self.back_btn:
+            self.back_btn.configure(text=t("btn_back_to_dashboard"))
+        if hasattr(self, "prev_btn") and self.prev_btn:
+            self.prev_btn.configure(text="< " + t("btn_prev"))
+        if hasattr(self, "next_btn") and self.next_btn:
+            self.next_btn.configure(text=t("btn_next") + " >")
+            
+        # Chart Switches
+        chart_names = {"wpm": "graph_wpm", "accuracy": "graph_accuracy"}
+        for k, v in chart_names.items():
+            if k in self.toggle_buttons:
+                self.toggle_buttons[k].configure(text=t(v))
+                
+        # Empty Warning
+        if hasattr(self, "empty_label") and self.empty_label:
+            self.empty_label.configure(text=t("history_empty"))
+            
+        # Table Columns Headers
+        self.tree.heading("completed_at", text=t("history_date"), anchor="center")
+        self.tree.heading("mode", text=t("history_category"), anchor="center")
+        self.tree.heading("duration", text=t("history_duration"), anchor="center")
+        self.tree.heading("wpm", text=t("history_speed"), anchor="center")
+        self.tree.heading("accuracy", text=t("history_accuracy"), anchor="center")
+        self.tree.heading("xp_earned", text=t("history_xp"), anchor="center")
+        
         if self.winfo_ismapped():
             self._update_list()
+
+    def _get_db_mode(self, display_val: str) -> str:
+        from services.i18n_service import t
+        # Maps display text back to DB keys
+        # We check both Uzbek/English/raw strings to be bulletproof
+        maps = {
+            t("history_all"): "Barchasi",
+            t("mode_words"): "words",
+            t("mode_time"): "time",
+            t("mode_quotes"): "quotes",
+            t("mode_file"): "file",
+            "Barchasi": "Barchasi",
+            "All": "Barchasi",
+            "words": "words",
+            "time": "time",
+            "quotes": "quotes",
+            "file": "file"
+        }
+        return maps.get(display_val, "Barchasi")
+
+    def _get_display_mode(self, db_val: str) -> str:
+        from services.i18n_service import t
+        maps = {
+            "Barchasi": t("history_all"),
+            "words": t("mode_words"),
+            "time": t("mode_time"),
+            "quotes": t("mode_quotes"),
+            "file": t("mode_file")
+        }
+        return maps.get(db_val, t("history_all"))
+
+    def _get_db_diff(self, display_val: str) -> str:
+        from services.i18n_service import t
+        maps = {
+            t("history_all"): "Barchasi",
+            t("diff_normal"): "normal",
+            t("diff_expert"): "expert",
+            t("diff_master"): "master",
+            "Barchasi": "Barchasi",
+            "All": "Barchasi",
+            "normal": "normal",
+            "expert": "expert",
+            "master": "master"
+        }
+        return maps.get(display_val, "Barchasi")
+
+    def _get_display_diff(self, db_val: str) -> str:
+        from services.i18n_service import t
+        maps = {
+            "Barchasi": t("history_all"),
+            "normal": t("diff_normal"),
+            "expert": t("diff_expert"),
+            "master": t("diff_master")
+        }
+        return maps.get(db_val, t("history_all"))
+

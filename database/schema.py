@@ -88,6 +88,7 @@ SCHEMA_SQL = [
         show_live_wpm INTEGER DEFAULT 1,
         show_accuracy INTEGER DEFAULT 1,
         caret_style TEXT NOT NULL,
+        ui_language TEXT DEFAULT 'uz',
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
     """,
@@ -151,7 +152,8 @@ def initialize_schema():
             # Apply safe migrations if columns are missing
             for query in [
                 "ALTER TABLE tests ADD COLUMN consistency REAL;",
-                "ALTER TABLE daily_stats ADD COLUMN average_consistency REAL DEFAULT 0.0;"
+                "ALTER TABLE daily_stats ADD COLUMN average_consistency REAL DEFAULT 0.0;",
+                "ALTER TABLE user_settings ADD COLUMN ui_language TEXT DEFAULT 'uz';"
             ]:
                 try:
                     conn.execute(query)

@@ -35,7 +35,7 @@ class PersonalBestRepository(BaseRepository):
                 INSERT INTO personal_bests (user_id, mode, duration, best_wpm, best_accuracy, achieved_at)
                 VALUES (?, ?, ?, ?, ?, ?)
             """
-            achieved_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            achieved_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.execute_write(insert_query, (user_id, mode, duration, wpm, accuracy, achieved_at))
             return True
 
@@ -51,7 +51,7 @@ class PersonalBestRepository(BaseRepository):
                 SET best_wpm = ?, best_accuracy = ?, achieved_at = ?
                 WHERE user_id = ? AND mode = ? AND duration = ?
             """
-            achieved_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            achieved_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.execute_write(update_query, (wpm, accuracy, achieved_at, user_id, mode, duration))
             return True
 

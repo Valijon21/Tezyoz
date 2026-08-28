@@ -45,7 +45,8 @@ class TypingTestView(BaseView):
         self.config_frame = ttk.Frame(self.container)
         self.config_frame.pack(pady=5)
 
-        ttk.Label(self.config_frame, text="Til:").pack(side=tk.LEFT, padx=(5, 3))
+        self.lang_name_lbl = ttk.Label(self.config_frame, text="Til:")
+        self.lang_name_lbl.pack(side=tk.LEFT, padx=(5, 3))
         self.lang_combo = ttk.Combobox(
             self.config_frame,
             textvariable=self.lang_var,
@@ -56,7 +57,8 @@ class TypingTestView(BaseView):
         self.lang_combo.pack(side=tk.LEFT, padx=(0, 15))
         self.lang_combo.bind("<<ComboboxSelected>>", self._on_config_change)
 
-        ttk.Label(self.config_frame, text="Vaqt:").pack(side=tk.LEFT, padx=(5, 3))
+        self.time_name_lbl = ttk.Label(self.config_frame, text="Vaqt:")
+        self.time_name_lbl.pack(side=tk.LEFT, padx=(5, 3))
         self.dur_combo = ttk.Combobox(
             self.config_frame,
             textvariable=self.dur_var,
@@ -207,10 +209,11 @@ class TypingTestView(BaseView):
         self.text_widget.config(state="disabled")
 
         # Reset labels
-        self.time_lbl.config(text=f"Vaqt: {duration}s")
-        self.wpm_lbl.config(text="Tezlik: 0.0 WPM")
-        self.acc_lbl.config(text="Aniqlik: 0.0%")
-        self.info_lbl.config(text="Yozishni boshlang... (Qayta boshlash: Escape / Tab)", foreground="")
+        from services.i18n_service import t
+        self.time_lbl.config(text=f"{t('practice_time')} {duration}s")
+        self.wpm_lbl.config(text=f"{t('practice_speed')} 0.0 WPM")
+        self.acc_lbl.config(text=f"{t('practice_accuracy')} 0.0%")
+        self.info_lbl.config(text=f"{t('practice_start_instruction')} ({t('practice_restart_kbd')})", foreground="")
 
         # Refresh themes config
         self.apply_theme(self.controller.current_theme)
@@ -281,8 +284,9 @@ class TypingTestView(BaseView):
         self.text_widget.config(state="disabled")
 
         # Metrics updates
-        self.wpm_lbl.config(text=f"Tezlik: {engine.get_wpm():.1f} WPM")
-        self.acc_lbl.config(text=f"Aniqlik: {engine.get_accuracy():.1f}%")
+        from services.i18n_service import t
+        self.wpm_lbl.config(text=f"{t('practice_speed')} {engine.get_wpm():.1f} WPM")
+        self.acc_lbl.config(text=f"{t('practice_accuracy')} {engine.get_accuracy():.1f}%")
 
         # Activate timer checking on first typed keystroke
         if engine.is_active and self.timer_id is None:
@@ -297,8 +301,9 @@ class TypingTestView(BaseView):
             return
 
         self.engine.tick()
-        rem_sec = int(self.engine.get_remaining_time())
-        self.time_lbl.config(text=f"Vaqt: {rem_sec}s")
+        rem_sec = int(self.engine.get_remaining_time() + 0.5)
+        from services.i18n_service import t
+        self.time_lbl.config(text=f"{t('practice_time')} {rem_sec}s")
 
         if self.engine.is_finished:
             self._handle_test_completed()
@@ -521,3 +526,33 @@ class TypingTestView(BaseView):
                 )
             except Exception:
                 pass
+
+    def retranslate_ui(self):
+        """Translates all text elements to the current active locale."""
+        from services.i18n_service import t, get_locale
+        # Title
+        self.title_label.configure(text=t("practice_title"))
+        
+        # Selectors labels
+        if hasattr(self, "lang_name_lbl") and self.lang_name_lbl:
+            self.lang_name_lbl.configure(text=t("practice_lang"))
+        if hasattr(self, "time_name_lbl") and self.time_name_lbl:
+            self.time_name_lbl.configure(text=t("practice_time"))
+            
+        # Upload Button
+        if hasattr(self, "upload_btn") and self.upload_btn:
+            self.upload_btn.configure(text="Fayl yuklash 📁" if get_locale() == "uz" else "File Upload 📁")
+            
+        # Canvas Frame Label
+        if hasattr(self, "canvas_frame") and self.canvas_frame:
+            self.canvas_frame.configure(text=" Yozish maydoni " if get_locale() == "uz" else " Typing Area ")
+            
+        # Restart & Back Buttons
+        if hasattr(self, "restart_btn") and self.restart_btn:
+            self.restart_btn.configure(text=t("btn_restart"))
+        if hasattr(self, "back_btn") and self.back_btn:
+            self.back_btn.configure(text=t("btn_back_to_dashboard"))
+            
+        # Info Label (Yozishni boshlang...)
+        if hasattr(self, "info_lbl") and self.info_lbl:
+            self.info_lbl.configure(text=f"{t('practice_start_instruction')} ({t('practice_restart_kbd')})")

@@ -112,8 +112,8 @@ def register_user(username: str, display_name: str, password: str) -> int:
             
             # Set Default settings constraints in transaction block
             conn.execute(
-                "INSERT INTO user_settings (user_id, theme, font_family, font_size, language, sound_enabled, show_live_wpm, show_accuracy, caret_style) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                "INSERT INTO user_settings (user_id, theme, font_family, font_size, language, sound_enabled, show_live_wpm, show_accuracy, caret_style, ui_language) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                 (
                     user_id,
                     DEFAULT_THEME,
@@ -123,7 +123,8 @@ def register_user(username: str, display_name: str, password: str) -> int:
                     1 if DEFAULT_SOUND_ENABLED else 0,
                     1 if DEFAULT_SHOW_LIVE_WPM else 0,
                     1 if DEFAULT_SHOW_ACCURACY else 0,
-                    DEFAULT_CARET_STYLE
+                    DEFAULT_CARET_STYLE,
+                    'uz'
                 )
             )
             

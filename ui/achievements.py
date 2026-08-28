@@ -102,8 +102,9 @@ class AchievementsView(BaseView):
             for row in ach_list:
                 unlocked_at = row.get("unlocked_at")
                 
+                from services.i18n_service import t
                 if unlocked_at:
-                    status_text = "Qulfdan chiqarildi 🔥"
+                    status_text = t("achievements_status_unlocked")
                     tag = "unlocked"
                     # Format date string (YYYY-MM-DD HH:MM:SS -> YYYY-MM-DD HH:MM)
                     try:
@@ -112,16 +113,20 @@ class AchievementsView(BaseView):
                     except Exception:
                         date_str = unlocked_at
                 else:
-                    status_text = "Qulflangan 🔒"
+                    status_text = t("achievements_status_locked")
                     tag = "locked"
                     date_str = "-"
+
+                ach_key = row.get("key", "")
+                title_text = t(f"ach_{ach_key}_title", row.get("title", ""))
+                desc_text = t(f"ach_{ach_key}_desc", row.get("description", ""))
 
                 self.tree.insert(
                     "",
                     "end",
                     values=(
-                        row.get("title", ""),
-                        row.get("description", ""),
+                        title_text,
+                        desc_text,
                         f"+{row.get('xp_reward', 0)} XP",
                         status_text,
                         date_str
@@ -143,3 +148,27 @@ class AchievementsView(BaseView):
     def _handle_back(self):
         """Reroutes transition path back to the main dashboard screen view."""
         self.controller.show_view("home")
+
+    def retranslate_ui(self):
+        """Translates view titles, headers, empty notices, and reward metrics dynamically."""
+        from services.i18n_service import t
+        # Page Title
+        self.title_label.configure(text=t("achievements_title"))
+        
+        # Back Button
+        if hasattr(self, "back_btn") and self.back_btn:
+            self.back_btn.configure(text=t("btn_back_to_dashboard"))
+            
+        # Empty notice label
+        if hasattr(self, "empty_label") and self.empty_label:
+            self.empty_label.configure(text=t("achievements_empty"))
+            
+        # Table Columns Headers
+        self.tree.heading("title", text=t("achievements_tbl_title"))
+        self.tree.heading("description", text=t("achievements_tbl_description"))
+        self.tree.heading("xp_reward", text=t("achievements_tbl_reward"))
+        self.tree.heading("status", text=t("achievements_tbl_status"))
+        self.tree.heading("unlocked_at", text=t("personal_best_achieved_date"))
+        
+        if self.winfo_ismapped():
+            self.on_show()

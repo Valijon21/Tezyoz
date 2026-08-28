@@ -22,6 +22,9 @@
 *   **Ma'lumotlar Bazasi Zaxirasi (Backup & Restore)**: Transactional SQLite database backup and verification utility directly from the user interface.
 *   **Enterprise-Grade Local Security**: Zero-dependency secure password storage relying on PBKDF2-HMAC-SHA256 with 100,000 iterations to withstand brute-force attacks.
 *   **Dynamic Theme Propagation**: Fully responsive theme engine switching between `dark`, `light`, and `cyberpunk` modes across all views instantly.
+*   **Internationalization (i18n) Engine**: Built-in support for multiple languages (Uzbek and English) propagating preference updates across the entire application instantly.
+*   **Persistent Audio Control**: Centralized Sound Service with audio effect switch toggling on-demand sound feedback (clicks and level-up sounds) saved in SQLite user settings.
+*   **Enhanced UX & Tables Alignment**: Fine-tuned history tables with right-aligned numeric data columns (WPM, Accuracy, Consistency, and XP milestones) to prevent layout shifting.
 
 ---
 
@@ -60,7 +63,9 @@ typing/
 ├── services/             # Core business rules & logic
 │   ├── auth_service.py   # Security, encryption, and local user sessions
 │   ├── streak_service.py # Daily activity calculations
-│   └── daily_missions_service.py # Procedural goal generation
+│   ├── daily_missions_service.py # Procedural goal generation
+│   ├── i18n_service.py   # Multilingual localization dictionaries and engine
+│   └── sound_service.py  # Click/level-up auditory feedback controller
 │
 ├── engine/               # Math core and typing test mechanics
 │   ├── calculators.py    # Formulas for WPM, raw speed, consistency, and errors
@@ -71,6 +76,7 @@ typing/
 │   ├── base.py           # Standard BaseView layout definition
 │   ├── dashboard.py      # Main dashboard with statistics, cards, and charts
 │   ├── typing_test.py    # Interactive test board canvas
+│   ├── settings.py       # Configuration editor (themes, font family/sizes, sound toggle, db backups)
 │   └── theme.py          # Centralized themes coloring matrices
 │
 ├── charts/               # Tkinter Custom Canvas visual plotting

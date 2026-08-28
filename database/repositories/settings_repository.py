@@ -18,7 +18,8 @@ class SettingsRepository(BaseRepository):
         "sound_enabled",
         "show_live_wpm",
         "show_accuracy",
-        "caret_style"
+        "caret_style",
+        "ui_language"
     }
 
     def get_settings(self, user_id: int) -> dict:
@@ -28,7 +29,7 @@ class SettingsRepository(BaseRepository):
         """
         query = """
             SELECT user_id, theme, font_family, font_size, language,
-                   sound_enabled, show_live_wpm, show_accuracy, caret_style
+                   sound_enabled, show_live_wpm, show_accuracy, caret_style, ui_language
             FROM user_settings
             WHERE user_id = ?
         """

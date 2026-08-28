@@ -38,8 +38,107 @@ class SoundService:
         self._initialized = True
         self.sound_queue = queue.Queue()
         self.guest_sound_enabled = True
+        
+        # Setup paths
+        self.assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "sounds")
+        self.click_path = os.path.join(self.assets_dir, "click.wav")
+        self.error_path = os.path.join(self.assets_dir, "error.wav")
+        self.level_up_path = os.path.join(self.assets_dir, "level_up.wav")
+        
+        # Check and generate files if missing
+        self._ensure_sound_files()
+        
         self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
         self.worker_thread.start()
+
+    def _ensure_sound_files(self):
+        """Builds mechanical sound effects programmatically if they are missing."""
+        try:
+            if not os.path.exists(self.click_path):
+                self._generate_wav_file(self.click_path, frequency=0, duration_ms=60, is_click=True)
+            if not os.path.exists(self.error_path):
+                self._generate_wav_file(self.error_path, frequency=140, duration_ms=150, is_click=False)
+            if not os.path.exists(self.level_up_path):
+                self._generate_wav_file(self.level_up_path, frequency=0, duration_ms=600, is_click=False, is_levelup=True)
+        except Exception as err:
+            logger.error(f"Failed to generate sound assets: {err}")
+
+    def _generate_wav_file(self, filename, frequency, duration_ms, is_click=True, is_levelup=False):
+        """Generates raw PCM wave assets and writes standard RIFF headers."""
+        import struct
+        import math
+        import random
+        
+        sample_rate = 11025
+        data = []
+        
+        if is_click:
+            # Mechanical switch click: rapid pitch sweep down and white noise decay
+            num_samples = int(sample_rate * (duration_ms / 1000.0))
+            for i in range(num_samples):
+                t = i / sample_rate
+                # Rapid expo decay envelope
+                envelope = math.exp(-120 * t)
+                # Sweep pitch
+                freq = 1800 - 1500 * (i / num_samples)
+                val = math.sin(2 * math.pi * freq * t) * envelope
+                # High frequency click snap noise
+                noise = (random.random() - 0.5) * 0.15 * envelope
+                sample_val = max(-1.0, min(1.0, val + noise))
+                data.append(int(sample_val * 32767))
+        elif is_levelup:
+            # Ascending 4-note celebratory chime
+            num_samples = int(sample_rate * (duration_ms / 1000.0))
+            data = [0] * num_samples
+            note_freqs = [523, 659, 784, 1046]  # C5 - E5 - G5 - C6
+            for note_idx, freq in enumerate(note_freqs):
+                start_sample = int(sample_rate * (note_idx * 0.12))
+                note_dur_samples = int(sample_rate * 0.25)
+                for i in range(note_dur_samples):
+                    curr_sample = start_sample + i
+                    if curr_sample >= num_samples:
+                        break
+                    t = i / sample_rate
+                    # Soft chime envelope
+                    envelope = math.exp(-9 * t)
+                    val = math.sin(2 * math.pi * freq * t) * envelope * 0.25
+                    data[curr_sample] = int(data[curr_sample] + val * 32767)
+        else:
+            # Error buzzer (low frequency tone)
+            num_samples = int(sample_rate * (duration_ms / 1000.0))
+            for i in range(num_samples):
+                t = i / sample_rate
+                # Square wave buzz
+                val = 0.4 if (math.sin(2 * math.pi * frequency * t) >= 0) else -0.4
+                data.append(int(val * 32767))
+                
+        # Write WAV format
+        data_bytes = bytearray()
+        for sample in data:
+            # Clamp value
+            sample = max(-32768, min(32767, sample))
+            data_bytes.extend(struct.pack("<h", sample))
+            
+        header = struct.pack(
+            "<4sI4s4sIHHIIHH4sI",
+            b"RIFF",
+            36 + len(data_bytes),
+            b"WAVE",
+            b"fmt ",
+            16,
+            1,      # PCM
+            1,      # Mono
+            sample_rate,
+            sample_rate * 2,
+            2,      # BlockAlign
+            16,     # Bits per sample
+            b"data",
+            len(data_bytes)
+        )
+        
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "wb") as f:
+            f.write(header + data_bytes)
 
     def _worker_loop(self):
         """Worker loop executing beep commands sequentially in daemon thread."""
@@ -53,18 +152,31 @@ class SoundService:
                 if not self._is_sound_enabled():
                     self.sound_queue.task_done()
                     continue
-
+ 
                 if winsound:
+                    # Resolve filepath based on type
+                    file_path = None
                     if sound_type == "click":
-                        winsound.Beep(800, 25)
+                        file_path = self.click_path
                     elif sound_type == "error":
-                        winsound.Beep(250, 100)
+                        file_path = self.error_path
                     elif sound_type == "level_up":
-                        # Arpeggio sequence for level up
-                        winsound.Beep(523, 70)  # C5
-                        winsound.Beep(659, 70)  # E5
-                        winsound.Beep(784, 70)  # G5
-                        winsound.Beep(1046, 120) # C6
+                        file_path = self.level_up_path
+                        
+                    if file_path and os.path.exists(file_path):
+                        # Play wav file
+                        winsound.PlaySound(file_path, winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    else:
+                        # Fallback to beep
+                        if sound_type == "click":
+                            winsound.Beep(800, 25)
+                        elif sound_type == "error":
+                            winsound.Beep(250, 100)
+                        elif sound_type == "level_up":
+                            winsound.Beep(523, 70)
+                            winsound.Beep(659, 70)
+                            winsound.Beep(784, 70)
+                            winsound.Beep(1046, 120)
                 
                 self.sound_queue.task_done()
             except Exception as err:
