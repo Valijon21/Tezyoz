@@ -145,5 +145,13 @@ python -m unittest discover -s tests
 
 ---
 
+## 👥 Muallif va Bog'lanish (Developer & Contacts)
+
+*   **Dasturchi (Developer)**: Valijon Ergashev
+*   **Telefon (Phone)**: [+998 (77) 342-33-21](tel:+998773423321)
+*   **Loyiha maqvasi**: Tezyoz (TypeMaster) - o'zbek tili lug'atlarining boy majmuasi va gamifikatsiya elementlari bilan birlashtirilgan to'liq oflayn kompyuter trenajyori.
+
+---
+
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
