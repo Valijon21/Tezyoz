@@ -4,36 +4,34 @@
 [![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://microsoft.com)
 
-**Tezyoz (TypeMaster)** is a professional, 100% offline desktop typing trainer desktop application designed for Windows platforms. Inspired by the clean, minimal aesthetic of Monkeytype (Sokin Neon style), Tezyoz is built as a self-contained productivity tool that tracks long-term performance improvements, XP-based gamification, daily missions, and local statistics without requiring cloud sync or internet access.
+**Tezyoz (TypeMaster)** – bu Windows platformasi uchun mo'ljallangan, tarmoqqa ulanishni talab qilmaydigan (100% oflayn) professional kompyuterda tez yozish trenajyori. Monkeytype (Sokin Neon uslubi) minimalist estetikasidan ilhomlangan ushbu dastur mustaqil ravishda uzoq muddatli yozish faoliyatini tahlil qilish, tajriba ballari (XP), darajalar, kunlik topshiriqlar va lokal statistikani kuzatish imkonini beradi.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Asosiy Imkoniyatlar
 
-*   **Minimalist Typing Engine**: Fluid caret movements, live word highlighting, and real-time validation metrics (WPM, Accuracy, and Consistency standard deviation).
-*   **Rich Analytics Dashboard**: Integrated canvas-based visualizations including:
-    *   WPM/Accuracy progress line charts.
-    *   Practice duration bar charts.
-    *   **Interactive Keyboard Heatmap** mapping keypress frequency and error rates to identify weak keys.
-*   **Gamification & Leveling**:
-    *   Progressive experience points (XP) calculation system.
-    *   Visual level ups and interactive progress bars (XP bar and Daily Goal status).
-*   **Daily Missions (Kunlik Topshiriqlar)**: Procedurally generated individual challenges updated daily (e.g., target WPM milestones, mistake-free runs) rewarding bonus XP.
-*   **Ma'lumotlar Bazasi Zaxirasi (Backup & Restore)**: Transactional SQLite database backup and verification utility directly from the user interface.
-*   **Enterprise-Grade Local Security**: Zero-dependency secure password storage relying on PBKDF2-HMAC-SHA256 with 100,000 iterations to withstand brute-force attacks.
-*   **Dynamic Theme Propagation**: Fully responsive theme engine switching between `dark`, `light`, and `cyberpunk` modes across all views instantly.
-*   **Internationalization (i18n) Engine**: Built-in support for multiple languages (Uzbek and English) propagating preference updates across the entire application instantly.
-*   **Persistent Audio Control**: Centralized Sound Service with audio effect switch toggling on-demand sound feedback (clicks and level-up sounds) saved in SQLite user settings.
-*   **Enhanced UX & Tables Alignment**: Fine-tuned history tables with right-aligned numeric data columns (WPM, Accuracy, Consistency, and XP milestones) to prevent layout shifting.
-*   **Visual Hands Keyboard Tutor (Visual Yordamchi)**: Tkinter canvas-based hand drawing providing real-time visual tips on which finger and hand side should touch-type the next target key card, with dynamic toggle switch in Settings.
-*   **Multilingual Layout Adaptation (Rus Klaviaturasi)**: Supports dynamic keycap changes switching physical US QWERTY caps to Russian JCUKEN layout (Q to Й, W to Ц, etc.) adapting finger cues automatically for Russian practice texts.
-*   **Grid Results Redesign & Total Chars Metric**: Professional 3x3 layout alignment in the Results page displaying Net WPM, Raw WPM, Accuracy, Consistency, Errors, Duration, XP/Level, Rating, and **Jami belgilar (Total Chars)** count.
+*   **Minimalist Yozish Dvigateli**: Harakatlanuvchi kursor, so'zlarni jonli ravishda yoritish va real vaqtdagi validation hisoblagichlari (WPM tezligi, Aniqlik va Ritmik Consistency standart og'ishi).
+*   **Klaviatura Yordamchi Tizimi (Visual Hands Tutor)**: Har bir belgi yoki son uchun to'g'ri barmoqni real vaqtda ko'rsatuvchi interaktiv Tkinter Canvas qo'llar guide-tizimi (sozlamalardan yoqish/o'chirish imkoniyati bilan).
+*   **Rus Tili (JCUKEN) Tartibi**: Mashq tili Rus tili qilib tanlanganda, jismoniy klaviatura o'rnida dinamik ravishda kirill klavishlarini va ularning joylashuvini ko'rsatish.
+*   **Kengaytirilgan Natijalar To'ri (3x3 Grid)**: Har bir mashq yakunida ko'rsatkichlarni visual tarzda taqdim etuvchi 9 ta karta: Net WPM, Raw WPM, Aniqlik, Ritm, Ritm Bahosi, Xatolar soni, Sarflangan vaqt, XP/Daraja, hamda jismoniy yozilgan **Jami belgilar**.
+*   **Kuchli Analitika Dashboardi**: Quyidagi canvas-asosidagi vizual grafik va tahlillarni taqdim etadi:
+    *   WPM/Aniqlik rivojlanish chiziqli diagrammasi (Line charts).
+    *   Haftalik mashq davomiyligi ustunli diagrammasi (Bar charts).
+    *   **Faol Klaviatura Heatmap** (klavishlar bosilish chastotasi va xatolik darajasi xaritasi).
+*   **Gamifikatsiya va Rivojlanish**:
+    *   Matn tergan sari ortib boruvchi tajriba ballari (XP) tizimi.
+    *   Ajoyib ovoz effekti bilan daraja oshishi (Level Up) hamda interaktiv taraqqiyot panellari (XP va Kunlik Maqsad vizualizatsiyasi).
+*   **Kunlik Topshiriqlar (Daily Missions)**: Har kuni yangilanadigan, foydalanuvchiga bonus XP beruvchi avtomatik topshiriqlar (masalan: ma'lum bir tezlik ko'rsatkichi, xatosiz matn terish).
+*   **Zaxiralash Tizimi (Backup & Restore)**: Transactional SQLite ma'lumotlar bazasini import/eksport qilish va strukturani tekshirish vositasi.
+*   **Moslashuvchan Mavzular Engine**: Ekran ko'rinishlarini bir zumda o'zgartiruvchi neon to'q (`dark`), oq (`light`) va `cyberpunk` rang ganalari.
+*   **Ko'p tilli interfeys (i18n)**: Ingliz va O'zbek tillari o'rtasida dinamik boshqaruv.
+*   **Oyna va Jadvallar Tekisligi**: Decimal nuqtalar va rekordlarning siljib ketmasligini ta'minlovchi o'ng tomonga tekislangan (anchor='e') tarix va rekordlar jadvallari.
 
 ---
 
-## 🏗️ Architecture & Component Design
+## 🏗️ Arxitektura va Komponentlar Dizayni
 
-Tezyoz enforces a strict **layered architecture** to ensure separation of concerns, modifiability, and module testability:
+Tezyoz modullarni alohida testlash va kengaytirishni osonlashtirish uchun **qatlamli arxitektura** (layered architecture) prinsiplariga tayanadi:
 
 ```mermaid
 graph TD
@@ -43,79 +41,80 @@ graph TD
     UI[UI Views: ui/dashboard.py, ui/typing_test.py] -->|Events & Callbacks| Services[Domain Services: services/streak_service.py, services/daily_missions_service.py]
     Services -->|Entities & Repositories| Repositories[Repositories: database/repositories/*]
     Repositories -->|Queries| DatabaseConnector[Database Connection Handler: database/connection.py]
-    DatabaseConnector -->|Raw Transactions| SQLite[(Local SQLite: typemaster.db)]
+    DatabaseConnector -->|Raw Transactions| SQLite[(Lokal SQLite: typemaster.db)]
 
     class UI,Services,Repositories,DatabaseConnector layer;
     class SQLite db;
 ```
 
-### Module Structure
+### Papka tuzilishi (Module Structure)
 
 ```text
 typing/
 │
-├── app/                  # Application bootstrap and core configs
-│   ├── application.py    # Main GUI Window lifecycle and View Router
-│   └── config.py         # Centralized configuration tokens and metrics
+├── app/                  # Ilova yuklanishi va asosiy sozlamalari
+│   ├── application.py    # GUI darchasi lifecycle va View Router
+│   └── config.py         # Markaziy sozlamalar va doimiy o'zgaruvchilar
 │
-├── database/             # Data access layer
-│   ├── connection.py     # SQLite connection manager and transaction context helpers
-│   ├── schema.py         # Relational tables definition and database migrator
-│   └── repositories/     # Domain data access objects (base, daily stats, path bests)
+├── database/             # Ma'lumotlarga kirish qatlami (Data access)
+│   ├── connection.py     # SQLite ulanish va tranzaksiya boshqaruvchisi
+│   ├── schema.py         # Relyatsion jadvallar va databaza migratsiyalari
+│   └── repositories/     # Repozitoriy obyektlari (tarix, rekordlar, sozlamalar)
 │
-├── services/             # Core business rules & logic
-│   ├── auth_service.py   # Security, encryption, and local user sessions
-│   ├── streak_service.py # Daily activity calculations
-│   ├── daily_missions_service.py # Procedural goal generation
-│   ├── i18n_service.py   # Multilingual localization dictionaries and engine
-│   └── sound_service.py  # Click/level-up auditory feedback controller
+├── services/             # Biznes mantiq qatlami (Domain logic)
+│   ├── auth_service.py   # Foydalanuvchi seanslari, shifrlash (PBKDF2-HMAC-SHA256)
+│   ├── streak_service.py # Kunlik faollik va zanjir (streak) hisobi
+│   ├── daily_missions_service.py # Kunlik topshiriqlar yaratish vositasi
+│   ├── i18n_service.py   # Tarjima va ko'p tilli lug'atlar dvigateli
+│   └── sound_service.py  # Tugmalar chertilishi va daraja oshishi tovushlari
 │
-├── engine/               # Math core and typing test mechanics
-│   ├── calculators.py    # Formulas for WPM, raw speed, consistency, and errors
-│   ├── typing_engine.py  # Typing test state machine controller
-│   └── text_loader.py    # Static assets parser with resource freeze fallbacks
+├── engine/               # Matematik yadrolar va yozish dvigateli
+│   ├── calculators.py    # WPM, aniqlik va ritm hisoblash formulalari
+│   ├── typing_engine.py  # Mashq holatlari boshqaruvi (State Machine)
+│   └── text_loader.py    # Matnlarni yuklash va resurslar menejeri
 │
-├── ui/                   # CustomTkinter & Tkinter graphical views
-│   ├── base.py           # Standard BaseView layout definition
-│   ├── dashboard.py      # Main dashboard with statistics, cards, and charts
-│   ├── typing_test.py    # Interactive test board canvas
-│   ├── settings.py       # Configuration editor (themes, font family/sizes, sound toggle, db backups)
-│   └── theme.py          # Centralized themes coloring matrices
+├── ui/                   # CustomTkinter va Tkinter grafik qismlari
+│   ├── base.py           # Standard BaseView sarlavhasi
+│   ├── dashboard.py      # Bosh panel grafiklari va interaktiv kartalar
+│   ├── typing_test.py    # Matn terish maydoni va vizual yordamchi integratsiyasi
+│   ├── keyboard_visualizer.py # Barmoq va jismoniy klaviatura simulyatori
+│   ├── settings.py       # Sozlamalar paneli (tovushlar, shriftlar, mavzular)
+│   └── theme.py          # Rang palitralari boshqaruvi
 │
-├── charts/               # Tkinter Custom Canvas visual plotting
-│   ├── line_chart.py     # Metrics line graphs with interactive hover tooltips
-│   ├── bar_chart.py      # Practice duration bars
-│   └── heatmap.py        # Keyboard typing patterns heatmap canvas
+├── charts/               # Grafik chizish komponentlari
+│   ├── line_chart.py     # Rivojlanish tahlillari chiziqli grafigi
+│   ├── bar_chart.py      # Matn mashqi davomiyligi ustunlari
+│   └── heatmap.py        # Heatmap klaviatura chastotalari va xatolar xaritasi
 │
-└── tests/                # Automated verification suites
-    ├── test_database.py  # Database transaction assertions
-    ├── test_schema.py    # Schema constraints tests
-    └── test_auth.py      # Cryptography speed/security bounds
+└── tests/                # Avtomatlashtirilgan testlar to'plami
+    ├── test_database.py       # Tranzaksiyalar testlari
+    ├── test_keyboard_visualizer.py # Visual hands va klaviatura testlari
+    └── test_results_ui.py     # 3x3 natijalar to'lanishi testlari
 ```
 
 ---
 
-## 🛠️ Development Setup & Installation
+## 🛠️ O'rnatish va Sozlash (Installation)
 
-### Prerequisites
-*   **Python**: 3.8 or higher.
-*   **Operating System**: Windows 8 / 8.1 / 10 / 11.
-*   **Dependencies**: Uses the Python Standard Library (Tkinter/ttk, SQLite3, Hashlib) and CustomTkinter for modern aesthetics.
+### Tizim Talablari
+*   **Python**: 3.8 yoki undan yuqori talab qilinadi.
+*   **Operatsion Tizim**: Windows 8 / 10 / 11.
+*   **Kutubxonalar**: Standart Python kutubxonalariga qo'shimcha ravishda faqat modern visual uchun CustomTkinter foydalanilgan.
 
-### Setup Instructions
+### O'rnatish tartibi:
 
-1.  **Clone the repository**:
+1.  **Omborni yuklab oling (Clone)**:
     ```powershell
     git clone https://github.com/Valijon21/Tezyoz.git
     cd Tezyoz
     ```
 
-2.  **Initialize python virtual environment**:
+2.  **Virtual muhit yaratish (venv)**:
     ```powershell
     python -m venv .venv
     ```
 
-3.  **Activate virtual environment**:
+3.  **Virtual muhitni faollashtirish**:
     *   **PowerShell**:
         ```powershell
         .venv\Scripts\Activate.ps1
@@ -125,36 +124,36 @@ typing/
         .venv\Scripts\activate.bat
         ```
 
-4.  **Install dependencies**:
+4.  **Kutubxonalarni o'rnatish**:
     ```powershell
     pip install -r requirements.txt
     ```
 
 ---
 
-## 🚦 Verification and Execution
+## 🚦 Tizimni Ishga Tushirish va Sinab Ko'rish
 
-### Running the Desktop Interface
-Start up the bootstrapper sequence by executing:
+### Dasturni yurgizish
+Bootstrapper zanjirini boshlash uchun quyidagi buyruqni bering:
 ```powershell
 python main.py
 ```
 
-### Running Test Verification Suite
-Tezyoz utilizes Python's native `unittest` framework to execute unit tests. You can run all verification checks headlessly:
+### Avtomatlashtirilgan testlarni ishga tushirish
+Tezyoz platformasi barqarorligini tekshirish uchun unittest yordamida barcha unit-testlarni (jami 186+) ishdan o'tkazishingiz mumkin:
 ```powershell
 python -m unittest discover -s tests
 ```
 
 ---
 
-## 👥 Muallif va Bog'lanish (Developer & Contacts)
+## 👥 Muallif va Aloqa (Developer & Contacts)
 
-*   **Dasturchi (Developer)**: Valijon Ergashev
-*   **Telefon (Phone)**: [+998 (77) 342-33-21](tel:+998773423321)
-*   **Loyiha maqvasi**: Tezyoz (TypeMaster) - o'zbek tili lug'atlarining boy majmuasi va gamifikatsiya elementlari bilan birlashtirilgan to'liq oflayn kompyuter trenajyori.
+*   **Dastur muallifi**: Valijon Ergashev
+*   **Telefon**: [+998 (77) 342-33-21](tel:+998773423321)
+*   **Loyiha ta'rifi**: Tezyoz (TypeMaster) – boy o'zbek tili lug'atlar majmuasi bilan birgalikda foydalanuvchilarning klaviaturada ishlash mahoratini oshirish uchun yaratilgan to'liq professional trenajyor.
 
 ---
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 Litsenziya
+Ushbu loyiha MIT litsenziyasi ostida taqdim etilgan – batafsil ma'lumot olish uchun [LICENSE](LICENSE) faylini ko'ring.
