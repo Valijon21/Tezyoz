@@ -116,6 +116,17 @@ class SettingsView(BaseView):
         )
         self.size_combo.grid(row=2, column=1, sticky="e", pady=6)
 
+        # 4. Keyboard Helper
+        self.keyboard_lbl = ctk.CTkLabel(grid, text=t("settings_keyboard_helper") or "Keyboard Helper", font=("Segoe UI", 12))
+        self.keyboard_lbl.grid(row=3, column=0, sticky="w", pady=6)
+        self.keyboard_switch = ctk.CTkSwitch(
+            grid,
+            text="",
+            command=self._on_keyboard_toggle,
+            font=("Segoe UI", 11)
+        )
+        self.keyboard_switch.grid(row=3, column=1, sticky="e", pady=6)
+
     def _build_audio_lang_card(self):
         theme_colors = THEMES.get(self.controller.current_theme, THEMES["dark"])
         
@@ -240,6 +251,17 @@ class SettingsView(BaseView):
         if enabled:
             sound_player.play_click()
 
+    def _on_keyboard_toggle(self):
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        if user:
+            val = 1 if self.keyboard_switch.get() else 0
+            from database.repositories.settings_repository import SettingsRepository
+            SettingsRepository().update_setting(user["id"], "show_keyboard_helper", val)
+            from services.sound_service import sound_player
+            if sound_player._is_sound_enabled():
+                sound_player.play_click()
+
     def _on_language_change(self, choice):
         from services.i18n_service import set_locale
         lang_code = "uz" if choice == "O'zbekcha" else "en"
@@ -347,6 +369,18 @@ class SettingsView(BaseView):
             self.sound_switch.select()
         else:
             self.sound_switch.deselect()
+
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        if user:
+            from database.repositories.settings_repository import SettingsRepository
+            setting = SettingsRepository().get_settings(user["id"])
+            if setting and setting.get("show_keyboard_helper", 0):
+                self.keyboard_switch.select()
+            else:
+                self.keyboard_switch.deselect()
+        else:
+            self.keyboard_switch.deselect()
             
         self.apply_theme(self.controller.current_theme)
 
@@ -369,7 +403,7 @@ class SettingsView(BaseView):
         for f in card_panels:
             f.configure(fg_color=card_bg)
             
-        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl]
+        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl, self.keyboard_lbl]
         for l in lbl_list:
             l.configure(text_color=fg)
             
@@ -392,6 +426,12 @@ class SettingsView(BaseView):
             )
             
         self.sound_switch.configure(
+            text_color=fg,
+            progress_color=accent,
+            fg_color=border
+        )
+
+        self.keyboard_switch.configure(
             text_color=fg,
             progress_color=accent,
             fg_color=border
@@ -422,6 +462,7 @@ class SettingsView(BaseView):
         self.theme_lbl.configure(text=t("theme"))
         self.font_lbl.configure(text=t("font"))
         self.size_lbl.configure(text=t("size"))
+        self.keyboard_lbl.configure(text=t("settings_keyboard_helper") or "Keyboard Helper")
         
         self.audio_title.configure(text=t("settings_audio_section"))
         self.lang_lbl.configure(text=t("language"))

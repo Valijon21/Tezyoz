@@ -197,7 +197,20 @@ TRANSLATIONS = {
         "settings_restore_desc": "Tizim ma'lumotlarini tashqi zaxira faylidan qayta tiklash (joriy natijalar o'chadi).",
         "settings_btn_backup": "Zaxiralash (Backup)",
         "settings_btn_restore": "Zaxiradan Tiklash (Restore)",
-        "settings_saved_alert": "Tizim sozlamalari muvaffaqiyatli saqlandi!"
+        "settings_saved_alert": "Tizim sozlamalari muvaffaqiyatli saqlandi!",
+        # Keyboard Visualizer settings & interface keys
+        "settings_keyboard_helper": "Klaviatura yordamchisi:",
+        "settings_keyboard_helper_desc": "Tugmalarni va tegishli barmoqlarni real vaqtda ko'rsatuvchi yordamchi.",
+        "finger_left_pinky": "Chap jimjiloq",
+        "finger_left_ring": "Chap nomsiz",
+        "finger_left_middle": "Chap o'rtacha",
+        "finger_left_index": "Chap ko'rsatkich",
+        "finger_thumb": "Bosh barmoq",
+        "finger_right_index": "O'ng ko'rsatkich",
+        "finger_right_middle": "O'ng o'rtacha",
+        "finger_right_ring": "O'ng nomsiz",
+        "finger_right_pinky": "O'ng jimjiloq",
+        "helper_next_key": "Tugma: '{}' | Barmoq: {}"
     },
     "en": {
         "title_home": "⊞  Dashboard",
@@ -387,7 +400,20 @@ TRANSLATIONS = {
         "settings_restore_desc": "Import system data from an external backup file (existing stats will be lost).",
         "settings_btn_backup": "Export Backup",
         "settings_btn_restore": "Import Restore",
-        "settings_saved_alert": "System settings saved successfully!"
+        "settings_saved_alert": "System settings saved successfully!",
+        # Keyboard Visualizer settings & interface keys
+        "settings_keyboard_helper": "Keyboard Helper:",
+        "settings_keyboard_helper_desc": "Real-time key and finger visual helper during practice.",
+        "finger_left_pinky": "Left Pinky",
+        "finger_left_ring": "Left Ring",
+        "finger_left_middle": "Left Middle",
+        "finger_left_index": "Left Index",
+        "finger_thumb": "Thumb",
+        "finger_right_index": "Right Index",
+        "finger_right_middle": "Right Middle",
+        "finger_right_ring": "Right Ring",
+        "finger_right_pinky": "Right Pinky",
+        "helper_next_key": "Key: '{}' | Finger: {}"
     }
 }
 

@@ -55,5 +55,8 @@ pytest_out.txt
 test_errors.txt
 test_out.txt
 err*.txt
+pytest_*.log
+test_*.log
+clean_test_out.log
 tmp/
 

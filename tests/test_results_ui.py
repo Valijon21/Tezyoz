@@ -41,6 +41,7 @@ class TestResultsUI(unittest.TestCase):
         self.assertIn("errors", self.view.cards)
         self.assertIn("duration", self.view.cards)
         self.assertIn("xp_level", self.view.cards)
+        self.assertIn("total_chars", self.view.cards)
 
     def test_set_results_updates_values(self):
         """Verify set_results sets text values on metric card labels correctly."""
@@ -56,7 +57,8 @@ class TestResultsUI(unittest.TestCase):
             level=3,
             is_pb=True,
             streak=5,
-            longest_streak=10
+            longest_streak=10,
+            total_chars=120
         )
 
         # Check values mappings matches suffix and precision specs
@@ -66,6 +68,7 @@ class TestResultsUI(unittest.TestCase):
         self.assertEqual(self.view.cards["errors"]["label"].cget("text"), "3")
         self.assertEqual(self.view.cards["duration"]["label"].cget("text"), "60 soniya")
         self.assertEqual(self.view.cards["xp_level"]["label"].cget("text"), "+12 XP (Lvl 3)")
+        self.assertEqual(self.view.cards["total_chars"]["label"].cget("text"), "120 ta")
 
         # Verify PB badge is packed and visible
         self.assertEqual(self.view.pb_badge.winfo_manager(), "pack")

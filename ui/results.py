@@ -46,13 +46,13 @@ class ResultsView(BaseView):
             foreground="#f59e0b" # Orange/Gold color for flame
         )
 
-        # Metrics layout frame - structured in a grid (2 rows, 4 columns)
+        # Metrics layout frame - structured in a grid (3 rows, 3 columns)
         self.metrics_frame = ttk.Frame(self.container)
 
         # Configure weights for responsive grid centering
-        for col in range(4):
+        for col in range(3):
             self.metrics_frame.columnconfigure(col, weight=1, uniform="equal")
-        for row in range(2):
+        for row in range(3):
             self.metrics_frame.rowconfigure(row, weight=1, uniform="equal")
 
         # Metric Cards mapping references
@@ -62,11 +62,14 @@ class ResultsView(BaseView):
             (0, 0, "wpm", "Net WPM (Tezlik)", ""),
             (0, 1, "raw_wpm", "Raw WPM (Jami)", ""),
             (0, 2, "accuracy", "Aniqlik", "%"),
-            (0, 3, "consistency", "Ritm (Consistency)", "%"),
-            (1, 0, "errors", "Xatolar", ""),
-            (1, 1, "duration", "Vaqt", " soniya"),
-            (1, 2, "xp_level", "XP / Bosqich", ""),
-            (1, 3, "rhythm_rating", "Ritm Bahosi", "")
+            
+            (1, 0, "consistency", "Ritm (Consistency)", "%"),
+            (1, 1, "rhythm_rating", "Ritm Bahosi", ""),
+            (1, 2, "errors", "Xatolar", ""),
+            
+            (2, 0, "duration", "Vaqt", " soniya"),
+            (2, 1, "xp_level", "XP / Bosqich", ""),
+            (2, 2, "total_chars", "Jami belgilar", " ta")
         ]
 
         for r, c, key, label_text, suffix in metric_configs:
@@ -109,7 +112,8 @@ class ResultsView(BaseView):
 
     def set_results(self, wpm: float, raw_wpm: float, accuracy: float, errors: int,
                     duration: int, xp_earned: int, level: int, is_pb: bool = False,
-                    streak: int = 0, longest_streak: int = 0, consistency: float = 100.0):
+                    streak: int = 0, longest_streak: int = 0, consistency: float = 100.0,
+                    total_chars: int = 0):
         """
         Dynamically updates the UI card labels with final test results.
         """
@@ -138,6 +142,7 @@ class ResultsView(BaseView):
         self.cards["duration"]["label"].config(text=f"{duration}{self.cards['duration']['suffix']}")
         self.cards["xp_level"]["label"].config(text=f"+{xp_earned} XP (Lvl {level})")
         self.cards["consistency"]["label"].config(text=f"{consistency:.1f}%")
+        self.cards["total_chars"]["label"].config(text=f"{total_chars}{self.cards['total_chars']['suffix']}")
 
         # Set rhythm performance description and color
         if consistency >= 85.0:

@@ -25,6 +25,9 @@
 *   **Internationalization (i18n) Engine**: Built-in support for multiple languages (Uzbek and English) propagating preference updates across the entire application instantly.
 *   **Persistent Audio Control**: Centralized Sound Service with audio effect switch toggling on-demand sound feedback (clicks and level-up sounds) saved in SQLite user settings.
 *   **Enhanced UX & Tables Alignment**: Fine-tuned history tables with right-aligned numeric data columns (WPM, Accuracy, Consistency, and XP milestones) to prevent layout shifting.
+*   **Visual Hands Keyboard Tutor (Visual Yordamchi)**: Tkinter canvas-based hand drawing providing real-time visual tips on which finger and hand side should touch-type the next target key card, with dynamic toggle switch in Settings.
+*   **Multilingual Layout Adaptation (Rus Klaviaturasi)**: Supports dynamic keycap changes switching physical US QWERTY caps to Russian JCUKEN layout (Q to Й, W to Ц, etc.) adapting finger cues automatically for Russian practice texts.
+*   **Grid Results Redesign & Total Chars Metric**: Professional 3x3 layout alignment in the Results page displaying Net WPM, Raw WPM, Accuracy, Consistency, Errors, Duration, XP/Level, Rating, and **Jami belgilar (Total Chars)** count.
 
 ---
 

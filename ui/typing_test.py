@@ -135,6 +135,9 @@ class TypingTestView(BaseView):
         )
         self.back_btn.pack(side=tk.RIGHT, padx=10, expand=True, fill=tk.X)
 
+        from ui.keyboard_visualizer import KeyboardVisualizer
+        self.keyboard_visualizer = KeyboardVisualizer(self.container, self.controller)
+
         # Pack canvas frame at the end to occupy the remaining center space
         self.canvas_frame.pack(fill=tk.BOTH, expand=True, pady=15)
         self.text_widget.pack(fill=tk.BOTH, expand=True)
@@ -215,6 +218,26 @@ class TypingTestView(BaseView):
         self.acc_lbl.config(text=f"{t('practice_accuracy')} 0.0%")
         self.info_lbl.config(text=f"{t('practice_start_instruction')} ({t('practice_restart_kbd')})", foreground="")
 
+        # Check show_keyboard_helper setting and pack visualizer accordingly
+        show_kb = False
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        if user:
+            from database.repositories.settings_repository import SettingsRepository
+            setting = SettingsRepository().get_settings(user["id"])
+            if setting and setting.get("show_keyboard_helper", 0):
+                show_kb = True
+        
+        if show_kb:
+            self.keyboard_visualizer.pack(side=tk.BOTTOM, fill=tk.X, pady=(10, 5))
+            self.keyboard_visualizer.set_practice_language(self.lang_var.get())
+            if self.engine and len(self.engine.target_text) > 0:
+                self.keyboard_visualizer.highlight_key(self.engine.target_text[0])
+            else:
+                self.keyboard_visualizer.highlight_key(None)
+        else:
+            self.keyboard_visualizer.pack_forget()
+
         # Refresh themes config
         self.apply_theme(self.controller.current_theme)
 
@@ -235,6 +258,8 @@ class TypingTestView(BaseView):
         if action == "backspace":
             self.engine.backspace()
             sound_player.play_click()
+            if hasattr(self, "keyboard_visualizer") and self.keyboard_visualizer:
+                self.keyboard_visualizer.visualize_press("BACKSPACE")
         elif action == "input" and val is not None:
             # Check typing accuracy before sending to engine for audio cue selection
             typed_len = len(self.engine.typed_text)
@@ -245,6 +270,8 @@ class TypingTestView(BaseView):
                 else:
                     sound_player.play_error()
             self.engine.input_character(val)
+            if hasattr(self, "keyboard_visualizer") and self.keyboard_visualizer:
+                self.keyboard_visualizer.visualize_press(val)
 
         return "break"
 
@@ -280,6 +307,9 @@ class TypingTestView(BaseView):
         if typed_len < len(engine.target_text):
             self.text_widget.tag_add("current", f"1.0 + {typed_len} chars", f"1.0 + {typed_len+1} chars")
             self.text_widget.see(f"1.0 + {typed_len} chars")
+            self.keyboard_visualizer.highlight_key(engine.target_text[typed_len])
+        else:
+            self.keyboard_visualizer.highlight_key(None)
 
         self.text_widget.config(state="disabled")
 
@@ -412,7 +442,8 @@ class TypingTestView(BaseView):
             is_pb=is_pb,
             streak=current_streak,
             longest_streak=longest_streak,
-            consistency=consistency
+            consistency=consistency,
+            total_chars=len(self.engine.typed_text)
         )
 
 
@@ -516,6 +547,9 @@ class TypingTestView(BaseView):
         self.text_widget.tag_configure("correct", foreground=fg)
         self.text_widget.tag_configure("incorrect", foreground="#ef4444", underline=True)
         self.text_widget.tag_configure("current", background=theme["select_bg"])
+
+        if hasattr(self, "keyboard_visualizer") and self.keyboard_visualizer:
+            self.keyboard_visualizer.apply_theme(theme_name)
 
         if hasattr(self, "upload_btn") and self.upload_btn:
             try:
