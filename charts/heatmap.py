@@ -4,6 +4,7 @@ Draws a QWERTY keyboard layout using Canvas and colors keys based on error rates
 """
 import tkinter as tk
 from tkinter import ttk
+from services.i18n_service import t
 
 class KeyboardHeatmap(ttk.Frame):
     """
@@ -17,7 +18,7 @@ class KeyboardHeatmap(ttk.Frame):
         # Tooltip details label at the top
         self.details_label = ttk.Label(
             self,
-            text="Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring",
+            text=t("heatmap_instruction") or "Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring",
             font=("Helvetica", 11, "italic"),
             anchor="center"
         )
@@ -144,7 +145,7 @@ class KeyboardHeatmap(ttk.Frame):
             self.canvas.itemconfig(widgets["text_id"], fill=text_color, font=(font_family, 11, "bold"))
             
         # Re-set details label to standard instruction
-        self.details_label.config(text="Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring")
+        self.details_label.config(text=t("heatmap_instruction") or "Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring")
         
         # Reload colors dynamically based on stats
         self.set_data(self.key_stats)
@@ -226,20 +227,23 @@ class KeyboardHeatmap(ttk.Frame):
             stats = self.key_stats.get(hovered_char)
             char_display = "Space" if hovered_char == " " else hovered_char.upper()
             
+            key_txt = (t("heatmap_key") or "Tugma: {}").format(char_display)
             if not stats or stats.get("attempts", 0) == 0:
-                txt = f"Tugma: {char_display} | Hali ishlatilmadi"
+                txt = f"{key_txt} | {t('heatmap_never_used') or 'Hali ishlatilmadi'}"
             else:
                 attempts = stats["attempts"]
                 errors = stats["errors"]
                 rate = (errors * 100.0) / attempts
-                txt = f"Tugma: {char_display} | Urinishlar: {attempts} | Xatolar: {errors} ({rate:.1f}% xatolik)"
+                stat_fmt = t("heatmap_stat") or "Urinishlar: {} | Xatolar: {} ({:.1f}% xatolik)"
+                stat_txt = stat_fmt.format(attempts, errors, rate)
+                txt = f"{key_txt} | {stat_txt}"
             self.details_label.config(text=txt)
         else:
             self.details_label.config(
-                text="Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring"
+                text=t("heatmap_instruction") or "Statistikani ko'rish o'yinini sichqoncha bilan boshlash"
             )
 
     def _on_mouse_leave(self, event):
         self.details_label.config(
-            text="Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring"
+            text=t("heatmap_instruction") or "Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring"
         )

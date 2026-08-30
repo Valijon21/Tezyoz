@@ -240,7 +240,13 @@ TRANSLATIONS = {
         "ach_popup_title": "Yangi Yutuq! 🎉",
         "ach_popup_body": "Tabriklaymiz! Siz yangi yutuqqa erishdingiz:\n\n★ {} ★\nTavsif: {}\nMukofot: +{} XP",
         "mission_popup_title": "Kunlik Vazifa Bajarildi! 🏆",
-        "mission_popup_body": "Tabriklaymiz! Siz bugungi shaxsiy topshiriqni yakunladingiz:\n\n★ {} ★\nTavsif: {}\nMukofot: +{} XP"
+        "mission_popup_body": "Tabriklaymiz! Siz bugungi shaxsiy topshiriqni yakunladingiz:\n\n★ {} ★\nTavsif: {}\nMukofot: +{} XP",
+        
+        # Heatmap keys
+        "heatmap_instruction": "Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring",
+        "heatmap_key": "Tugma: {}",
+        "heatmap_never_used": "Hali ishlatilmadi",
+        "heatmap_stat": "Urinishlar: {} | Xatolar: {} ({:.1f}% xatolik)"
     },
     "en": {
         "title_home": "⊞  Dashboard",
@@ -473,7 +479,13 @@ TRANSLATIONS = {
         "ach_popup_title": "New Achievement! 🎉",
         "ach_popup_body": "Congratulations! You have unlocked a new achievement:\n\n★ {} ★\nDescription: {}\nReward: +{} XP",
         "mission_popup_title": "Daily Mission Completed! 🏆",
-        "mission_popup_body": "Congratulations! You have completed today's personal mission:\n\n★ {} ★\nDescription: {}\nReward: +{} XP"
+        "mission_popup_body": "Congratulations! You have completed today's personal mission:\n\n★ {} ★\nDescription: {}\nReward: +{} XP",
+        
+        # Heatmap keys
+        "heatmap_instruction": "Hover mouse over a key to view statistics",
+        "heatmap_key": "Key: {}",
+        "heatmap_never_used": "Not used yet",
+        "heatmap_stat": "Attempts: {} | Errors: {} ({:.1f}% error)"
     },
     "ru": {
         "title_home": "⊞  Панель управления",
@@ -688,7 +700,13 @@ TRANSLATIONS = {
         "ach_popup_title": "Новое достижение! 🎉",
         "ach_popup_body": "Поздравляем! Вы разблокировали новое достижение:\n\n★ {} ★\nОписание: {}\nНаграда: +{} XP",
         "mission_popup_title": "Задание выполнено! 🏆",
-        "mission_popup_body": "Поздравляем! Вы завершили ежедневное задание:\n\n★ {} ★\nОписание: {}\nНаграда: +{} XP"
+        "mission_popup_body": "Поздравляем! Вы завершили ежедневное задание:\n\n★ {} ★\nОписание: {}\nНаграда: +{} XP",
+        
+        # Heatmap keys
+        "heatmap_instruction": "Наведите курсор на клавишу для просмотра статистики",
+        "heatmap_key": "Клавиша: {}",
+        "heatmap_never_used": "Еще не использовалась",
+        "heatmap_stat": "Попыток: {} | Ошибок: {} ({:.1f}% ошибок)"
     }
 }
 
