@@ -44,6 +44,12 @@ class Application:
         scaled_min_h = int(500 * scale_factor)
         self.root.minsize(scaled_min_w, scaled_min_h)
 
+        # Maximize the window on startup on Windows platforms
+        try:
+            self.root.state("zoomed")
+        except Exception:
+            pass
+        
         # Handle clean close behavior
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         

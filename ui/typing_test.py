@@ -521,11 +521,19 @@ class TypingTestView(BaseView):
         
         # Bind keyboard events directly to the Text widget
         self.text_widget.bind("<Key>", self._on_key_press)
+        
+        # Bind click handlers to make sure clicking inside focus/refocuses text_widget
         self.bind("<Button-1>", lambda e: self.text_widget.focus_set())
+        self.container.bind("<Button-1>", lambda e: self.text_widget.focus_set())
         self.text_widget.bind("<Button-1>", lambda e: self.text_widget.focus_set())
         
-        # Immediately focus the text widget
-        self.text_widget.focus_set()
+        # Natively grab keyboard focus with multiple deferred attempts after view is mapped
+        def grab_focus():
+            self.text_widget.focus_force()
+            
+        grab_focus()
+        self.after(50, grab_focus)
+        self.after(150, grab_focus)
 
     def on_hide(self):
         self.text_widget.unbind("<Key>")
@@ -546,7 +554,7 @@ class TypingTestView(BaseView):
         self.text_widget.tag_configure("untyped", foreground=sec_fg)
         self.text_widget.tag_configure("correct", foreground=fg)
         self.text_widget.tag_configure("incorrect", foreground="#ef4444", underline=True)
-        self.text_widget.tag_configure("current", background=theme["select_bg"])
+        self.text_widget.tag_configure("current", background="#00ffff", foreground="#000000")
 
         if hasattr(self, "keyboard_visualizer") and self.keyboard_visualizer:
             self.keyboard_visualizer.apply_theme(theme_name)

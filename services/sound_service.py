@@ -41,6 +41,7 @@ class SoundService:
         
         # Setup paths
         self.assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "sounds")
+        self.click_mp3_path = os.path.join(self.assets_dir, "click.mp3")
         self.click_path = os.path.join(self.assets_dir, "click.wav")
         self.error_path = os.path.join(self.assets_dir, "error.wav")
         self.level_up_path = os.path.join(self.assets_dir, "level_up.wav")
@@ -48,8 +49,25 @@ class SoundService:
         # Check and generate files if missing
         self._ensure_sound_files()
         
+        # Initialize Windows MCI player config
+        self.mci_open = False
+        
         self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
         self.worker_thread.start()
+
+    def _init_mci(self):
+        """Initializes MCI media device mapping to play custom MP3 clicks with low latency."""
+        try:
+            import ctypes
+            # Close existing alias mapping
+            ctypes.windll.winmm.mciSendStringW('close click_sound', None, 0, 0)
+            res = ctypes.windll.winmm.mciSendStringW(f'open "{self.click_mp3_path}" type mpegvideo alias click_sound', None, 0, 0)
+            if res == 0:
+                self.mci_open = True
+            else:
+                logger.warning(f"Failed to open click.mp3 via MCI: status {res}")
+        except Exception as err:
+            logger.error(f"Error initializing MCI click player sessions: {err}")
 
     def _ensure_sound_files(self):
         """Builds mechanical sound effects programmatically if they are missing."""
@@ -142,10 +160,21 @@ class SoundService:
 
     def _worker_loop(self):
         """Worker loop executing beep commands sequentially in daemon thread."""
+        # Initialize MCI device alias on this background worker thread
+        if winsound and os.path.exists(self.click_mp3_path):
+            self._init_mci()
+
         while True:
             try:
                 sound_type = self.sound_queue.get()
                 if sound_type is None:
+                    # Close MCI session when thread terminates
+                    if self.mci_open:
+                        try:
+                            import ctypes
+                            ctypes.windll.winmm.mciSendStringW('close click_sound', None, 0, 0)
+                        except:
+                            pass
                     break
                 
                 # Check user settings dynamically before playing sound
@@ -157,7 +186,11 @@ class SoundService:
                     # Resolve filepath based on type
                     file_path = None
                     if sound_type == "click":
-                        file_path = self.click_path
+                        if self.mci_open:
+                            import ctypes
+                            ctypes.windll.winmm.mciSendStringW('play click_sound from 0', None, 0, 0)
+                        else:
+                            file_path = self.click_path
                     elif sound_type == "error":
                         file_path = self.error_path
                     elif sound_type == "level_up":
@@ -166,7 +199,7 @@ class SoundService:
                     if file_path and os.path.exists(file_path):
                         # Play wav file
                         winsound.PlaySound(file_path, winsound.SND_FILENAME | winsound.SND_ASYNC)
-                    else:
+                    elif not (sound_type == "click" and self.mci_open):
                         # Fallback to beep
                         if sound_type == "click":
                             winsound.Beep(800, 25)
