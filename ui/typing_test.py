@@ -64,10 +64,12 @@ class TypingTestView(BaseView):
             textvariable=self.dur_var,
             values=["15", "30", "60", "120"],
             width=6,
-            state="readonly"
+            state="normal"
         )
         self.dur_combo.pack(side=tk.LEFT, padx=(0, 15))
         self.dur_combo.bind("<<ComboboxSelected>>", self._on_config_change)
+        self.dur_combo.bind("<Return>", self._on_config_change)
+        self.dur_combo.bind("<FocusOut>", self._on_config_change)
 
         # Custom file upload button (styled to match theme)
         import customtkinter as ctk
@@ -143,13 +145,42 @@ class TypingTestView(BaseView):
         self.text_widget.pack(fill=tk.BOTH, expand=True)
 
     def _on_config_change(self, event=None):
+        # Validate typed duration if normal state
+        import re
+        val_str = self.dur_var.get().strip()
+        val_str = re.sub(r"[^\d]", "", val_str)
+        if not val_str:
+            val_str = "60"
+        
+        # update current select values
+        default_values = ["15", "30", "60", "120"]
+        current_values = list(self.dur_combo.cget("values"))
+        if val_str not in current_values:
+            self.dur_combo.configure(values=default_values + [val_str])
+        
+        self.dur_var.set(val_str)
+        
         # Called when language or duration is changed.
         language = self.lang_var.get()
         # If the user switched to a standard language, clear custom settings
         if not (language.startswith("Fayl:") or language.startswith("File:")):
             self.custom_file_text = None
             self.custom_file_name = None
+            
+        # Also save this changed duration back to settings if user logged in
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        if user:
+            try:
+                dur_int = int(val_str)
+                if dur_int > 0:
+                    from database.repositories.settings_repository import SettingsRepository
+                    SettingsRepository().update_setting(user["id"], "custom_duration", dur_int)
+            except ValueError:
+                pass
+                
         self.reset_test()
+        self.text_widget.focus_force()
 
     def _handle_file_upload(self):
         """Opens file dialog, extracts first 200 words, and resets active engine."""
@@ -507,6 +538,13 @@ class TypingTestView(BaseView):
         self.cancel_timer()
         self.controller.show_view("home")
 
+    def _bind_clicks_recursively(self, widget):
+        w_class = widget.winfo_class() if hasattr(widget, "winfo_class") else ""
+        if "Combobox" not in w_class and "Entry" not in w_class and "Button" not in w_class:
+            widget.bind("<Button-1>", lambda e: self.text_widget.focus_force(), add="+")
+        for child in widget.winfo_children():
+            self._bind_clicks_recursively(child)
+
     def on_show(self):
         self.focus_set()
         
@@ -518,16 +556,21 @@ class TypingTestView(BaseView):
             setting = SettingsRepository().get_settings(user["id"])
             if setting:
                 self.lang_var.set(setting.get("language", "English"))
+                custom_dur = setting.get("custom_duration", 60)
+                default_values = ["15", "30", "60", "120"]
+                if str(custom_dur) not in default_values:
+                    self.dur_combo.configure(values=default_values + [str(custom_dur)])
+                else:
+                    self.dur_combo.configure(values=default_values)
+                self.dur_var.set(str(custom_dur))
         
         self.reset_test()
         
         # Bind keyboard events directly to the Text widget
         self.text_widget.bind("<Key>", self._on_key_press)
         
-        # Bind click handlers to make sure clicking inside focus/refocuses text_widget
-        self.bind("<Button-1>", lambda e: self.text_widget.focus_set())
-        self.container.bind("<Button-1>", lambda e: self.text_widget.focus_set())
-        self.text_widget.bind("<Button-1>", lambda e: self.text_widget.focus_set())
+        # Recursively bind click handlers to redirect focus to text_widget
+        self._bind_clicks_recursively(self)
         
         # Natively grab keyboard focus with multiple deferred attempts after view is mapped
         def grab_focus():

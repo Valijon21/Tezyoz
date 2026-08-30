@@ -21,6 +21,7 @@ class SettingsView(BaseView):
         self.font_var = tk.StringVar(value="Consolas")
         self.size_var = tk.StringVar(value="14")
         self.lang_var = tk.StringVar(value="O'zbekcha")
+        self.custom_duration_var = tk.StringVar(value="60")
         
         self._setup_ui()
 
@@ -127,6 +128,18 @@ class SettingsView(BaseView):
         )
         self.keyboard_switch.grid(row=3, column=1, sticky="e", pady=6)
 
+        # 5. Custom Duration
+        self.custom_duration_lbl = ctk.CTkLabel(grid, text=t("settings_custom_duration") or "Moslashtirilgan vaqt (soniya):", font=("Segoe UI", 12))
+        self.custom_duration_lbl.grid(row=4, column=0, sticky="w", pady=6)
+        self.custom_duration_entry = ctk.CTkEntry(
+            grid,
+            textvariable=self.custom_duration_var,
+            width=100,
+            font=("Segoe UI", 11)
+        )
+        self.custom_duration_entry.grid(row=4, column=1, sticky="e", pady=6)
+        self.custom_duration_entry.bind("<KeyRelease>", self._on_custom_duration_change)
+
     def _build_audio_lang_card(self):
         theme_colors = THEMES.get(self.controller.current_theme, THEMES["dark"])
         
@@ -153,7 +166,7 @@ class SettingsView(BaseView):
         self.lang_lbl.grid(row=0, column=0, sticky="w", pady=6)
         self.lang_combo = ctk.CTkOptionMenu(
             grid,
-            values=["O'zbekcha", "English"],
+            values=["O'zbekcha", "English", "Русский"],
             variable=self.lang_var,
             command=self._on_language_change,
             font=("Segoe UI", 11)
@@ -262,9 +275,32 @@ class SettingsView(BaseView):
             if sound_player._is_sound_enabled():
                 sound_player.play_click()
 
+    def _on_custom_duration_change(self, event=None):
+        val_str = self.custom_duration_var.get().strip()
+        if not val_str:
+            return
+        try:
+            val = int(val_str)
+            if val <= 0:
+                raise ValueError
+        except ValueError:
+            return
+
+        # Save preference in DB
+        from services.auth_service import get_current_user
+        user = get_current_user()
+        if user:
+            from database.repositories.settings_repository import SettingsRepository
+            SettingsRepository().update_setting(user["id"], "custom_duration", val)
+
     def _on_language_change(self, choice):
         from services.i18n_service import set_locale
-        lang_code = "uz" if choice == "O'zbekcha" else "en"
+        if choice == "O'zbekcha":
+            lang_code = "uz"
+        elif choice == "Русский":
+            lang_code = "ru"
+        else:
+            lang_code = "en"
         set_locale(lang_code)
         self.controller.current_ui_language = lang_code
         
@@ -361,7 +397,12 @@ class SettingsView(BaseView):
         self.font_var.set(self.controller.current_font_family)
         self.size_var.set(str(self.controller.current_font_size))
         
-        lang_label = "O'zbekcha" if self.controller.current_ui_language == "uz" else "English"
+        if self.controller.current_ui_language == "uz":
+            lang_label = "O'zbekcha"
+        elif self.controller.current_ui_language == "ru":
+            lang_label = "Русский"
+        else:
+            lang_label = "English"
         self.lang_var.set(lang_label)
         
         from services.sound_service import sound_player
@@ -375,12 +416,18 @@ class SettingsView(BaseView):
         if user:
             from database.repositories.settings_repository import SettingsRepository
             setting = SettingsRepository().get_settings(user["id"])
-            if setting and setting.get("show_keyboard_helper", 0):
-                self.keyboard_switch.select()
+            if setting:
+                if setting.get("show_keyboard_helper", 0):
+                    self.keyboard_switch.select()
+                else:
+                    self.keyboard_switch.deselect()
+                self.custom_duration_var.set(str(setting.get("custom_duration", 60)))
             else:
                 self.keyboard_switch.deselect()
+                self.custom_duration_var.set("60")
         else:
             self.keyboard_switch.deselect()
+            self.custom_duration_var.set("60")
             
         self.apply_theme(self.controller.current_theme)
 
@@ -403,7 +450,7 @@ class SettingsView(BaseView):
         for f in card_panels:
             f.configure(fg_color=card_bg)
             
-        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl, self.keyboard_lbl]
+        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl, self.keyboard_lbl, self.custom_duration_lbl]
         for l in lbl_list:
             l.configure(text_color=fg)
             
@@ -423,6 +470,13 @@ class SettingsView(BaseView):
                 text_color=fg,
                 button_color=theme_colors["select_bg"],
                 button_hover_color=accent
+            )
+            
+        if hasattr(self, "custom_duration_entry") and self.custom_duration_entry:
+            self.custom_duration_entry.configure(
+                fg_color=theme_colors["bg"],
+                text_color=fg,
+                border_color=border
             )
             
         self.sound_switch.configure(
@@ -463,6 +517,7 @@ class SettingsView(BaseView):
         self.font_lbl.configure(text=t("font"))
         self.size_lbl.configure(text=t("size"))
         self.keyboard_lbl.configure(text=t("settings_keyboard_helper") or "Keyboard Helper")
+        self.custom_duration_lbl.configure(text=t("settings_custom_duration"))
         
         self.audio_title.configure(text=t("settings_audio_section"))
         self.lang_lbl.configure(text=t("language"))

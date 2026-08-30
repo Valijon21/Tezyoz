@@ -90,6 +90,7 @@ SCHEMA_SQL = [
         caret_style TEXT NOT NULL,
         ui_language TEXT DEFAULT 'uz',
         show_keyboard_helper INTEGER DEFAULT 0,
+        custom_duration INTEGER DEFAULT 60,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
     """,
@@ -155,7 +156,8 @@ def initialize_schema():
                 "ALTER TABLE tests ADD COLUMN consistency REAL;",
                 "ALTER TABLE daily_stats ADD COLUMN average_consistency REAL DEFAULT 0.0;",
                 "ALTER TABLE user_settings ADD COLUMN ui_language TEXT DEFAULT 'uz';",
-                "ALTER TABLE user_settings ADD COLUMN show_keyboard_helper INTEGER DEFAULT 0;"
+                "ALTER TABLE user_settings ADD COLUMN show_keyboard_helper INTEGER DEFAULT 0;",
+                "ALTER TABLE user_settings ADD COLUMN custom_duration INTEGER DEFAULT 60;"
             ]:
                 try:
                     conn.execute(query)
