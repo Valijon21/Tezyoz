@@ -62,7 +62,7 @@ class TypingTestView(BaseView):
         self.dur_combo = ttk.Combobox(
             self.config_frame,
             textvariable=self.dur_var,
-            values=["15", "30", "60", "120"],
+            values=["15", "30", "60", "120", "360"],
             width=6,
             state="normal"
         )
@@ -153,10 +153,15 @@ class TypingTestView(BaseView):
             val_str = "60"
         
         # update current select values
-        default_values = ["15", "30", "60", "120"]
-        current_values = list(self.dur_combo.cget("values"))
-        if val_str not in current_values:
-            self.dur_combo.configure(values=default_values + [val_str])
+        defaults = {15, 30, 60, 120, 360}
+        try:
+            val = int(val_str)
+            if val > 0:
+                defaults.add(val)
+        except ValueError:
+            pass
+        sorted_vals = [str(x) for x in sorted(list(defaults))]
+        self.dur_combo.configure(values=sorted_vals)
         
         self.dur_var.set(val_str)
         
@@ -557,11 +562,15 @@ class TypingTestView(BaseView):
             if setting:
                 self.lang_var.set(setting.get("language", "English"))
                 custom_dur = setting.get("custom_duration", 60)
-                default_values = ["15", "30", "60", "120"]
-                if str(custom_dur) not in default_values:
-                    self.dur_combo.configure(values=default_values + [str(custom_dur)])
-                else:
-                    self.dur_combo.configure(values=default_values)
+                defaults = {15, 30, 60, 120, 360}
+                try:
+                    val = int(custom_dur)
+                    if val > 0:
+                        defaults.add(val)
+                except ValueError:
+                    pass
+                sorted_vals = [str(x) for x in sorted(list(defaults))]
+                self.dur_combo.configure(values=sorted_vals)
                 self.dur_var.set(str(custom_dur))
         
         self.reset_test()
