@@ -35,8 +35,8 @@ class TestConfig:
         except (ValueError, TypeError):
             raise ValueError("Test vaqti son bo'lishi shart!")
             
-        if val not in SUPPORTED_MODES:
-            raise ValueError(f"Qo'llab-quvvatlanmaydigan vaqt: {duration}")
+        if val <= 0:
+            raise ValueError("Test vaqti musbat son bo'lishi shart!")
         self._duration = val
 
     def get_duration(self) -> int:

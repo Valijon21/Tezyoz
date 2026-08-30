@@ -43,11 +43,14 @@ class TestConfigModel(unittest.TestCase):
             cfg.language = 123
 
     def test_invalid_duration_raises(self):
-        """Verify passing unsupported duration values raises ValueError."""
+        """Verify passing unsupported duration values (non-positive or non-numeric) raises ValueError."""
         cfg = TestConfig()
         
         with self.assertRaises(ValueError):
-            cfg.duration = 45 # Not in [15, 30, 60, 120]
+            cfg.duration = -10 # Non-positive duration
+            
+        with self.assertRaises(ValueError):
+            cfg.duration = 0 # Non-positive duration
             
         with self.assertRaises(ValueError):
             cfg.duration = "invalid_str"
