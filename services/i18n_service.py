@@ -246,7 +246,44 @@ TRANSLATIONS = {
         "heatmap_instruction": "Statistikani ko'rish uchun sichqonchani tugma ustiga olib boring",
         "heatmap_key": "Tugma: {}",
         "heatmap_never_used": "Hali ishlatilmadi",
-        "heatmap_stat": "Urinishlar: {} | Xatolar: {} ({:.1f}% xatolik)"
+        "heatmap_stat": "Urinishlar: {} | Xatolar: {} ({:.1f}% xatolik)",
+        
+        # Advanced Stats Keys
+        "adv_rank_title": "Sizning Toifangiz (Typing Rank)",
+        "adv_lifetime_title": "Umumiy Ko'rsatkichlar (Lifetime)",
+        "adv_trends_title": "Tendensiyalar & Odatlar (Trends)",
+        "adv_total_tests": "Jami testlar soni:",
+        "adv_cumulative_accuracy": "Umumiy aniqlik (harfma-harf):",
+        "adv_avg_wpm": "O'rtacha tezlik (WPM):",
+        "adv_max_wpm": "Maksimal tezlik (WPM):",
+        "adv_avg_consistency": "O'rtacha Ritm (Consistency):",
+        "adv_total_duration": "Jami mashq vaqti:",
+        "adv_last_10_avg_wpm": "Oxirgi 10 test tezligi (WPM):",
+        "adv_last_10_avg_accuracy": "Oxirgi 10 test aniqligi (%):",
+        "adv_last_10_avg_consistency": "Oxirgi 10 test ritmi (%):",
+        "adv_time_of_day_habit": "Ko'p mashq qilish vaqti:",
+        "adv_total_characters": "Jami yozilgan harflar:",
+        "adv_total_errors": "Jami xatoliklar soni:",
+        
+        # Semantic mapping keys for rank & habit
+        "rank_beginner": "Yangi boshlovchi (Beginner) 🐢",
+        "rank_intermediate": "O'rtacha (Intermediate) 🐇",
+        "rank_pro": "Professional (Pro) ⚡",
+        "rank_master": "Katta usta (Master) 🦅",
+        "rank_typemaster": "Tugmalar Qiroli (Typemaster) 👑",
+        "habit_morning": "Ertalab (Morning) 🌅",
+        "habit_afternoon": "Kunday (Afternoon) ☀️",
+        "habit_evening": "Kechki payt (Evening) 🌙",
+        "habit_night": "Kechasi (Night) 🌌",
+        
+        # Duration formatter words
+        "dur_word_second": "soniya",
+        "dur_word_minute": "daqiqa",
+        "dur_word_hour": "soat",
+        "dur_word_hours_mins": "{} soat {} daqiqa",
+        
+        # Suffixes
+        "suffix_times": "marta"
     },
     "en": {
         "title_home": "⊞  Dashboard",
@@ -485,7 +522,44 @@ TRANSLATIONS = {
         "heatmap_instruction": "Hover mouse over a key to view statistics",
         "heatmap_key": "Key: {}",
         "heatmap_never_used": "Not used yet",
-        "heatmap_stat": "Attempts: {} | Errors: {} ({:.1f}% error)"
+        "heatmap_stat": "Attempts: {} | Errors: {} ({:.1f}% error)",
+        
+        # Advanced Stats Keys
+        "adv_rank_title": "Your Typing Rank",
+        "adv_lifetime_title": "Lifetime Statistics",
+        "adv_trends_title": "Trends & Habits",
+        "adv_total_tests": "Total tests completed:",
+        "adv_cumulative_accuracy": "Cumulative accuracy (char-by-char):",
+        "adv_avg_wpm": "Average Speed (WPM):",
+        "adv_max_wpm": "Top Speed (WPM):",
+        "adv_avg_consistency": "Average Rhythm (Consistency):",
+        "adv_total_duration": "Total practice time:",
+        "adv_last_10_avg_wpm": "Last 10 tests speed (WPM):",
+        "adv_last_10_avg_accuracy": "Last 10 tests accuracy (%):",
+        "adv_last_10_avg_consistency": "Last 10 tests rhythm (%):",
+        "adv_time_of_day_habit": "Favorite practice time:",
+        "adv_total_characters": "Total written characters:",
+        "adv_total_errors": "Total typed mistakes:",
+        
+        # Semantic mapping keys for rank & habit
+        "rank_beginner": "Beginner 🐢",
+        "rank_intermediate": "Intermediate 🐇",
+        "rank_pro": "Pro ⚡",
+        "rank_master": "Master 🦅",
+        "rank_typemaster": "Typemaster 👑",
+        "habit_morning": "Morning 🌅",
+        "habit_afternoon": "Afternoon ☀️",
+        "habit_evening": "Evening 🌙",
+        "habit_night": "Night 🌌",
+        
+        # Duration formatter words
+        "dur_word_second": "seconds",
+        "dur_word_minute": "minutes",
+        "dur_word_hour": "hours",
+        "dur_word_hours_mins": "{} hours {} minutes",
+        
+        # Suffixes
+        "suffix_times": "times"
     },
     "ru": {
         "title_home": "⊞  Панель управления",
@@ -706,7 +780,44 @@ TRANSLATIONS = {
         "heatmap_instruction": "Наведите курсор на клавишу для просмотра статистики",
         "heatmap_key": "Клавиша: {}",
         "heatmap_never_used": "Еще не использовалась",
-        "heatmap_stat": "Попыток: {} | Ошибок: {} ({:.1f}% ошибок)"
+        "heatmap_stat": "Попыток: {} | Ошибок: {} ({:.1f}% ошибок)",
+        
+        # Advanced Stats Keys
+        "adv_rank_title": "Ваш класс печати",
+        "adv_lifetime_title": "Общие показатели (Lifetime)",
+        "adv_trends_title": "Тенденции и привычки (Trends)",
+        "adv_total_tests": "Всего сессий теста:",
+        "adv_cumulative_accuracy": "Общая посимвольная точность:",
+        "adv_avg_wpm": "Средняя скорость (WPM):",
+        "adv_max_wpm": "Рекордная скорость (WPM):",
+        "adv_avg_consistency": "Средний ритм (Consistency):",
+        "adv_total_duration": "Общее время практики:",
+        "adv_last_10_avg_wpm": "Скорость в последних 10 тестах (WPM):",
+        "adv_last_10_avg_accuracy": "Точность в последних 10 тестах (%):",
+        "adv_last_10_avg_consistency": "Ритм в последних 10 тестах (%):",
+        "adv_time_of_day_habit": "Частое время тренировок:",
+        "adv_total_characters": "Всего введенных символов:",
+        "adv_total_errors": "Всего допущенных ошибок:",
+        
+        # Semantic mapping keys for rank & habit
+        "rank_beginner": "Новичок 🐢",
+        "rank_intermediate": "Средний 🐇",
+        "rank_pro": "Профессионал ⚡",
+        "rank_master": "Мастер 🦅",
+        "rank_typemaster": "Властелин клавиш 👑",
+        "habit_morning": "Утро 🌅",
+        "habit_afternoon": "День ☀️",
+        "habit_evening": "Вечер 🌙",
+        "habit_night": "Ночь 🌌",
+        
+        # Duration formatter words
+        "dur_word_second": "секунд",
+        "dur_word_minute": "минут",
+        "dur_word_hour": "часов",
+        "dur_word_hours_mins": "{} ч. {} мин.",
+        
+        # Suffixes
+        "suffix_times": "раз"
     }
 }
 

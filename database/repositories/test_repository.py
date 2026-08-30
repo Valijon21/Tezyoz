@@ -122,8 +122,8 @@ class TestRepository(BaseRepository):
                 "last_10_avg_wpm": 0.0,
                 "last_10_avg_accuracy": 0.0,
                 "last_10_avg_consistency": 0.0,
-                "time_of_day_habit": "Kechki payt (Evening) 🌙",
-                "typing_rank": "Yangi boshlovchi (Beginner) 🐢"
+                "time_of_day_habit": "evening",
+                "typing_rank": "beginner"
             }
 
         total_tests = lifetime_row["total_tests"] or 0
@@ -158,10 +158,10 @@ class TestRepository(BaseRepository):
         hour_rows = self.execute_query(hours_query, (user_id,))
         
         time_blocks = {
-            "Ertalab (Morning) 🌅": 0,    # 06:00 - 11:59
-            "Kunday (Afternoon) ☀️": 0,  # 12:00 - 17:59
-            "Kechki payt (Evening) 🌙": 0,# 18:00 - 23:59
-            "Kechasi (Night) 🌌": 0      # 00:00 - 05:59
+            "morning": 0,    # 06:00 - 11:59
+            "afternoon": 0,  # 12:00 - 17:59
+            "evening": 0,    # 18:00 - 23:59
+            "night": 0       # 00:00 - 05:59
         }
         
         for r in hour_rows:
@@ -170,26 +170,26 @@ class TestRepository(BaseRepository):
             except (ValueError, TypeError):
                 continue
             if 6 <= hr < 12:
-                time_blocks["Ertalab (Morning) 🌅"] += 1
+                time_blocks["morning"] += 1
             elif 12 <= hr < 18:
-                time_blocks["Kunday (Afternoon) ☀️"] += 1
+                time_blocks["afternoon"] += 1
             elif 18 <= hr < 24:
-                time_blocks["Kechki payt (Evening) 🌙"] += 1
+                time_blocks["evening"] += 1
             else:
-                time_blocks["Kechasi (Night) 🌌"] += 1
+                time_blocks["night"] += 1
         
-        fav_block = max(time_blocks, key=time_blocks.get) if hour_rows else "Kechki payt (Evening) 🌙"
+        fav_block = max(time_blocks, key=time_blocks.get) if hour_rows else "evening"
         
         if avg_wpm < 25.0:
-            typing_rank = "Yangi boshlovchi (Beginner) 🐢"
+            typing_rank = "beginner"
         elif avg_wpm < 45.0:
-            typing_rank = "O'rtacha (Intermediate) 🐇"
+            typing_rank = "intermediate"
         elif avg_wpm < 65.0:
-            typing_rank = "Professional (Pro) ⚡"
+            typing_rank = "pro"
         elif avg_wpm < 85.0:
-            typing_rank = "Katta usta (Master) 🦅"
+            typing_rank = "master"
         else:
-            typing_rank = "Tugmalar Qiroli (Typemaster) 👑"
+            typing_rank = "typemaster"
             
         return {
             "total_tests": total_tests,

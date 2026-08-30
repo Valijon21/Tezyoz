@@ -666,7 +666,7 @@ class DashboardView(BaseView):
                     row_frm = ctk.CTkFrame(weak_inner, fg_color="transparent", corner_radius=0)
                     row_frm.pack(fill=tk.X, pady=3)
                     
-                    lbl_txt = f"'{item['char_key'].upper()}' ({item['errors']}/{item['attempts']} marta)"
+                    lbl_txt = f"'{item['char_key'].upper()}' ({item['errors']}/{item['attempts']} {t('suffix_times')})"
                     key_lbl = ctk.CTkLabel(row_frm, text=lbl_txt, font=("Consolas", 10, "bold"))
                     key_lbl.pack(side=tk.LEFT)
                     
@@ -866,4 +866,8 @@ class DashboardView(BaseView):
         for k, v in card_headers.items():
             if k in self.cards and hasattr(self.cards[k], "title"):
                 self.cards[k].title.configure(text=t(v))
+
+        # Retranslate advanced stats panel
+        if hasattr(self, "advanced_stats_panel") and self.advanced_stats_panel:
+            self.advanced_stats_panel.retranslate_ui()
 

@@ -43,7 +43,7 @@ class TestAdvancedStats(unittest.TestCase):
         self.assertEqual(stats["avg_wpm"], 0.0)
         self.assertEqual(stats["max_wpm"], 0.0)
         self.assertEqual(stats["last_10_avg_wpm"], 0.0)
-        self.assertEqual(stats["typing_rank"], "Yangi boshlovchi (Beginner) 🐢")
+        self.assertEqual(stats["typing_rank"], "beginner")
 
     def test_typing_ranks_and_aggregate_math(self):
         """Verifies spelling stats math averages and typing rank tags."""
@@ -73,7 +73,7 @@ class TestAdvancedStats(unittest.TestCase):
         self.assertAlmostEqual(stats["cumulative_accuracy"], 91.33, places=2)
         
         # Avg WPM = 50.0 -> Pro (45 <= WPM < 65)
-        self.assertEqual(stats["typing_rank"], "Professional (Pro) ⚡")
+        self.assertEqual(stats["typing_rank"], "pro")
 
     def test_last_10_tests_trend(self):
         """Ensures that the 'last 10 tests' trends represent only the most recent 10 tests."""
@@ -122,8 +122,8 @@ class TestAdvancedStats(unittest.TestCase):
         )
         
         stats = self.test_repo.get_advanced_stats(self.user_id)
-        # Most active is block "Kunday (Afternoon) ☀️" (2 tests vs 1 morning)
-        self.assertEqual(stats["time_of_day_habit"], "Kunday (Afternoon) ☀️")
+        # Most active is block "afternoon" (2 tests vs 1 morning)
+        self.assertEqual(stats["time_of_day_habit"], "afternoon")
 
 if __name__ == '__main__':
     unittest.main()
