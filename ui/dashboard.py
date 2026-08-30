@@ -402,7 +402,7 @@ class DashboardView(BaseView):
                         col["status"].configure(text=t("bajarildi"), text_color="#10b981") # Green
                     else:
                         col["chk"].configure(text="☐", text_color="#8e9196") # Grey
-                        col["status"].configure(text=f"Progress: {progress}/{target}", text_color="#8e9196") # Grey
+                        col["status"].configure(text=t("mission_progress").format(progress, target), text_color="#8e9196") # Grey
         else:
             self.welcome_label.configure(text=t("welcome_guest"))
             self.gamification_label.configure(text=t("streak_info_guest"))
@@ -544,7 +544,7 @@ class DashboardView(BaseView):
         self.cards["consistency"].configure(text=f"{average_consistency:.1f}%")
         
         user_streak = user.get("current_streak", 0)
-        self.cards["streak"].configure(text=f"{user_streak} " + ("Kun" if get_locale() == "uz" else "Days"))
+        self.cards["streak"].configure(text=f"{user_streak}{t('suffix_days')}")
 
         # Dynamically compute and populate sub-indicator details & spark-progress bars
         try:
@@ -712,6 +712,7 @@ class DashboardView(BaseView):
         """
         Dynamically applies color palettes and font styling to custom line and bar canvas charts.
         """
+        from services.i18n_service import t
         from ui.theme import THEMES
         theme = THEMES.get(theme_name, THEMES["dark"])
         
@@ -783,7 +784,7 @@ class DashboardView(BaseView):
                 m["desc"].configure(text_color=theme["secondary_fg"])
                 m["bar"].configure(progress_color=theme["accent"], fg_color=theme["border"])
                 status_text = m["status"].cget("text")
-                m["status"].configure(text_color="#10b981" if "Bajarildi" in status_text or "Completed" in status_text else theme["secondary_fg"])
+                m["status"].configure(text_color="#10b981" if status_text in (t("bajarildi"), "Bajarildi ✅", "Completed ✅") or "Bajarildi" in status_text or "Completed" in status_text else theme["secondary_fg"])
 
         # LineChart
         self.wpm_chart.apply_theme_colors(

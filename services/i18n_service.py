@@ -210,7 +210,36 @@ TRANSLATIONS = {
         "finger_right_middle": "O'ng o'rtacha",
         "finger_right_ring": "O'ng nomsiz",
         "finger_right_pinky": "O'ng jimjiloq",
-        "helper_next_key": "Tugma: '{}' | Barmoq: {}"
+        "helper_next_key": "Tugma: '{}' | Barmoq: {}",
+        
+        # Results View Keys
+        "results_title": "Mashq Natijalari",
+        "results_pb_badge": "★ YANGI REKORD ★",
+        "results_streak_badge": "Joriy Streak: {} kun 🔥",
+        "results_streak_record_badge": "★ YANGI REKORD STREAK: {} kun 🔥 ★",
+        "results_wpm": "Net WPM (Tezlik)",
+        "results_raw_wpm": "Raw WPM (Jami)",
+        "results_accuracy": "Aniqlik",
+        "results_consistency": "Ritm (Consistency)",
+        "results_rhythm_rating": "Ritm Bahosi",
+        "results_errors": "Xatolar",
+        "results_duration": "Vaqt",
+        "results_xp_level": "XP / Bosqich",
+        "results_total_chars": "Jami belgilar",
+        "results_suffix_seconds": " soniya",
+        "results_suffix_chars": " ta",
+        "results_btn_retry": "Qaytadan urinish (Retry)",
+        "results_btn_home": "Bosh sahifa (Home)",
+        "results_rating_erratic": "Sust (Erratic) ⚠️",
+        
+        # Global audits additional translations
+        "suffix_days": " Kun",
+        "mission_progress": "Jarayon: {}/{}",
+        "mission_completed": "Bajarildi",
+        "ach_popup_title": "Yangi Yutuq! 🎉",
+        "ach_popup_body": "Tabriklaymiz! Siz yangi yutuqqa erishdingiz:\n\n★ {} ★\nTavsif: {}\nMukofot: +{} XP",
+        "mission_popup_title": "Kunlik Vazifa Bajarildi! 🏆",
+        "mission_popup_body": "Tabriklaymiz! Siz bugungi shaxsiy topshiriqni yakunladingiz:\n\n★ {} ★\nTavsif: {}\nMukofot: +{} XP"
     },
     "en": {
         "title_home": "⊞  Dashboard",
@@ -413,7 +442,36 @@ TRANSLATIONS = {
         "finger_right_middle": "Right Middle",
         "finger_right_ring": "Right Ring",
         "finger_right_pinky": "Right Pinky",
-        "helper_next_key": "Key: '{}' | Finger: {}"
+        "helper_next_key": "Key: '{}' | Finger: {}",
+        
+        # Results View Keys
+        "results_title": "Practice Results",
+        "results_pb_badge": "★ NEW PERSONAL BEST ★",
+        "results_streak_badge": "Current Streak: {} days 🔥",
+        "results_streak_record_badge": "★ NEW STREAK RECORD: {} days 🔥 ★",
+        "results_wpm": "Net WPM (Speed)",
+        "results_raw_wpm": "Raw WPM (Total)",
+        "results_accuracy": "Accuracy",
+        "results_consistency": "Consistency",
+        "results_rhythm_rating": "Consistency Rating",
+        "results_errors": "Errors",
+        "results_duration": "Duration",
+        "results_xp_level": "XP / Level",
+        "results_total_chars": "Total Characters",
+        "results_suffix_seconds": " seconds",
+        "results_suffix_chars": " chars",
+        "results_btn_retry": "Retry",
+        "results_btn_home": "Home",
+        "results_rating_erratic": "Erratic ⚠️",
+        
+        # Global audits additional translations
+        "suffix_days": " Days",
+        "mission_progress": "Progress: {}/{}",
+        "mission_completed": "Completed",
+        "ach_popup_title": "New Achievement! 🎉",
+        "ach_popup_body": "Congratulations! You have unlocked a new achievement:\n\n★ {} ★\nDescription: {}\nReward: +{} XP",
+        "mission_popup_title": "Daily Mission Completed! 🏆",
+        "mission_popup_body": "Congratulations! You have completed today's personal mission:\n\n★ {} ★\nDescription: {}\nReward: +{} XP"
     }
 }
 

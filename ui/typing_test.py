@@ -469,13 +469,14 @@ class TypingTestView(BaseView):
         new_achievements = ach_service.check_and_award_achievements(user_id)
         if new_achievements:
             from tkinter import messagebox
+            from services.i18n_service import t
             for ach in new_achievements:
+                ach_key = ach.get("key", "")
+                title_text = t(f"ach_{ach_key}_title", ach.get("title", ""))
+                desc_text = t(f"ach_{ach_key}_desc", ach.get("description", ""))
                 messagebox.showinfo(
-                    "Yangi Yutuq! 🎉",
-                    f"Tabriklaymiz! Siz yangi yutuqqa erishdingiz:\n\n"
-                    f"★ {ach['title']} ★\n"
-                    f"Tavsif: {ach['description']}\n"
-                    f"Mukofot: +{ach['xp_reward']} XP"
+                    t("ach_popup_title"),
+                    t("ach_popup_body").format(title_text, desc_text, ach['xp_reward'])
                 )
 
         # 9. Update daily missions progress
@@ -491,13 +492,14 @@ class TypingTestView(BaseView):
         )
         if newly_completed_missions:
             from tkinter import messagebox
+            from services.i18n_service import t
             for mission in newly_completed_missions:
+                m_key = mission.get("mission_key", "")
+                title_text = t(f"mission_{m_key}_title", mission.get("title", ""))
+                desc_text = t(f"mission_{m_key}_desc", mission.get("description", ""))
                 messagebox.showinfo(
-                    "Kunlik Vazifa Bajarildi! 🏆",
-                    f"Tabriklaymiz! Siz bugungi shaxsiy topshiriqni yakunladingiz:\n\n"
-                    f"★ {mission['title']} ★\n"
-                    f"Tavsif: {mission['description']}\n"
-                    f"Mukofot: +{mission['xp_reward']} XP"
+                    t("mission_popup_title"),
+                    t("mission_popup_body").format(title_text, desc_text, mission['xp_reward'])
                 )
 
     def _handle_back(self):

@@ -95,7 +95,8 @@ class TestDashboardView(unittest.TestCase):
         # Verify Daily Missions UI bindings
         self.assertEqual(view.mission_cols[0]["title"].cget("text"), "V1 (+30 XP)")
         self.assertEqual(view.mission_cols[0]["desc"].cget("text"), "D1")
-        self.assertEqual(view.mission_cols[0]["status"].cget("text"), "Progress: 1/3")
+        from services.i18n_service import t
+        self.assertEqual(view.mission_cols[0]["status"].cget("text"), t("mission_progress").format(1, 3))
         
         self.assertEqual(view.mission_cols[1]["title"].cget("text"), "V2 (+40 XP)")
         self.assertEqual(view.mission_cols[1]["status"].cget("text"), "Bajarildi ✅")

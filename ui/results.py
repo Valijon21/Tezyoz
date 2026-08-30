@@ -58,21 +58,35 @@ class ResultsView(BaseView):
         # Metric Cards mapping references
         self.cards = {}
         metric_configs = [
-            # (row, col, key, label_text, value_suffix)
-            (0, 0, "wpm", "Net WPM (Tezlik)", ""),
-            (0, 1, "raw_wpm", "Raw WPM (Jami)", ""),
-            (0, 2, "accuracy", "Aniqlik", "%"),
+            # (row, col, key)
+            (0, 0, "wpm"),
+            (0, 1, "raw_wpm"),
+            (0, 2, "accuracy"),
             
-            (1, 0, "consistency", "Ritm (Consistency)", "%"),
-            (1, 1, "rhythm_rating", "Ritm Bahosi", ""),
-            (1, 2, "errors", "Xatolar", ""),
+            (1, 0, "consistency"),
+            (1, 1, "rhythm_rating"),
+            (1, 2, "errors"),
             
-            (2, 0, "duration", "Vaqt", " soniya"),
-            (2, 1, "xp_level", "XP / Bosqich", ""),
-            (2, 2, "total_chars", "Jami belgilar", " ta")
+            (2, 0, "duration"),
+            (2, 1, "xp_level"),
+            (2, 2, "total_chars")
         ]
 
-        for r, c, key, label_text, suffix in metric_configs:
+        from services.i18n_service import t
+        card_keys = {
+            "wpm": "results_wpm",
+            "raw_wpm": "results_raw_wpm",
+            "accuracy": "results_accuracy",
+            "consistency": "results_consistency",
+            "rhythm_rating": "results_rhythm_rating",
+            "errors": "results_errors",
+            "duration": "results_duration",
+            "xp_level": "results_xp_level",
+            "total_chars": "results_total_chars"
+        }
+
+        for r, c, key in metric_configs:
+            label_text = t(card_keys[key])
             card = ttk.LabelFrame(self.metrics_frame, text=label_text, padding=15)
             card.grid(row=r, column=c, padx=10, pady=10, sticky="nsew")
             
@@ -85,8 +99,8 @@ class ResultsView(BaseView):
             val_lbl.pack(fill=tk.BOTH, expand=True, pady=10)
             
             self.cards[key] = {
-                "label": val_lbl,
-                "suffix": suffix
+                "card": card,
+                "label": val_lbl
             }
 
         # Navigation Action Buttons row
@@ -95,14 +109,14 @@ class ResultsView(BaseView):
 
         self.retry_btn = ttk.Button(
             self.buttons_frame,
-            text="Qaytadan urinish (Retry)",
+            text=t("results_btn_retry") or "Qaytadan urinish (Retry)",
             command=self._handle_retry
         )
         self.retry_btn.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.X)
 
         self.home_btn = ttk.Button(
             self.buttons_frame,
-            text="Bosh sahifa (Home)",
+            text=t("results_btn_home") or "Bosh sahifa (Home)",
             command=self._handle_home
         )
         self.home_btn.pack(side=tk.RIGHT, padx=10, expand=True, fill=tk.X)
@@ -117,45 +131,53 @@ class ResultsView(BaseView):
         """
         Dynamically updates the UI card labels with final test results.
         """
+        self._last_results = (wpm, raw_wpm, accuracy, errors, duration, xp_earned, level,
+                              is_pb, streak, longest_streak, consistency, total_chars)
+        from services.i18n_service import t
+
         # Toggle PB Badge
         self.pb_badge.pack_forget()
         if is_pb:
+            self.pb_badge.config(text=t("results_pb_badge"))
             self.pb_badge.pack()
 
         # Toggle Streak Badge
         self.streak_badge.pack_forget()
         if streak > 0:
-            flame_text = f"Joriy Streak: {streak} kun 🔥"
             if streak >= longest_streak and longest_streak > 0:
-                flame_text = f"★ YANGI REKORD STREAK: {streak} kun 🔥 ★"
+                flame_text = t("results_streak_record_badge").format(streak)
                 self.streak_badge.config(foreground="#ea580c") # Darker orange for streak record
             else:
+                flame_text = t("results_streak_badge").format(streak)
                 self.streak_badge.config(foreground="#f59e0b") # Standard streak color
             self.streak_badge.config(text=flame_text)
             self.streak_badge.pack(pady=(5, 0))
 
         # Update cards values
+        duration_suffix = t("results_suffix_seconds")
+        char_suffix = t("results_suffix_chars")
+
         self.cards["wpm"]["label"].config(text=f"{wpm:.1f}")
         self.cards["raw_wpm"]["label"].config(text=f"{raw_wpm:.1f}")
         self.cards["accuracy"]["label"].config(text=f"{accuracy:.1f}%")
         self.cards["errors"]["label"].config(text=str(errors))
-        self.cards["duration"]["label"].config(text=f"{duration}{self.cards['duration']['suffix']}")
+        self.cards["duration"]["label"].config(text=f"{duration}{duration_suffix}")
         self.cards["xp_level"]["label"].config(text=f"+{xp_earned} XP (Lvl {level})")
         self.cards["consistency"]["label"].config(text=f"{consistency:.1f}%")
-        self.cards["total_chars"]["label"].config(text=f"{total_chars}{self.cards['total_chars']['suffix']}")
+        self.cards["total_chars"]["label"].config(text=f"{total_chars}{char_suffix}")
 
         # Set rhythm performance description and color
         if consistency >= 85.0:
-            rating = "A'lo (Excellent) ⚡"
+            rating = t("results_rating_excellent")
             color = "#10b981" # Emerald green
         elif consistency >= 75.0:
-            rating = "Yaxshi (Good) 👍"
+            rating = t("results_rating_good")
             color = "#3b82f6" # Blue
         elif consistency >= 60.0:
-            rating = "O'rtacha (Decent) 😐"
+            rating = t("results_rating_decent")
             color = "#eab308" # Yellow
         else:
-            rating = "Sust (Erratic) ⚠️"
+            rating = t("results_rating_erratic")
             color = "#ef4444" # Red
 
         self.cards["rhythm_rating"]["label"].config(text=rating, foreground=color)
@@ -167,4 +189,30 @@ class ResultsView(BaseView):
     def _handle_home(self):
         """Action handler redirection back to main dashboard."""
         self.controller.show_view("home")
+
+    def retranslate_ui(self):
+        """Translates all text elements to the current active locale."""
+        from services.i18n_service import t
+        self.title_label.config(text=t("results_title"))
+        self.retry_btn.config(text=t("results_btn_retry"))
+        self.home_btn.config(text=t("results_btn_home"))
+
+        card_keys = {
+            "wpm": "results_wpm",
+            "raw_wpm": "results_raw_wpm",
+            "accuracy": "results_accuracy",
+            "consistency": "results_consistency",
+            "rhythm_rating": "results_rhythm_rating",
+            "errors": "results_errors",
+            "duration": "results_duration",
+            "xp_level": "results_xp_level",
+            "total_chars": "results_total_chars"
+        }
+        for key, t_key in card_keys.items():
+            if key in self.cards:
+                self.cards[key]["card"].config(text=t(t_key))
+
+        # Re-apply current results values to refresh suffixes and ratings
+        if hasattr(self, "_last_results"):
+            self.set_results(*self._last_results)
 
