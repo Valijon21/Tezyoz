@@ -281,7 +281,8 @@ class TypingTestView(BaseView):
                     pass
             adaptive_text, weak_keys = generate_adaptive_text(user_id=user_id, language=active_lang, target_words_count=150)
             custom_text = adaptive_text
-            keys_str = ", ".join([k.upper() for k in weak_keys[:10]])
+            formatted_keys = ["Space" if k in (" ", "space") else k.upper() for k in weak_keys[:10]]
+            keys_str = ", ".join(formatted_keys)
             if hasattr(self, "smart_info_lbl"):
                 self.smart_info_lbl.config(
                     text=f"🎯 Aqlli Mashq: Top zaif tugmalaringiz [{keys_str}] bo'yicha moslashtirildi!"
