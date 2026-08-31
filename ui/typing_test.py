@@ -51,7 +51,7 @@ class TypingTestView(BaseView):
             self.config_frame,
             textvariable=self.lang_var,
             values=["English", "Russian", "Uzbek", "Aqlli Mashq 🧠"],
-            width=14,
+            width=18,
             state="readonly"
         )
         self.lang_combo.pack(side=tk.LEFT, padx=(0, 15))
