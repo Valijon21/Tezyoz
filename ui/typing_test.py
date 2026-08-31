@@ -62,7 +62,7 @@ class TypingTestView(BaseView):
         self.dur_combo = ttk.Combobox(
             self.config_frame,
             textvariable=self.dur_var,
-            values=["15", "30", "60", "120", "360"],
+            values=["15", "30", "60", "120"],
             width=6,
             state="normal"
         )
@@ -153,7 +153,7 @@ class TypingTestView(BaseView):
             val_str = "60"
         
         # update current select values
-        defaults = {15, 30, 60, 120, 360}
+        defaults = {15, 30, 60, 120}
         try:
             val = int(val_str)
             if val > 0:
@@ -562,7 +562,7 @@ class TypingTestView(BaseView):
             if setting:
                 self.lang_var.set(setting.get("language", "English"))
                 custom_dur = setting.get("custom_duration", 60)
-                defaults = {15, 30, 60, 120, 360}
+                defaults = {15, 30, 60, 120}
                 try:
                     val = int(custom_dur)
                     if val > 0:
