@@ -81,6 +81,18 @@ class TypingTestView(BaseView):
         )
         self.upload_btn.pack(side=tk.LEFT, padx=(15, 0))
 
+        self.clear_file_btn = ctk.CTkButton(
+            self.config_frame,
+            text="Tizim so'zlari 🔄",
+            width=110,
+            height=28,
+            fg_color="#3B82F6",
+            hover_color="#2563EB",
+            font=("Segoe UI", 11, "bold"),
+            command=self._clear_custom_file
+        )
+        self.clear_file_btn.pack(side=tk.LEFT, padx=(10, 0))
+
         # Metrics Display row
         self.metrics_frame = ttk.Frame(self.container)
         self.metrics_frame.pack(fill=tk.X, pady=10)
@@ -169,6 +181,7 @@ class TypingTestView(BaseView):
         if not (language.startswith("Fayl:") or language.startswith("File:")):
             self.custom_file_text = None
             self.custom_file_name = None
+            self.lang_combo.configure(values=["English", "Russian", "Uzbek"])
             
         # Also save this changed duration back to settings if user logged in
         from services.auth_service import get_current_user
@@ -202,8 +215,10 @@ class TypingTestView(BaseView):
             self.custom_file_text = extract_typing_text(file_path, max_words=200)
             self.custom_file_name = os.path.basename(file_path)
             
-            # Update display state
-            self.lang_var.set(f"Fayl: {self.custom_file_name}")
+            # Update display state and language selector values
+            file_option = f"Fayl: {self.custom_file_name}"
+            self.lang_combo.configure(values=["English", "Russian", "Uzbek", file_option])
+            self.lang_var.set(file_option)
             self.reset_test()
             
             messagebox.showinfo(
@@ -212,6 +227,17 @@ class TypingTestView(BaseView):
             )
         except Exception as err:
             messagebox.showerror("Xatolik", str(err))
+
+    def _clear_custom_file(self):
+        """Clears custom file state and reverts to standard database language."""
+        self.custom_file_text = None
+        self.custom_file_name = None
+        self.lang_combo.configure(values=["English", "Russian", "Uzbek"])
+        current_lang = self.lang_var.get()
+        if current_lang.startswith("Fayl:") or current_lang.startswith("File:"):
+            self.lang_var.set("English")
+        self.reset_test()
+        self.text_widget.focus_force()
 
     def reset_test(self):
         """Cancels current timer and builds a fresh TypingEngine instance."""
@@ -225,7 +251,7 @@ class TypingTestView(BaseView):
             duration = 60
 
         custom_text = None
-        if hasattr(self, "custom_file_text") and self.custom_file_text:
+        if (language.startswith("Fayl:") or language.startswith("File:")) and hasattr(self, "custom_file_text") and self.custom_file_text:
             custom_text = self.custom_file_text
 
         config = TestConfig(language, duration)
