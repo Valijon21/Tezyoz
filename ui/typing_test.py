@@ -45,13 +45,13 @@ class TypingTestView(BaseView):
         self.config_frame = ttk.Frame(self.container)
         self.config_frame.pack(pady=5)
 
-        self.lang_name_lbl = ttk.Label(self.config_frame, text="Til:")
+        self.lang_name_lbl = ttk.Label(self.config_frame, text="Til / Rejim:")
         self.lang_name_lbl.pack(side=tk.LEFT, padx=(5, 3))
         self.lang_combo = ttk.Combobox(
             self.config_frame,
             textvariable=self.lang_var,
-            values=["English", "Russian", "Uzbek"],
-            width=10,
+            values=["English", "Russian", "Uzbek", "Aqlli Mashq 🧠"],
+            width=14,
             state="readonly"
         )
         self.lang_combo.pack(side=tk.LEFT, padx=(0, 15))
@@ -105,6 +105,15 @@ class TypingTestView(BaseView):
 
         self.acc_lbl = ttk.Label(self.metrics_frame, text="Aniqlik: 0.0%", font=("Helvetica", 14, "bold"))
         self.acc_lbl.pack(side=tk.LEFT, expand=True)
+
+        # Smart practice diagnostic feedback label
+        self.smart_info_lbl = ttk.Label(
+            self.container,
+            text="",
+            font=("Segoe UI", 10, "bold"),
+            foreground="#3B82F6"
+        )
+        self.smart_info_lbl.pack(fill=tk.X, pady=(0, 5))
 
         # Word-canvas board frame
         self.canvas_frame = ttk.LabelFrame(self.container, text=" Yozish maydoni ", padding=20)
@@ -177,11 +186,14 @@ class TypingTestView(BaseView):
         
         # Called when language or duration is changed.
         language = self.lang_var.get()
+        # Called when language or duration is changed.
+        language = self.lang_var.get()
         # If the user switched to a standard language, clear custom settings
+        standard_langs = ["English", "Russian", "Uzbek", "Aqlli Mashq 🧠"]
         if not (language.startswith("Fayl:") or language.startswith("File:")):
             self.custom_file_text = None
             self.custom_file_name = None
-            self.lang_combo.configure(values=["English", "Russian", "Uzbek"])
+            self.lang_combo.configure(values=standard_langs)
             
         # Also save this changed duration back to settings if user logged in
         from services.auth_service import get_current_user
@@ -217,7 +229,7 @@ class TypingTestView(BaseView):
             
             # Update display state and language selector values
             file_option = f"Fayl: {self.custom_file_name}"
-            self.lang_combo.configure(values=["English", "Russian", "Uzbek", file_option])
+            self.lang_combo.configure(values=["English", "Russian", "Uzbek", "Aqlli Mashq 🧠", file_option])
             self.lang_var.set(file_option)
             self.reset_test()
             
@@ -232,7 +244,7 @@ class TypingTestView(BaseView):
         """Clears custom file state and reverts to standard database language."""
         self.custom_file_text = None
         self.custom_file_name = None
-        self.lang_combo.configure(values=["English", "Russian", "Uzbek"])
+        self.lang_combo.configure(values=["English", "Russian", "Uzbek", "Aqlli Mashq 🧠"])
         current_lang = self.lang_var.get()
         if current_lang.startswith("Fayl:") or current_lang.startswith("File:"):
             self.lang_var.set("English")
@@ -253,6 +265,30 @@ class TypingTestView(BaseView):
         custom_text = None
         if (language.startswith("Fayl:") or language.startswith("File:")) and hasattr(self, "custom_file_text") and self.custom_file_text:
             custom_text = self.custom_file_text
+        elif language == "Aqlli Mashq 🧠":
+            from engine.adaptive_engine import generate_adaptive_text
+            from services.auth_service import get_current_user
+            user = get_current_user()
+            user_id = user["id"] if user else None
+            active_lang = "English"
+            if user:
+                try:
+                    from database.repositories.settings_repository import SettingsRepository
+                    s = SettingsRepository().get_settings(user["id"])
+                    if s and s.get("language"):
+                        active_lang = s.get("language")
+                except Exception:
+                    pass
+            adaptive_text, weak_keys = generate_adaptive_text(user_id=user_id, language=active_lang, target_words_count=150)
+            custom_text = adaptive_text
+            keys_str = ", ".join([k.upper() for k in weak_keys[:10]])
+            if hasattr(self, "smart_info_lbl"):
+                self.smart_info_lbl.config(
+                    text=f"🎯 Aqlli Mashq: Top zaif tugmalaringiz [{keys_str}] bo'yicha moslashtirildi!"
+                )
+        else:
+            if hasattr(self, "smart_info_lbl"):
+                self.smart_info_lbl.config(text="")
 
         config = TestConfig(language, duration)
         self.engine = TypingEngine(config, custom_text=custom_text)
