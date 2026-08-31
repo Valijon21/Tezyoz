@@ -186,10 +186,9 @@ class TypingTestView(BaseView):
         
         # Called when language or duration is changed.
         language = self.lang_var.get()
-        # Called when language or duration is changed.
-        language = self.lang_var.get()
         # If the user switched to a standard language, clear custom settings
-        standard_langs = ["English", "Russian", "Uzbek", "Aqlli Mashq 🧠"]
+        from services.i18n_service import t
+        standard_langs = ["English", "Russian", "Uzbek", t("mode_smart_practice")]
         if not (language.startswith("Fayl:") or language.startswith("File:")):
             self.custom_file_text = None
             self.custom_file_name = None
@@ -265,9 +264,10 @@ class TypingTestView(BaseView):
         custom_text = None
         if (language.startswith("Fayl:") or language.startswith("File:")) and hasattr(self, "custom_file_text") and self.custom_file_text:
             custom_text = self.custom_file_text
-        elif language == "Aqlli Mashq 🧠":
+        elif any(sp_key in language for sp_key in ("Aqlli Mashq", "Smart Practice", "Умная практика")):
             from engine.adaptive_engine import generate_adaptive_text
             from services.auth_service import get_current_user
+            from services.i18n_service import t
             user = get_current_user()
             user_id = user["id"] if user else None
             active_lang = "English"
@@ -284,8 +284,9 @@ class TypingTestView(BaseView):
             formatted_keys = ["Space" if k in (" ", "space") else k.upper() for k in weak_keys[:10]]
             keys_str = ", ".join(formatted_keys)
             if hasattr(self, "smart_info_lbl"):
+                banner_template = t("smart_info_banner")
                 self.smart_info_lbl.config(
-                    text=f"🎯 Aqlli Mashq: Top zaif tugmalaringiz [{keys_str}] bo'yicha moslashtirildi!"
+                    text=banner_template.format(keys_str)
                 )
         else:
             if hasattr(self, "smart_info_lbl"):
@@ -714,3 +715,15 @@ class TypingTestView(BaseView):
         # Info Label (Yozishni boshlang...)
         if hasattr(self, "info_lbl") and self.info_lbl:
             self.info_lbl.configure(text=f"{t('practice_start_instruction')} ({t('practice_restart_kbd')})")
+
+        # Smart Practice combo localization
+        smart_mode_name = t("mode_smart_practice")
+        if hasattr(self, "lang_combo") and self.lang_combo:
+            current_vals = list(self.lang_combo["values"])
+            custom_opts = [v for v in current_vals if v.startswith("Fayl:") or v.startswith("File:")]
+            new_vals = ["English", "Russian", "Uzbek", smart_mode_name] + custom_opts
+            self.lang_combo.configure(values=new_vals)
+
+            curr_sel = self.lang_var.get()
+            if any(sp_key in curr_sel for sp_key in ("Aqlli Mashq", "Smart Practice", "Умная практика")):
+                self.lang_var.set(smart_mode_name)

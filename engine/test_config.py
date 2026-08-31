@@ -16,8 +16,8 @@ class TestConfig:
             raise ValueError("Til nomi matn bo'lishi shart!")
             
         normalized = language.strip()
-        # Bypass SUPPORTED_LANGUAGES validation if it refers to a custom uploaded file or Aqlli Mashq
-        if not (normalized.startswith("Fayl:") or normalized.startswith("File:") or "Aqlli Mashq" in normalized or "Smart Practice" in normalized):
+        # Bypass SUPPORTED_LANGUAGES validation if it refers to a custom uploaded file or Smart Practice mode
+        if not (normalized.startswith("Fayl:") or normalized.startswith("File:") or any(sp_key in normalized for sp_key in ("Aqlli Mashq", "Smart Practice", "Умная практика"))):
             normalized_cap = normalized.capitalize()
             if normalized_cap not in SUPPORTED_LANGUAGES:
                 raise ValueError(f"Qo'llab-quvvatlanmaydigan til: {language}")
