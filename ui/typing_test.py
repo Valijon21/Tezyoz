@@ -64,12 +64,10 @@ class TypingTestView(BaseView):
             textvariable=self.dur_var,
             values=["15", "30", "60", "120"],
             width=6,
-            state="normal"
+            state="readonly"
         )
         self.dur_combo.pack(side=tk.LEFT, padx=(0, 15))
         self.dur_combo.bind("<<ComboboxSelected>>", self._on_config_change)
-        self.dur_combo.bind("<Return>", self._on_config_change)
-        self.dur_combo.bind("<FocusOut>", self._on_config_change)
 
         # Custom file upload button (styled to match theme)
         import customtkinter as ctk
@@ -545,7 +543,8 @@ class TypingTestView(BaseView):
 
     def _bind_clicks_recursively(self, widget):
         w_class = widget.winfo_class() if hasattr(widget, "winfo_class") else ""
-        if "Combobox" not in w_class and "Entry" not in w_class and "Button" not in w_class:
+        ignored_classes = ("Combobox", "Entry", "Button", "Listbox", "Menu", "Scrollbar", "TCombobox", "TEntry", "TButton")
+        if not any(cls in w_class for cls in ignored_classes):
             widget.bind("<Button-1>", lambda e: self.text_widget.focus_force(), add="+")
         for child in widget.winfo_children():
             self._bind_clicks_recursively(child)
