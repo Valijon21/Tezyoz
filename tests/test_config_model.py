@@ -29,6 +29,12 @@ class TestConfigModel(unittest.TestCase):
         cfg.duration = 120
         self.assertEqual(cfg.duration, 120)
 
+    def test_aqlli_mashq_language(self):
+        """Verify passing Aqlli Mashq 🧠 mode is accepted by TestConfig."""
+        cfg = TestConfig()
+        cfg.language = "Aqlli Mashq 🧠"
+        self.assertEqual(cfg.language, "Aqlli Mashq 🧠")
+
     def test_invalid_language_raises(self):
         """Verify passing invalid language raises ValueError."""
         cfg = TestConfig()
