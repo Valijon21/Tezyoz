@@ -25,10 +25,6 @@ class TestThemeSystem(unittest.TestCase):
         initialize_schema()
         self.settings_repo = SettingsRepository()
         
-        # TK resources
-        self.root = tk.Tk()
-        self.root.withdraw()
-        
         # Seed test user settings
         self.user_id = 99
         with connection.db.transaction() as conn:
@@ -47,7 +43,6 @@ class TestThemeSystem(unittest.TestCase):
             os.unlink(self.db_path_str)
         except OSError:
             pass
-        self.root.destroy()
 
     def test_settings_repository_read_and_write(self):
         """Verify SettingsRepository reads and updates database preferences correctly."""

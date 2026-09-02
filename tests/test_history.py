@@ -14,6 +14,10 @@ from ui.history import HistoryView
 
 class TestHistory(unittest.TestCase):
     def setUp(self):
+        from services.i18n_service import get_locale, set_locale
+        self.orig_locale = get_locale()
+        set_locale("uz")
+        
         # TempDB and session mock setups
         self.db_fd, self.db_path_str = tempfile.mkstemp()
         self.db_path = Path(self.db_path_str)
@@ -36,6 +40,8 @@ class TestHistory(unittest.TestCase):
         }
 
     def tearDown(self):
+        from services.i18n_service import set_locale
+        set_locale(self.orig_locale)
         connection.db.database_path = self.orig_db_path
         os.close(self.db_fd)
         try:

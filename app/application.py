@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 from app.config import APP_NAME, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT
-from app.event_bus import EventBus
 
 class Application:
     """
@@ -15,9 +14,6 @@ class Application:
         
         self.root = ctk.CTk()
         self.root.title(APP_NAME)
-        
-        # Setup EventBus
-        self.event_bus = EventBus()
 
         # Intercept runtime callback exceptions to present user-friendly error messages
         self.root.report_callback_exception = self.report_callback_exception
@@ -61,6 +57,10 @@ class Application:
         self.current_ui_language = "uz"
         from services.i18n_service import set_locale
         set_locale(self.current_ui_language)
+        
+        # Event bus initialization
+        from app.event_bus import EventBus
+        self.event_bus = EventBus()
         
         # View manager initialization
         self.current_view = None
@@ -270,8 +270,8 @@ class Application:
         if hasattr(self, "sidebar_font_size_combo") and self.sidebar_font_size_combo:
             self.sidebar_font_size_combo.set(str(self.current_font_size))
         if hasattr(self, "sidebar_language_combo") and self.sidebar_language_combo:
-            lang_label = "O'zbekcha" if self.current_ui_language == "uz" else "English"
-            self.sidebar_language_combo.set(lang_label)
+            lang_labels = {"uz": "O'zbekcha", "en": "English", "ru": "Русский"}
+            self.sidebar_language_combo.set(lang_labels.get(self.current_ui_language, "O'zbekcha"))
             
         # Sync sound switch states in sidebar settings frame
         if hasattr(self, "sidebar_sound_switch") and self.sidebar_sound_switch:

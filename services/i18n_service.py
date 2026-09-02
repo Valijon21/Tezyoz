@@ -285,7 +285,13 @@ TRANSLATIONS = {
         "dur_word_hours_mins": "{} soat {} daqiqa",
         
         # Suffixes
-        "suffix_times": "marta"
+        "suffix_times": "marta",
+
+        # Auth validation keys
+        "err_username_required": "Foydalanuvchi nomi kiritilishi shart!",
+        "err_password_min_length": "Parol kamida 6 ta belgidan iborat bo'lishi kerak!",
+        "err_username_taken": "Bu foydalanuvchi nomi allaqachon ro'yxatdan o'tkazilgan!",
+        "err_system_error": "Tizim xatoligi yuz berdi: {}"
     },
     "en": {
         "title_home": "⊞  Dashboard",
@@ -563,7 +569,13 @@ TRANSLATIONS = {
         "dur_word_hours_mins": "{} hours {} minutes",
         
         # Suffixes
-        "suffix_times": "times"
+        "suffix_times": "times",
+
+        # Auth validation keys
+        "err_username_required": "Username is required!",
+        "err_password_min_length": "Password must be at least 6 characters!",
+        "err_username_taken": "This username is already registered!",
+        "err_system_error": "A system error occurred: {}"
     },
     "ru": {
         "title_home": "⊞  Панель управления",
@@ -823,7 +835,13 @@ TRANSLATIONS = {
         "dur_word_hours_mins": "{} ч. {} мин.",
         
         # Suffixes
-        "suffix_times": "раз"
+        "suffix_times": "раз",
+
+        # Auth validation keys
+        "err_username_required": "Имя пользователя обязательно!",
+        "err_password_min_length": "Пароль должен содержать минимум 6 символов!",
+        "err_username_taken": "Это имя пользователя уже зарегистрировано!",
+        "err_system_error": "Произошла системная ошибка: {}"
     }
 }
 

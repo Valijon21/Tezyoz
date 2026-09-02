@@ -1,3 +1,3 @@
 # TypeMaster dependencies
-# This project is designed to run offline using the Python Standard Library and Tkinter (tcl/tk).
-# No third-party GUI or database dependencies are required for core V1.0.
+customtkinter>=6.0.0
+darkdetect>=0.8.0

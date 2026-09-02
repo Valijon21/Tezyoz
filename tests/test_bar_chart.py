@@ -12,6 +12,7 @@ class TestBarChart(unittest.TestCase):
         self.root = tk.Tk()
         self.root.withdraw()
         self.chart = BarChart(self.root, width=400, height=300)
+        self.chart.pack()
 
     def tearDown(self):
         # Destroy and cleanup Tk resources

@@ -52,83 +52,88 @@ TypeMaster/
 ├── main.py
 ├── requirements.txt
 ├── README.md
+├── ARCHITECTURE.md
 │
 ├── app/
 │   ├── __init__.py
 │   ├── application.py
-│   └── config.py
+│   ├── config.py
+│   └── event_bus.py
 │
 ├── database/
 │   ├── __init__.py
 │   ├── connection.py
 │   ├── schema.py
 │   └── repositories/
-│       ├── user_repository.py
-│       ├── test_repository.py
-│       ├── stats_repository.py
-│       └── settings_repository.py
-│
-├── models/
-│   ├── user.py
-│   ├── test_result.py
-│   ├── daily_stat.py
-│   └── settings.py
+│       ├── __init__.py
+│       ├── base_repository.py
+│       ├── daily_stats_repository.py
+│       ├── key_stats_repository.py
+│       ├── personal_best_repository.py
+│       ├── settings_repository.py
+│       └── test_repository.py
 │
 ├── engine/
-│   ├── typing_engine.py
-│   ├── timer.py
-│   ├── calculator.py
-│   └── text_generator.py
+│   ├── __init__.py
+│   ├── adaptive_engine.py
+│   ├── calculators.py
+│   ├── keyboard_handler.py
+│   ├── test_config.py
+│   ├── text_loader.py
+│   └── typing_engine.py
 │
 ├── services/
+│   ├── __init__.py
+│   ├── achievements_service.py
 │   ├── auth_service.py
-│   ├── test_service.py
-│   ├── statistics_service.py
-│   ├── gamification_service.py
+│   ├── daily_missions_service.py
+│   ├── file_parser.py
+│   ├── i18n_service.py
+│   ├── sound_service.py
 │   └── streak_service.py
 │
 ├── ui/
+│   ├── __init__.py
+│   ├── achievements.py
+│   ├── advanced_stats.py
 │   ├── base.py
-│   ├── login.py
-│   ├── register.py
-│   ├── home.py
-│   ├── typing_test.py
-│   ├── result.py
 │   ├── dashboard.py
 │   ├── history.py
-│   ├── statistics.py
-│   ├── profile.py
-│   └── settings.py
+│   ├── leaderboard.py
+│   ├── login.py
+│   ├── personal_best.py
+│   ├── register.py
+│   ├── settings.py
+│   ├── theme.py
+│   └── typing_test.py
 │
 ├── charts/
-│   ├── line_chart.py
+│   ├── __init__.py
 │   ├── bar_chart.py
-│   ├── progress_bar.py
-│   └── heatmap.py
+│   ├── heatmap.py
+│   └── line_chart.py
 │
 ├── gamification/
-│   ├── xp.py
+│   ├── __init__.py
 │   ├── levels.py
-│   ├── streak.py
-│   └── achievements.py
+│   └── xp_calculator.py
 │
 ├── data/
 │   ├── english_1k.txt
 │   ├── english_5k.txt
+│   ├── uzbek_1k.txt
 │   └── quotes.json
 │
 ├── assets/
 │   ├── fonts/
-│   ├── icons/
 │   └── sounds/
 │
-├── logs/
-│
 └── tests/
-    ├── test_calculator.py
+    ├── test_calculators.py
     ├── test_typing_engine.py
     ├── test_auth.py
-    └── test_statistics.py
+    ├── test_dashboard.py
+    └── ... (47 test modules)
 ```
 
 ------------------------------------------------------------------------

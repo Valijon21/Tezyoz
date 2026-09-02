@@ -89,9 +89,11 @@ def register_user(username: str, display_name: str, password: str) -> int:
     password = password.strip()
     
     if not username:
-        raise ValueError("Foydalanuvchi nomi kiritilishi shart!")
+        from services.i18n_service import t
+        raise ValueError(t("err_username_required"))
     if len(password) < 6:
-        raise ValueError("Parol kamida 6 ta belgidan iborat bo'lishi kerak!")
+        from services.i18n_service import t
+        raise ValueError(t("err_password_min_length"))
         
     # Salt and hash password candidate
     password_hash = hash_password(password)
@@ -101,7 +103,8 @@ def register_user(username: str, display_name: str, password: str) -> int:
             # Duplicate Check
             cursor = conn.execute("SELECT 1 FROM users WHERE username = ?;", (username,))
             if cursor.fetchone():
-                raise ValueError("Bu foydalanuvchi nomi allaqachon ro'yxatdan o'tkazilgan!")
+                from services.i18n_service import t
+                raise ValueError(t("err_username_taken"))
                 
             # Insert User record
             user_cursor = conn.execute(
@@ -133,7 +136,8 @@ def register_user(username: str, display_name: str, password: str) -> int:
             return user_id
     except sqlite3.IntegrityError as err:
         logger.error(f"Database integrity constraints violation during user registry: {err}")
-        raise ValueError(f"Tizim xatoligi yuz berdi: {err}")
+        from services.i18n_service import t
+        raise ValueError(t("err_system_error").format(err))
 
 def login_user(username: str, password: str) -> dict:
     """

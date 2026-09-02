@@ -37,7 +37,6 @@ def main():
     setup_logging()
     
     # Enable DPI awareness before bootstrapping Tkinter
-    import sys
     if sys.platform.startswith("win"):
         try:
             import ctypes

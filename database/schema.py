@@ -164,15 +164,15 @@ def initialize_schema():
                 except Exception:
                     pass # Column already exists or table does not match
             
-            # Seed default achievements
+            # Seed default achievements using i18n keys for title/description
             achievements_data = [
-                ('first_test', 'Birinchi Qadam', 'Birinchi marta yozish mashqini yakunlang', 50),
-                ('speed_60', 'Tezlik Ustasi', 'Mashq davomida 60 WPM dan yuqori tezlik ko\'rsating', 100),
-                ('speed_100', 'Tezlik Qiroli', 'Mashq davomida 100 WPM dan yuqori tezlik ko\'rsating', 150),
-                ('accuracy_100', 'Mukammallik', 'Mashqni 100% aniqlikda yakunlang (kamida 30 soniyalik test)', 100),
-                ('streak_3', 'Matonat', 'Kunlik mashq qilish uzluksizligini 3 kunga yetkazing', 100),
-                ('streak_7', 'Muntazamlik', 'Kunlik mashq qilish uzluksizligini 7 kunga yetkazing', 150),
-                ('level_5', 'Tajribali', 'Dasturda 5-darajaga (Level 5) erishing', 150)
+                ('first_test', 'ach_first_test_title', 'ach_first_test_desc', 50),
+                ('speed_60', 'ach_speed_60_title', 'ach_speed_60_desc', 100),
+                ('speed_100', 'ach_speed_100_title', 'ach_speed_100_desc', 150),
+                ('accuracy_100', 'ach_accuracy_100_title', 'ach_accuracy_100_desc', 100),
+                ('streak_3', 'ach_streak_3_title', 'ach_streak_3_desc', 100),
+                ('streak_7', 'ach_streak_7_title', 'ach_streak_7_desc', 150),
+                ('level_5', 'ach_level_5_title', 'ach_level_5_desc', 150)
             ]
             for key, title, desc, xp_reward in achievements_data:
                 conn.execute(

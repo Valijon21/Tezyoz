@@ -173,7 +173,7 @@ class SoundService:
                         try:
                             import ctypes
                             ctypes.windll.winmm.mciSendStringW('close click_sound', None, 0, 0)
-                        except:
+                        except Exception:
                             pass
                     break
                 
