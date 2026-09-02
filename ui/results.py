@@ -3,6 +3,7 @@ Results display panel for TypeMaster typing test performance metrics.
 """
 import tkinter as tk
 from tkinter import ttk
+import webbrowser
 from ui.base import BaseView
 
 class ResultsView(BaseView):
@@ -32,7 +33,7 @@ class ResultsView(BaseView):
 
         # Personal Best Badge container
         self.pb_frame = ttk.Frame(self.container)
-        self.pb_frame.pack(pady=(0, 15))
+        self.pb_frame.pack(pady=(0, 10))
         self.pb_badge = ttk.Label(
             self.pb_frame,
             text="★ YANGI REKORD ★",
@@ -45,6 +46,33 @@ class ResultsView(BaseView):
             font=("Helvetica", 14, "bold"),
             foreground="#f59e0b" # Orange/Gold color for flame
         )
+
+        from services.i18n_service import t
+
+        # Developer Contact Header Frame (Clean container without top title label)
+        self.dev_info_card = ttk.Frame(
+            self.container,
+            padding=(15, 10)
+        )
+        self.dev_info_card.pack(fill=tk.X, pady=(0, 15))
+
+        dev_inner = ttk.Frame(self.dev_info_card)
+        dev_inner.pack(fill=tk.X, expand=True)
+
+        self.dev_info_text = ttk.Label(
+            dev_inner,
+            text=f"{t('dev_info_name')}   •   {t('dev_info_phone')}\n{t('dev_info_services')}",
+            font=("Helvetica", 13, "bold"),
+            justify="left"
+        )
+        self.dev_info_text.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+
+        self.dev_contact_btn = ttk.Button(
+            dev_inner,
+            text=t("dev_info_contact"),
+            command=self._open_telegram
+        )
+        self.dev_contact_btn.pack(side=tk.RIGHT, padx=5)
 
         # Metrics layout frame - structured in a grid (3 rows, 3 columns)
         self.metrics_frame = ttk.Frame(self.container)
@@ -72,7 +100,6 @@ class ResultsView(BaseView):
             (2, 2, "total_chars")
         ]
 
-        from services.i18n_service import t
         card_keys = {
             "wpm": "results_wpm",
             "raw_wpm": "results_raw_wpm",
@@ -93,7 +120,7 @@ class ResultsView(BaseView):
             val_lbl = ttk.Label(
                 card,
                 text="-",
-                font=("Helvetica", 20, "bold"),
+                font=("Helvetica", 22, "bold"),
                 anchor="center"
             )
             val_lbl.pack(fill=tk.BOTH, expand=True, pady=10)
@@ -105,7 +132,7 @@ class ResultsView(BaseView):
 
         # Navigation Action Buttons row
         self.buttons_frame = ttk.Frame(self.container)
-        self.buttons_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=(20, 0))
+        self.buttons_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=(15, 0))
 
         self.retry_btn = ttk.Button(
             self.buttons_frame,
@@ -190,12 +217,22 @@ class ResultsView(BaseView):
         """Action handler redirection back to main dashboard."""
         self.controller.show_view("home")
 
+    def _open_telegram(self):
+        """Opens Telegram contact link in user's default browser."""
+        webbrowser.open("https://t.me/valijon2107")
+
     def retranslate_ui(self):
         """Translates all text elements to the current active locale."""
         from services.i18n_service import t
         self.title_label.config(text=t("results_title"))
         self.retry_btn.config(text=t("results_btn_retry"))
         self.home_btn.config(text=t("results_btn_home"))
+
+        if hasattr(self, "dev_info_text") and self.dev_info_text:
+            self.dev_info_text.config(
+                text=f"{t('dev_info_name')}  •  {t('dev_info_phone')}\n{t('dev_info_services')}"
+            )
+            self.dev_contact_btn.config(text=t("dev_info_contact"))
 
         card_keys = {
             "wpm": "results_wpm",

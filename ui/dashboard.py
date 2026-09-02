@@ -205,9 +205,9 @@ class DashboardView(BaseView):
                 fg_color=theme_colors["card_bg"],
                 hover_color=theme_colors["select_bg"],
                 text_color=theme_colors["fg"],
-                font=("Segoe UI", 11, "bold"),
-                width=80,
-                height=30,
+                font=("Segoe UI", 14, "bold"),
+                width=95,
+                height=36,
                 corner_radius=8,
                 command=lambda k=key: self._set_period(k)
             )
@@ -244,7 +244,7 @@ class DashboardView(BaseView):
             title_lbl = ctk.CTkLabel(
                 hdr_frame, 
                 text=title, 
-                font=("Segoe UI", 10, "bold"),
+                font=("Segoe UI", 12, "bold"),
                 text_color=theme_colors["secondary_fg"]
             )
             title_lbl.pack(side=tk.LEFT)
@@ -274,7 +274,7 @@ class DashboardView(BaseView):
             left_lbl = ctk.CTkLabel(
                 btm_frame, 
                 text=def_left, 
-                font=("Segoe UI", 9),
+                font=("Segoe UI", 11, "bold"),
                 text_color=theme_colors["secondary_fg"]
             )
             left_lbl.pack(side=tk.LEFT)
@@ -282,7 +282,7 @@ class DashboardView(BaseView):
             right_lbl = ctk.CTkLabel(
                 btm_frame, 
                 text=def_right, 
-                font=("Segoe UI", 9),
+                font=("Segoe UI", 11, "bold"),
                 text_color=theme_colors["secondary_fg"]
             )
             right_lbl.pack(side=tk.RIGHT)
@@ -301,7 +301,7 @@ class DashboardView(BaseView):
         self.chart_label = ctk.CTkLabel(
             self.chart_switch_bar,
             text="Grafik Ko'rinishi:",
-            font=("Segoe UI", 11, "bold")
+            font=("Segoe UI", 14, "bold")
         )
         self.chart_label.pack(side=tk.LEFT, padx=(0, 10))
 
@@ -323,9 +323,8 @@ class DashboardView(BaseView):
                 fg_color=theme_colors["card_bg"],
                 hover_color=theme_colors["select_bg"],
                 text_color=theme_colors["fg"],
-                font=("Segoe UI", 11, "bold"),
-                width=100,
-                height=30,
+                font=("Segoe UI", 15, "bold"),
+                height=38,
                 corner_radius=8,
                 command=lambda k=key: self._set_chart_type(k)
             )

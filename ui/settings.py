@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 import sqlite3
+import webbrowser
 from ui.base import BaseView
 from services.i18n_service import t, get_locale
 from ui.theme import THEMES
@@ -45,6 +46,7 @@ class SettingsView(BaseView):
         self._build_visual_card()
         self._build_audio_lang_card()
         self._build_data_card()
+        self._build_dev_info_card()
         
         # Save & Navigation Controls
         self.action_frame = ctk.CTkFrame(self.container, fg_color="transparent")
@@ -53,7 +55,7 @@ class SettingsView(BaseView):
         self.back_btn = ctk.CTkButton(
             self.action_frame,
             text=t("btn_back_to_dashboard") or "Orqaga",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 16, "bold"),
             height=36,
             command=self._handle_back
         )
@@ -71,7 +73,7 @@ class SettingsView(BaseView):
         self.visual_title = ctk.CTkLabel(
             inner,
             text=t("settings_visual_section"),
-            font=("Segoe UI", 14, "bold"),
+            font=("Segoe UI", 18, "bold"),
             text_color=theme_colors["accent"]
         )
         self.visual_title.pack(anchor="w", pady=(0, 15))
@@ -82,62 +84,62 @@ class SettingsView(BaseView):
         grid.columnconfigure(1, weight=1)
         
         # 1. Theme
-        self.theme_lbl = ctk.CTkLabel(grid, text=t("theme"), font=("Segoe UI", 12))
-        self.theme_lbl.grid(row=0, column=0, sticky="w", pady=6)
+        self.theme_lbl = ctk.CTkLabel(grid, text=t("theme"), font=("Segoe UI", 18, "bold"))
+        self.theme_lbl.grid(row=0, column=0, sticky="w", pady=8)
         self.theme_combo = ctk.CTkOptionMenu(
             grid,
             values=["dark", "light", "cyberpunk"],
             variable=self.theme_var,
             command=self._on_settings_change,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 18, "bold")
         )
-        self.theme_combo.grid(row=0, column=1, sticky="e", pady=6)
+        self.theme_combo.grid(row=0, column=1, sticky="e", pady=8)
         
         # 2. Font family
-        self.font_lbl = ctk.CTkLabel(grid, text=t("font"), font=("Segoe UI", 12))
-        self.font_lbl.grid(row=1, column=0, sticky="w", pady=6)
+        self.font_lbl = ctk.CTkLabel(grid, text=t("font"), font=("Segoe UI", 18, "bold"))
+        self.font_lbl.grid(row=1, column=0, sticky="w", pady=8)
         self.font_combo = ctk.CTkOptionMenu(
             grid,
             values=["Segoe UI", "Consolas", "Courier New", "Arial"],
             variable=self.font_var,
             command=self._on_settings_change,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 18, "bold")
         )
-        self.font_combo.grid(row=1, column=1, sticky="e", pady=6)
+        self.font_combo.grid(row=1, column=1, sticky="e", pady=8)
         
         # 3. Font Size
-        self.size_lbl = ctk.CTkLabel(grid, text=t("size"), font=("Segoe UI", 12))
-        self.size_lbl.grid(row=2, column=0, sticky="w", pady=6)
+        self.size_lbl = ctk.CTkLabel(grid, text=t("size"), font=("Segoe UI", 18, "bold"))
+        self.size_lbl.grid(row=2, column=0, sticky="w", pady=8)
         self.size_combo = ctk.CTkOptionMenu(
             grid,
             values=["11", "12", "13", "14", "15", "16", "18"],
             variable=self.size_var,
             command=self._on_settings_change,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 16, "bold")
         )
-        self.size_combo.grid(row=2, column=1, sticky="e", pady=6)
+        self.size_combo.grid(row=2, column=1, sticky="e", pady=8)
 
         # 4. Keyboard Helper
-        self.keyboard_lbl = ctk.CTkLabel(grid, text=t("settings_keyboard_helper") or "Keyboard Helper", font=("Segoe UI", 12))
-        self.keyboard_lbl.grid(row=3, column=0, sticky="w", pady=6)
+        self.keyboard_lbl = ctk.CTkLabel(grid, text=t("settings_keyboard_helper") or "Keyboard Helper", font=("Segoe UI", 18, "bold"))
+        self.keyboard_lbl.grid(row=3, column=0, sticky="w", pady=8)
         self.keyboard_switch = ctk.CTkSwitch(
             grid,
             text="",
             command=self._on_keyboard_toggle,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 16, "bold")
         )
-        self.keyboard_switch.grid(row=3, column=1, sticky="e", pady=6)
+        self.keyboard_switch.grid(row=3, column=1, sticky="e", pady=8)
 
         # 5. Custom Duration
-        self.custom_duration_lbl = ctk.CTkLabel(grid, text=t("settings_custom_duration") or "Moslashtirilgan vaqt (soniya):", font=("Segoe UI", 12))
-        self.custom_duration_lbl.grid(row=4, column=0, sticky="w", pady=6)
+        self.custom_duration_lbl = ctk.CTkLabel(grid, text=t("settings_custom_duration") or "Moslashtirilgan vaqt (soniya):", font=("Segoe UI", 18, "bold"))
+        self.custom_duration_lbl.grid(row=4, column=0, sticky="w", pady=8)
         self.custom_duration_entry = ctk.CTkEntry(
             grid,
             textvariable=self.custom_duration_var,
-            width=100,
-            font=("Segoe UI", 11)
+            width=120,
+            font=("Segoe UI", 16, "bold")
         )
-        self.custom_duration_entry.grid(row=4, column=1, sticky="e", pady=6)
+        self.custom_duration_entry.grid(row=4, column=1, sticky="e", pady=8)
         self.custom_duration_entry.bind("<KeyRelease>", self._on_custom_duration_change)
 
     def _build_audio_lang_card(self):
@@ -152,7 +154,7 @@ class SettingsView(BaseView):
         self.audio_title = ctk.CTkLabel(
             inner,
             text=t("settings_audio_section"),
-            font=("Segoe UI", 14, "bold"),
+            font=("Segoe UI", 18, "bold"),
             text_color=theme_colors["accent"]
         )
         self.audio_title.pack(anchor="w", pady=(0, 15))
@@ -162,27 +164,27 @@ class SettingsView(BaseView):
         grid.columnconfigure(1, weight=1)
         
         # 1. Language
-        self.lang_lbl = ctk.CTkLabel(grid, text=t("language"), font=("Segoe UI", 12))
-        self.lang_lbl.grid(row=0, column=0, sticky="w", pady=6)
+        self.lang_lbl = ctk.CTkLabel(grid, text=t("language"), font=("Segoe UI", 18, "bold"))
+        self.lang_lbl.grid(row=0, column=0, sticky="w", pady=8)
         self.lang_combo = ctk.CTkOptionMenu(
             grid,
             values=["O'zbekcha", "English", "Русский"],
             variable=self.lang_var,
             command=self._on_language_change,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 16, "bold")
         )
-        self.lang_combo.grid(row=0, column=1, sticky="e", pady=6)
+        self.lang_combo.grid(row=0, column=1, sticky="e", pady=8)
         
         # 2. Sound Switch Toggle
-        self.sound_lbl = ctk.CTkLabel(grid, text=t("sound") or "Ovozlar", font=("Segoe UI", 12))
-        self.sound_lbl.grid(row=1, column=0, sticky="w", pady=6)
+        self.sound_lbl = ctk.CTkLabel(grid, text=t("sound") or "Ovozlar", font=("Segoe UI", 18, "bold"))
+        self.sound_lbl.grid(row=1, column=0, sticky="w", pady=8)
         self.sound_switch = ctk.CTkSwitch(
             grid,
             text="",
             command=self._on_sound_toggle,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 16, "bold")
         )
-        self.sound_switch.grid(row=1, column=1, sticky="e", pady=6)
+        self.sound_switch.grid(row=1, column=1, sticky="e", pady=8)
 
     def _build_data_card(self):
         theme_colors = THEMES.get(self.controller.current_theme, THEMES["dark"])
@@ -196,7 +198,7 @@ class SettingsView(BaseView):
         self.data_title = ctk.CTkLabel(
             inner,
             text=t("settings_data_section"),
-            font=("Segoe UI", 14, "bold"),
+            font=("Segoe UI", 18, "bold"),
             text_color=theme_colors["accent"]
         )
         self.data_title.pack(anchor="w", pady=(0, 15))
@@ -209,18 +211,19 @@ class SettingsView(BaseView):
         self.bk_lbl = ctk.CTkLabel(
             bk_block,
             text=t("settings_backup_desc"),
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 16, "bold"),
             text_color=theme_colors["secondary_fg"],
             justify="left",
-            wraplength=350
+            wraplength=450
         )
         self.bk_lbl.grid(row=0, column=0, sticky="w", pady=4)
         
         self.bk_btn = ctk.CTkButton(
             bk_block,
             text=t("settings_btn_backup"),
-            font=("Segoe UI", 11, "bold"),
-            width=140,
+            font=("Segoe UI", 16, "bold"),
+            width=160,
+            height=38,
             command=self._handle_backup
         )
         self.bk_btn.grid(row=0, column=1, sticky="e", padx=(10, 0), pady=4)
@@ -233,21 +236,83 @@ class SettingsView(BaseView):
         self.rst_lbl = ctk.CTkLabel(
             rst_block,
             text=t("settings_restore_desc"),
-            font=("Segoe UI", 11),
+            font=("Segoe UI", 16, "bold"),
             text_color=theme_colors["secondary_fg"],
             justify="left",
-            wraplength=350
+            wraplength=450
         )
         self.rst_lbl.grid(row=0, column=0, sticky="w", pady=4)
         
         self.rst_btn = ctk.CTkButton(
             rst_block,
             text=t("settings_btn_restore"),
-            font=("Segoe UI", 11, "bold"),
-            width=140,
+            font=("Segoe UI", 16, "bold"),
+            width=160,
+            height=38,
             command=self._handle_restore
         )
         self.rst_btn.grid(row=0, column=1, sticky="e", padx=(10, 0), pady=4)
+
+    def _build_dev_info_card(self):
+        theme_colors = THEMES.get(self.controller.current_theme, THEMES["dark"])
+        
+        self.dev_frame = ctk.CTkFrame(self.cards_scroll, fg_color=theme_colors["card_bg"], corner_radius=12)
+        self.dev_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        inner = ctk.CTkFrame(self.dev_frame, fg_color="transparent")
+        inner.pack(fill=tk.X, padx=18, pady=18)
+        
+        self.dev_title = ctk.CTkLabel(
+            inner,
+            text=t("dev_info_title"),
+            font=("Segoe UI", 18, "bold"),
+            text_color=theme_colors["accent"]
+        )
+        self.dev_title.pack(anchor="w", pady=(0, 10))
+        
+        info_block = ctk.CTkFrame(inner, fg_color="transparent")
+        info_block.pack(fill=tk.X)
+        info_block.columnconfigure(0, weight=1)
+        
+        self.dev_name_lbl = ctk.CTkLabel(
+            info_block,
+            text=t("dev_info_name"),
+            font=("Segoe UI", 18, "bold"),
+            anchor="w"
+        )
+        self.dev_name_lbl.grid(row=0, column=0, sticky="w", pady=4)
+        
+        self.dev_phone_lbl = ctk.CTkLabel(
+            info_block,
+            text=t("dev_info_phone"),
+            font=("Segoe UI", 18, "bold"),
+            anchor="w"
+        )
+        self.dev_phone_lbl.grid(row=1, column=0, sticky="w", pady=4)
+        
+        self.dev_services_lbl = ctk.CTkLabel(
+            info_block,
+            text=t("dev_info_services"),
+            font=("Segoe UI", 18, "bold"),
+            text_color=theme_colors["secondary_fg"],
+            justify="left",
+            wraplength=550,
+            anchor="w"
+        )
+        self.dev_services_lbl.grid(row=2, column=0, sticky="w", pady=(6, 12))
+        
+        self.dev_contact_btn = ctk.CTkButton(
+            info_block,
+            text=t("dev_info_contact"),
+            font=("Segoe UI", 18, "bold"),
+            height=40,
+            fg_color=theme_colors["accent"],
+            command=self._open_telegram
+        )
+        self.dev_contact_btn.grid(row=3, column=0, sticky="w", pady=4)
+
+    def _open_telegram(self):
+        webbrowser.open("https://t.me/valijon2107")
 
     def _on_settings_change(self, choice=None):
         theme_name = self.theme_var.get()
@@ -446,21 +511,25 @@ class SettingsView(BaseView):
             
         self.title_label.configure(text_color=fg)
         
-        card_panels = [self.visual_frame, self.audio_frame, self.data_frame]
+        card_panels = [self.visual_frame, self.audio_frame, self.data_frame, self.dev_frame]
         for f in card_panels:
-            f.configure(fg_color=card_bg)
+            if hasattr(self, "dev_frame") and f:
+                f.configure(fg_color=card_bg)
             
-        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl, self.keyboard_lbl, self.custom_duration_lbl]
+        lbl_list = [self.theme_lbl, self.font_lbl, self.size_lbl, self.lang_lbl, self.sound_lbl, self.keyboard_lbl, self.custom_duration_lbl, self.dev_name_lbl, self.dev_phone_lbl]
         for l in lbl_list:
-            l.configure(text_color=fg)
+            if hasattr(self, "dev_name_lbl") and l:
+                l.configure(text_color=fg)
             
-        sec_lbl_list = [self.bk_lbl, self.rst_lbl]
+        sec_lbl_list = [self.bk_lbl, self.rst_lbl, self.dev_services_lbl]
         for sl in sec_lbl_list:
-            sl.configure(text_color=sec_fg)
+            if hasattr(self, "dev_services_lbl") and sl:
+                sl.configure(text_color=sec_fg)
             
-        title_list = [self.visual_title, self.audio_title, self.data_title]
+        title_list = [self.visual_title, self.audio_title, self.data_title, self.dev_title]
         for tl in title_list:
-            tl.configure(text_color=accent)
+            if hasattr(self, "dev_title") and tl:
+                tl.configure(text_color=accent)
             
         # Update dropdown styles
         menus = [self.theme_combo, self.font_combo, self.size_combo, self.lang_combo]
@@ -509,6 +578,13 @@ class SettingsView(BaseView):
             text_color="#ef4444" if theme_name != "light" else "#ffffff",
             hover_color="#dc2626"
         )
+        
+        if hasattr(self, "dev_contact_btn") and self.dev_contact_btn:
+            self.dev_contact_btn.configure(
+                fg_color=accent,
+                text_color=theme_colors["bg"],
+                hover_color=theme_colors["select_bg"]
+            )
 
     def retranslate_ui(self):
         self.title_label.configure(text=t("settings_title"))
@@ -529,4 +605,11 @@ class SettingsView(BaseView):
         self.rst_lbl.configure(text=t("settings_restore_desc"))
         self.rst_btn.configure(text=t("settings_btn_restore"))
         
+        if hasattr(self, "dev_title") and self.dev_title:
+            self.dev_title.configure(text=t("dev_info_title"))
+            self.dev_name_lbl.configure(text=t("dev_info_name"))
+            self.dev_phone_lbl.configure(text=t("dev_info_phone"))
+            self.dev_services_lbl.configure(text=t("dev_info_services"))
+            self.dev_contact_btn.configure(text=t("dev_info_contact"))
+
         self.back_btn.configure(text=t("btn_back_to_dashboard") or "Orqaga")

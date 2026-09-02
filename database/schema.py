@@ -167,12 +167,22 @@ def initialize_schema():
             # Seed default achievements using i18n keys for title/description
             achievements_data = [
                 ('first_test', 'ach_first_test_title', 'ach_first_test_desc', 50),
+                ('tests_10', 'ach_tests_10_title', 'ach_tests_10_desc', 50),
+                ('tests_50', 'ach_tests_50_title', 'ach_tests_50_desc', 150),
+                ('tests_100', 'ach_tests_100_title', 'ach_tests_100_desc', 300),
+                ('speed_40', 'ach_speed_40_title', 'ach_speed_40_desc', 50),
                 ('speed_60', 'ach_speed_60_title', 'ach_speed_60_desc', 100),
-                ('speed_100', 'ach_speed_100_title', 'ach_speed_100_desc', 150),
+                ('speed_80', 'ach_speed_80_title', 'ach_speed_80_desc', 150),
+                ('speed_100', 'ach_speed_100_title', 'ach_speed_100_desc', 200),
+                ('speed_120', 'ach_speed_120_title', 'ach_speed_120_desc', 300),
                 ('accuracy_100', 'ach_accuracy_100_title', 'ach_accuracy_100_desc', 100),
+                ('smart_practice_5', 'ach_smart_practice_5_title', 'ach_smart_practice_5_desc', 100),
                 ('streak_3', 'ach_streak_3_title', 'ach_streak_3_desc', 100),
                 ('streak_7', 'ach_streak_7_title', 'ach_streak_7_desc', 150),
-                ('level_5', 'ach_level_5_title', 'ach_level_5_desc', 150)
+                ('streak_14', 'ach_streak_14_title', 'ach_streak_14_desc', 250),
+                ('streak_30', 'ach_streak_30_title', 'ach_streak_30_desc', 500),
+                ('level_5', 'ach_level_5_title', 'ach_level_5_desc', 150),
+                ('level_10', 'ach_level_10_title', 'ach_level_10_desc', 250)
             ]
             for key, title, desc, xp_reward in achievements_data:
                 conn.execute(

@@ -44,10 +44,11 @@ class AchievementsService:
                     SELECT 
                         COUNT(*) as tests_count, 
                         COALESCE(MAX(wpm), 0) as max_wpm,
-                        COALESCE((SELECT COUNT(*) FROM tests WHERE user_id = ? AND accuracy = 100.0 AND duration >= 30), 0) as accuracy_100_count
+                        COALESCE((SELECT COUNT(*) FROM tests WHERE user_id = ? AND accuracy = 100.0 AND duration >= 30), 0) as accuracy_100_count,
+                        COALESCE((SELECT COUNT(*) FROM tests WHERE user_id = ? AND mode = 'smart_practice'), 0) as smart_practice_count
                     FROM tests 
                     WHERE user_id = ?;
-                """, (user_id, user_id))
+                """, (user_id, user_id, user_id))
                 tests_row = cursor.fetchone()
                 
                 cursor = conn.execute("SELECT current_streak, level FROM users WHERE id = ?;", (user_id,))
@@ -59,6 +60,7 @@ class AchievementsService:
             tests_count = tests_row["tests_count"]
             max_wpm = tests_row["max_wpm"]
             accuracy_100_count = tests_row["accuracy_100_count"]
+            smart_practice_count = tests_row["smart_practice_count"]
             current_streak = user_row["current_streak"]
             level = user_row["level"]
 
@@ -66,18 +68,42 @@ class AchievementsService:
             qualifies = []
             if tests_count >= 1:
                 qualifies.append("first_test")
+            if tests_count >= 10:
+                qualifies.append("tests_10")
+            if tests_count >= 50:
+                qualifies.append("tests_50")
+            if tests_count >= 100:
+                qualifies.append("tests_100")
+
+            if max_wpm >= 40:
+                qualifies.append("speed_40")
             if max_wpm >= 60:
                 qualifies.append("speed_60")
+            if max_wpm >= 80:
+                qualifies.append("speed_80")
             if max_wpm >= 100:
                 qualifies.append("speed_100")
+            if max_wpm >= 120:
+                qualifies.append("speed_120")
+
             if accuracy_100_count >= 1:
                 qualifies.append("accuracy_100")
+            if smart_practice_count >= 5:
+                qualifies.append("smart_practice_5")
+
             if current_streak >= 3:
                 qualifies.append("streak_3")
             if current_streak >= 7:
                 qualifies.append("streak_7")
+            if current_streak >= 14:
+                qualifies.append("streak_14")
+            if current_streak >= 30:
+                qualifies.append("streak_30")
+
             if level >= 5:
                 qualifies.append("level_5")
+            if level >= 10:
+                qualifies.append("level_10")
 
             if not qualifies:
                 return []

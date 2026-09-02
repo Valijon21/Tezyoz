@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+import webbrowser
 from app.config import APP_NAME, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT
 
 class Application:
@@ -53,7 +54,7 @@ class Application:
         self._setup_style()
         self.current_theme = "dark"
         self.current_font_family = "Consolas"
-        self.current_font_size = 14
+        self.current_font_size = 16
         self.current_ui_language = "uz"
         from services.i18n_service import set_locale
         set_locale(self.current_ui_language)
@@ -262,6 +263,19 @@ class Application:
         if hasattr(self, "caret_label") and self.caret_label:
             self.caret_label.configure(text_color=theme_colors["secondary_fg"])
             
+        if hasattr(self, "sidebar_dev_frame") and self.sidebar_dev_frame:
+            self.sidebar_dev_frame.configure(fg_color=theme_colors["card_bg"])
+        if hasattr(self, "sidebar_dev_name_lbl") and self.sidebar_dev_name_lbl:
+            self.sidebar_dev_name_lbl.configure(text_color=theme_colors["fg"])
+        if hasattr(self, "sidebar_dev_phone_lbl") and self.sidebar_dev_phone_lbl:
+            self.sidebar_dev_phone_lbl.configure(text_color=theme_colors["secondary_fg"])
+        if hasattr(self, "sidebar_dev_tg_btn") and self.sidebar_dev_tg_btn:
+            self.sidebar_dev_tg_btn.configure(
+                fg_color=theme_colors["accent"],
+                text_color=theme_colors["bg"],
+                hover_color=theme_colors["select_bg"]
+            )
+            
         # Sync Settings dropdown variables on application sidebar if available
         if hasattr(self, "sidebar_theme_combo") and self.sidebar_theme_combo:
             self.sidebar_theme_combo.set(theme_name)
@@ -309,7 +323,7 @@ class Application:
         inner_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
 
         # 1. App Identity / Logo
-        app_title = ctk.CTkLabel(inner_frame, text="⚡ TypeMaster", font=("Segoe UI", 20, "bold"))
+        app_title = ctk.CTkLabel(inner_frame, text="⚡ TypeMaster", font=("Segoe UI", 22, "bold"))
         app_title.pack(anchor="w", pady=(0, 20))
 
         # 2. Profile Card Panel (Mockup Horizontal Layout)
@@ -322,7 +336,7 @@ class Application:
         self.avatar_label = ctk.CTkLabel(
             self.profile_card, 
             text="👤", 
-            font=("Segoe UI", 18)
+            font=("Segoe UI", 20)
         )
         self.avatar_label.grid(row=0, column=0, padx=(10, 8), pady=8, sticky="w")
 
@@ -330,7 +344,7 @@ class Application:
         self.sidebar_user_label = ctk.CTkLabel(
             self.profile_card, 
             text="Alex R.", 
-            font=("Segoe UI", 12, "bold")
+            font=("Segoe UI", 14, "bold")
         )
         self.sidebar_user_label.grid(row=0, column=1, pady=8, sticky="w")
 
@@ -338,7 +352,7 @@ class Application:
         self.caret_label = ctk.CTkLabel(
             self.profile_card, 
             text=" ∨", 
-            font=("Segoe UI", 10, "bold"),
+            font=("Segoe UI", 11, "bold"),
             text_color=theme_colors["secondary_fg"]
         )
         self.caret_label.grid(row=0, column=2, padx=(5, 10), pady=8, sticky="e")
@@ -368,13 +382,13 @@ class Application:
                 fg_color="transparent",
                 text_color=theme_colors["secondary_fg"],
                 hover_color=theme_colors["select_bg"],
-                font=("Segoe UI", 12, "bold"),
+                font=("Segoe UI", 14, "bold"),
                 anchor="w",
-                height=36,
+                height=44,
                 corner_radius=8,
                 command=lambda vk=view_key: self.show_view(vk)
             )
-            btn.pack(fill=tk.X, pady=3, anchor="w")
+            btn.pack(fill=tk.X, pady=4, anchor="w")
             self.nav_btns[view_key] = btn
 
         # Logout button
@@ -384,17 +398,54 @@ class Application:
             fg_color="transparent",
             text_color=theme_colors["secondary_fg"],
             hover_color=theme_colors["select_bg"],
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 14, "bold"),
             anchor="w",
-            height=36,
+            height=44,
             corner_radius=8,
             command=self._handle_global_logout
         )
-        logout_btn.pack(fill=tk.X, pady=(20, 3), anchor="w")
+        logout_btn.pack(fill=tk.X, pady=(15, 3), anchor="w")
         self.nav_btns["logout"] = logout_btn
 
-        # Settings section removed from sidebar. Replaced by dedicated Settings view.
-        pass
+        # 4. Developer Info Footer Panel (Persistent bottom sidebar widget)
+        from services.i18n_service import t
+        self.sidebar_dev_frame = ctk.CTkFrame(
+            inner_frame,
+            fg_color=theme_colors["card_bg"],
+            corner_radius=10
+        )
+        self.sidebar_dev_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=(15, 0))
+
+        dev_padding = ctk.CTkFrame(self.sidebar_dev_frame, fg_color="transparent")
+        dev_padding.pack(fill=tk.X, padx=12, pady=10)
+
+        self.sidebar_dev_name_lbl = ctk.CTkLabel(
+            dev_padding,
+            text=t("dev_info_name"),
+            font=("Segoe UI", 13, "bold"),
+            anchor="w"
+        )
+        self.sidebar_dev_name_lbl.pack(anchor="w", pady=(0, 2))
+
+        self.sidebar_dev_phone_lbl = ctk.CTkLabel(
+            dev_padding,
+            text=t("dev_info_phone"),
+            font=("Segoe UI", 12),
+            text_color=theme_colors["secondary_fg"],
+            anchor="w"
+        )
+        self.sidebar_dev_phone_lbl.pack(anchor="w", pady=(0, 6))
+
+        self.sidebar_dev_tg_btn = ctk.CTkButton(
+            dev_padding,
+            text=t("dev_info_contact"),
+            font=("Segoe UI", 12, "bold"),
+            height=34,
+            fg_color=theme_colors["accent"],
+            text_color=theme_colors["bg"],
+            command=self._open_sidebar_telegram
+        )
+        self.sidebar_dev_tg_btn.pack(fill=tk.X)
 
     def retranslate_ui(self):
         """Dynamic text configuration mapping for persistent sidebar controls."""
@@ -418,6 +469,15 @@ class Application:
         # Settings labels and headers
         if "settings" in self.nav_btns:
             self.nav_btns["settings"].configure(text=t("title_settings"))
+
+        if hasattr(self, "sidebar_dev_name_lbl") and self.sidebar_dev_name_lbl:
+            self.sidebar_dev_name_lbl.configure(text=t("dev_info_name"))
+            self.sidebar_dev_phone_lbl.configure(text=t("dev_info_phone"))
+            self.sidebar_dev_tg_btn.configure(text=t("dev_info_contact"))
+
+    def _open_sidebar_telegram(self):
+        """Action handler to launch developer Telegram link in browser."""
+        webbrowser.open("https://t.me/valijon2107")
 
     def _update_nav_highlights(self, active_view_name: str):
         """Highlights the active navigation button in the left sidebar menu."""

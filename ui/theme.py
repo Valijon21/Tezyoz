@@ -56,7 +56,7 @@ THEMES = {
     }
 }
 
-def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Segoe UI", font_size: int = 11):
+def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Segoe UI", font_size: int = 14):
     """
     Applies overrides to the given ttk.Style instance using colors from the selected theme,
     and scales standard text displays using the selected font configurations.
@@ -75,7 +75,7 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
     sec_fg = theme["secondary_fg"]
 
     # Configure parent settings
-    style.configure(".", background=bg, foreground=fg, font=(font_family, font_size))
+    style.configure(".", background=bg, foreground=fg, font=(font_family, font_size, "bold"))
     
     # Frames
     style.configure("TFrame", background=bg)
@@ -83,16 +83,16 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
     style.configure("Sidebar.TFrame", background=theme.get("sidebar_bg", bg))
     
     # Labels
-    style.configure("TLabel", background=bg, foreground=fg, font=(font_family, font_size))
+    style.configure("TLabel", background=bg, foreground=fg, font=(font_family, font_size, "bold"))
     style.configure("Title.TLabel", background=bg, foreground=fg, font=(font_family, int(font_size * 1.5), "bold"))
-    style.configure("Secondary.TLabel", background=bg, foreground=sec_fg, font=(font_family, int(font_size * 0.95)))
-    style.configure("Link.TLabel", background=bg, foreground=accent, font=(font_family, int(font_size * 0.95), "underline"))
-    style.configure("Card.TLabel", background=card_bg, foreground=fg, font=(font_family, font_size))
-    style.configure("CardSecondary.TLabel", background=card_bg, foreground=sec_fg, font=(font_family, int(font_size * 0.95)))
-    style.configure("CardValue.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.4), "bold"))
+    style.configure("Secondary.TLabel", background=bg, foreground=sec_fg, font=(font_family, int(font_size * 1.0), "bold"))
+    style.configure("Link.TLabel", background=bg, foreground=accent, font=(font_family, int(font_size * 1.0), "bold", "underline"))
+    style.configure("Card.TLabel", background=card_bg, foreground=fg, font=(font_family, font_size, "bold"))
+    style.configure("CardSecondary.TLabel", background=card_bg, foreground=sec_fg, font=(font_family, int(font_size * 1.0), "bold"))
+    style.configure("CardValue.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.5), "bold"))
     style.configure("CardTitle.TLabel", background=card_bg, foreground=fg, font=(font_family, int(font_size * 1.4), "bold"))
-    style.configure("CardLink.TLabel", background=card_bg, foreground=accent, font=(font_family, int(font_size * 0.95), "underline"))
-    style.configure("Sidebar.TLabel", background=theme.get("sidebar_bg", bg), foreground=fg, font=(font_family, font_size))
+    style.configure("CardLink.TLabel", background=card_bg, foreground=accent, font=(font_family, int(font_size * 1.0), "bold", "underline"))
+    style.configure("Sidebar.TLabel", background=theme.get("sidebar_bg", bg), foreground=fg, font=(font_family, font_size, "bold"))
     style.configure("SidebarTitle.TLabel", background=theme.get("sidebar_bg", bg), foreground=fg, font=(font_family, int(font_size * 1.3), "bold"))
 
     
@@ -125,14 +125,14 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
               foreground=[("active", fg)])
 
     # Entry
-    style.configure("TEntry", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], bordercolor=border, font=(font_family, font_size), padding=6)
+    style.configure("TEntry", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], bordercolor=border, font=(font_family, font_size, "bold"), padding=6)
     style.map("TEntry",
               fieldbackground=[("active", theme["entry_bg"]), ("focus", theme["entry_bg"]), ("disabled", bg)],
               foreground=[("active", theme["entry_fg"]), ("focus", theme["entry_fg"]), ("disabled", sec_fg)],
               bordercolor=[("focus", accent), ("active", border)])
     
     # Combobox
-    style.configure("TCombobox", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], selectbackground=theme["select_bg"], font=(font_family, font_size))
+    style.configure("TCombobox", fieldbackground=theme["entry_bg"], foreground=theme["entry_fg"], selectbackground=theme["select_bg"], font=(font_family, font_size, "bold"))
     style.map("TCombobox",
               fieldbackground=[("readonly", theme["entry_bg"]), ("disabled", bg)],
               background=[("readonly", theme["entry_bg"]), ("active", border)],
@@ -144,7 +144,7 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
     style.master.option_add("*TCombobox*Listbox.foreground", theme["entry_fg"])
     style.master.option_add("*TCombobox*Listbox.selectBackground", theme["select_bg"])
     style.master.option_add("*TCombobox*Listbox.selectForeground", fg)
-    style.master.option_add("*TCombobox*Listbox.font", (font_family, font_size))
+    style.master.option_add("*TCombobox*Listbox.font", (font_family, font_size, "bold"))
     
     # Progressbar
     style.configure("Horizontal.TProgressbar",
@@ -155,7 +155,7 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
                     darkcolor=accent)
     
     # Checkbutton
-    style.configure("TCheckbutton", background=bg, foreground=fg, font=(font_family, font_size))
+    style.configure("TCheckbutton", background=bg, foreground=fg, font=(font_family, font_size, "bold"))
     
     # Scrollbar
     style.configure("Vertical.TScrollbar", background=card_bg, bordercolor=border, troughcolor=bg)
@@ -166,8 +166,8 @@ def apply_theme_colors(style: ttk.Style, theme_name: str, font_family: str = "Se
                     foreground=fg,
                     fieldbackground=card_bg,
                     bordercolor=border,
-                    rowheight=int(font_size * 2.2),
-                    font=(font_family, font_size))
+                    rowheight=int(font_size * 2.5),
+                    font=(font_family, font_size, "bold"))
     style.configure("Treeview.Heading",
                     background=border,
                     foreground=fg,

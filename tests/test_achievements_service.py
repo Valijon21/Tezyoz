@@ -53,14 +53,14 @@ class TestAchievementsFeatures(unittest.TestCase):
     def test_get_all_achievements_initially_locked(self):
         """Verify that all default achievements are registered and locked by default."""
         achievements = self.ach_service.get_all_achievements(self.user_id)
-        self.assertEqual(len(achievements), 7)
+        self.assertEqual(len(achievements), 17)
         for ach in achievements:
             self.assertIsNone(ach["unlocked_at"])
 
     @patch("services.auth_service.refresh_current_user")
     def test_check_and_award_first_test(self, mock_refresh):
         """Verify first test completion awards 'first_test' achievement."""
-        self.test_repo.save_test(self.user_id, "words", 15, "en", 45.0, 50.0, 95.0, 100, 95, 5)
+        self.test_repo.save_test(self.user_id, "words", 15, "en", 35.0, 40.0, 95.0, 100, 95, 5)
         
         newly_unlocked = self.ach_service.check_and_award_achievements(self.user_id)
         self.assertEqual(len(newly_unlocked), 1)
@@ -77,34 +77,38 @@ class TestAchievementsFeatures(unittest.TestCase):
 
     @patch("services.auth_service.refresh_current_user")
     def test_check_and_award_speed_milestones(self, mock_refresh):
-        """Verify high typing speed awards 'speed_60' and 'speed_100' achievements."""
+        """Verify high typing speed awards speed milestones."""
         # 1. Level up speed to 65 WPM
         self.test_repo.save_test(self.user_id, "words", 15, "en", 65.0, 70.0, 95.0, 100, 95, 5)
         newly_unlocked = self.ach_service.check_and_award_achievements(self.user_id)
         
-        # Should unlock first_test AND speed_60
-        self.assertEqual(len(newly_unlocked), 2)
+        # Should unlock first_test, speed_40, AND speed_60 (3 achievements)
+        self.assertEqual(len(newly_unlocked), 3)
         keys = {x["key"] for x in newly_unlocked}
         self.assertTrue("first_test" in keys)
+        self.assertTrue("speed_40" in keys)
         self.assertTrue("speed_60" in keys)
         
-        # 2. Exceed 100 WPM
+        # 2. Exceed 105 WPM
         self.test_repo.save_test(self.user_id, "words", 15, "en", 105.0, 110.0, 95.0, 200, 195, 5)
         newly_unlocked_2 = self.ach_service.check_and_award_achievements(self.user_id)
         
-        self.assertEqual(len(newly_unlocked_2), 1)
-        self.assertEqual(newly_unlocked_2[0]["key"], "speed_100")
+        # Should unlock speed_80 AND speed_100 (2 achievements)
+        self.assertEqual(len(newly_unlocked_2), 2)
+        keys_2 = {x["key"] for x in newly_unlocked_2}
+        self.assertTrue("speed_80" in keys_2)
+        self.assertTrue("speed_100" in keys_2)
 
     @patch("services.auth_service.refresh_current_user")
     def test_check_accuracy_100_milestone(self, mock_refresh):
         """Verify 100% accuracy awards accuracy_100 if exam duration is at least 30s."""
         # Duration < 30s: should not unlock accuracy_100
-        self.test_repo.save_test(self.user_id, "words", 15, "en", 40.0, 40.0, 100.0, 60, 60, 0)
+        self.test_repo.save_test(self.user_id, "words", 15, "en", 35.0, 35.0, 100.0, 60, 60, 0)
         newly = self.ach_service.check_and_award_achievements(self.user_id)
         self.assertNotIn("accuracy_100", {x["key"] for x in newly})
         
         # Duration >= 30s with 100% accuracy: unlocks
-        self.test_repo.save_test(self.user_id, "words", 30, "en", 40.0, 40.0, 100.0, 120, 120, 0)
+        self.test_repo.save_test(self.user_id, "words", 30, "en", 35.0, 35.0, 100.0, 120, 120, 0)
         newly_2 = self.ach_service.check_and_award_achievements(self.user_id)
         self.assertIn("accuracy_100", {x["key"] for x in newly_2})
 
@@ -138,12 +142,13 @@ class TestAchievementsFeatures(unittest.TestCase):
         self.test_repo.save_test(self.user_id, "words", 15, "en", 45.0, 50.0, 95.0, 100, 95, 5)
         newly_unlocked = self.ach_service.check_and_award_achievements(self.user_id)
         
-        self.assertEqual(len(newly_unlocked), 2) # first_test (50 XP), level_5 (150 XP) - total 200 XP added to 2000 => 2200 XP
+        # 45 WPM unlocks first_test (50 XP), speed_40 (50 XP), level_5 (150 XP) - total 250 XP
+        self.assertEqual(len(newly_unlocked), 3)
         
         # Verify db user level
         with connection.db.get_connection() as conn:
             user_row = conn.execute("SELECT xp, level FROM users WHERE id = ?;", (self.user_id,)).fetchone()
-            self.assertEqual(user_row["xp"], 2200)
+            self.assertEqual(user_row["xp"], 2250)
             self.assertTrue(user_row["level"] >= 5)
 
     @patch("ui.achievements.get_current_user")
@@ -169,7 +174,7 @@ class TestAchievementsFeatures(unittest.TestCase):
             
             self.assertTrue(view.tree.winfo_manager())
             children = view.tree.get_children()
-            self.assertEqual(len(children), 7)
+            self.assertEqual(len(children), 17)
             
             # Check first achievement tag (unlocked)
             first_row_tags = view.tree.item(children[0], "tags")
