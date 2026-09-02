@@ -148,7 +148,7 @@ python -m unittest discover -s tests
 <div align="center">
 
 ### **Valijon Ergashev**
-*Senior Software Engineer & Automation Specialist*
+*Software Engineer & Automation Specialist*
 
 📞 **Telefon:** [+998 (77) 342-33-21](tel:+998773423321)  
 💬 **Telegram Direct:** [@valijon2107](https://t.me/valijon2107)
