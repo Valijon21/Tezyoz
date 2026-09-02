@@ -1,90 +1,141 @@
+<div align="center">
+
 # ⌨️ Tezyoz (TypeMaster)
 
-Windows uchun minimalist, oflayn rejimda ishlovchi professional tez terish trenajyori.
+**Windows uchun modern, oflayn, yuqori unumdorlikka ega tez yozish trenajyori va klaviatura mahorati platformasi.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-orange.svg)](https://microsoft.com)
-[![Tests: 196 Passed](https://img.shields.io/badge/Tests-196%20Passed-brightgreen.svg)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-orange.svg?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com)
+[![Tests: 196 Passed](https://img.shields.io/badge/Tests-196%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
+[![i18n: UZ | EN | RU](https://img.shields.io/badge/i18n-UZ%20%7C%20EN%20%7C%20RU-purple.svg?style=for-the-badge)](#-uch-tilli-interfeys-i18n)
 
 ---
 
-## 💡 Concept & Values
+</div>
 
-**Tezyoz** – internet aloqasini talab qilmaydigan (100% lokal), Monkeytype va modern minimalist dizayndan andoza olgan kompyuterda tez yozish simulyatoridir. Dastur foydalanuvchining klaviatura mahoratini oshirish, kunlik motivatsiyani ko'taruvchi XP daraja tizimi, **17 ta marradan iborat yutuqlar (Achievements) tizimi**, zaif tugmalarni aniqlovchi **Aqlli Mashq (Smart Adaptive Practice)** va batafsil jismoniy klaviatura barmoq yordamchisini taqdim etadi.
+## 💡 Konsepsiya va Loyiha Falsafasi
+
+**Tezyoz (TypeMaster)** – bu 100% oflayn rejimda ishlaydigan, internet aloqasini talab qilmaydigan, o'zbek, ingliz va rus tillarini to'liq qo'llab-quvvatlovchi zamonaviy tez terish simulyatoridir. 
+
+Monkeytype hamda ilg'or minimalist GUI dizayn prinsiplari asosida yaratilgan Tezyoz shunchaki oddiy matn terish dasturi emas, balki foydalanuvchining **xatolarini tahlil qiluvchi va aqlli moslashuvchi (Smart Adaptive Practice Engine)**, **17 ta bosqichli gamifikatsiya yutuqlari** hamda **vizual barmoq trenajyori**ga ega bo'lgan to'liq platformadir.
 
 ---
 
 ## ⚡ Asosiy Imkoniyatlar (Key Features)
 
-| Funksiya | Natija / Imkoniyati | Texnik yechim |
-| :--- | :--- | :--- |
-| **Aqlli Mashq (Smart Adaptive)** | Foydalanuvchi ko'p xato qiladigan tugmalarni tahlil qilib, unga moslashtirilgan aqlli matn mashqini yaratadi | Multi-key error frequency analyzer & generator |
-| **17 ta Yutuqlar (Achievements)** | Tezlik (WPM), mashqlar soni, streak uzluksizligi, Smart Practice va darajalar bo'yicha 17 ta marra | SQLite transactional achievement evaluation engine |
-| **Uch Tilli i18n Interfeys** | O'zbek (`uz`), Ingliz (`en`) va Rus (`ru`) tillarida to'liq interfeys, sozlamalar va bildirishnomalar | Dynamic i18n translation service |
-| **UI Font Scaling (16pt-18pt)** | Katta yoshdagilar va o'qishga qulaylik uchun ultra-ravshan qalin (bold) shriftlar va optimal tugma o'lchamlari | Dynamic Theme & Typography Engine |
-| **Visual Hands Tutor** | Real vaqtda qaysi barmoq va klavishni bosish kerakligini interaktiv ko'rsatish | Tkinter Canvas yordamida qo'llar simulyatsiyasi |
-| **JCUKEN & QWERTY Qo'llab-quvvatlash** | Mashq darsida klaviatura tugmalarini dinamik ruscha JCUKENga hamda lotincha QWERTYga o'tkazish | Kirill/Lotin harf-jismoniy klavish xaritalash algoritmi |
-| **Event Bus Arxitekturasi** | Event-driven UI va xizmatlar o'rtasida bo'sh bog'liqlik (decoupling) | Centralized EventBus pattern (`app/event_bus.py`) |
-| **3x3 Results Grid** | Net WPM, Raw WPM, Aniqlik, Ritm va Jami bosilgan belgilar doimo aniq tartibda | Symmetrik 3x3 to'rli Natijalar paneli |
-| **Off-line Analytics** | Yutuqlar chiziqli grafigi, foydalanish vaqti, zaif klavishlar issiqlik diagrammasi | Line/Bar charts & Interactive Heatmap Canvas |
-| **Gamification Core** | XP yig'ish, darajalar (Level 1-20+), streak hisobi va kunlik topshiriqlar paneli | SQLite & Local progressive formulas |
+### 🧠 1. Aqlli Mashq (Smart Adaptive Practice Engine)
+Foydalanuvchi mashqlar davomida ko'p xato qiladigan klavishlarni avtomatik aniqlaydi va ushbu zaif tugmalardan iborat maxsus moslashtirilgan matn mashqini dinamik ravishda shakllantiradi.
 
-> 🔑 **Xavfsizlik:** PBKDF2-HMAC-SHA256 (100k iteratsiya) algoritmi yordamida parollar lokal shifrlanadi.
-> 🔊 **Auditoriya va Ovoz:** SoundService orqali dinamik audio toggle va tovush effektlari sozlamalari.
+### 🏆 2. Kengaytirilgan Gamifikatsiya va 17 ta Yutuqlar (17 Achievements)
+Foydalanuvchining qiziqishi va motivatsiyasini oshirish uchun 17 ta maxsus marra (Achievement) va XP daraja tizimi integratsiya qilingan:
+- **Tezlik (WPM):** *Boshlovchi Barmoqlar (40 WPM)*, *Tezlik Ustasi (60 WPM)*, *Super Tezlik (80 WPM)*, *Tezlik Qiroli (100 WPM)*, *Yashin (120 WPM)*
+- **Mashqlar Soni:** *Birinchi Qadam (1)*, *Yozuvchi (10)*, *Doimiy Mashqchi (50)*, *Matn Ustasi (100)*
+- **Uzluksizlik (Streak):** *Matonat (3 kun)*, *Muntazamlik (7 kun)*, *Mustahkam Iroda (14 kun)*, *Afsona (30 kun)*
+- **Maxsus & Darajalar:** *Mukammallik (100% Aniqlik)*, *Aqlli O'quvchi (5 Smart Practice)*, *Tajribali (Level 5)*, *Tajribali Usta (Level 10)*
+
+### 🔤 3. Ultra-Ravshan UI va Font Scaling (16pt-18pt)
+Barcha yoshdagi foydalanuvchilar va ko'rishga qulaylik yaratish maqsadida universal typography tizimi yaratilgan. Barcha matnlar, tugmalar va ko'rsatkichlar **16pt-18pt bold (qalin)** shriftda ultra-ravshan va jozibador formatda aks etadi.
+
+### 🌍 4. Uch Tilli Interfeys (i18n)
+Dasturdagi barcha oynalar, grafiklar, sozlamalar va bildirishnomalar 3 ta dilda bir zumda almashadi:
+- 🇺🇿 **O'zbekcha (`uz`)**
+- 🇬🇧 **Inglizcha (`en`)**
+- 🇷🇺 **Ruscha (`ru`)**
+
+### ⌨️ 5. Visual Hands Tutor & Layout Support
+Real vaqt rejimida qaysi barmoq bilan qaysi klavishni bosish kerakligini interaktiv ko'rsatuvchi visual barmoqlar trenajyori. Ham **QWERTY (Lotin)**, ham **JCUKEN (Kirill/Rus)** klaviatura tartiblarini dinamik ravishda qo'llab-quvvatlaydi.
+
+### 📊 6. Off-line Analitika va Heatmap
+- **3x3 Symmetric Results Grid:** Net WPM, Raw WPM, Aniqlik, Ritm (Consistency), Xatolar va Jami belgilar.
+- **Progress Grafiklari:** WPM va Aniqlik o'zgarishini ko'rsatuvchi interaktiv chiziqli va ustunli grafiklar.
+- **Klaviatura Issiqlik Xaritasi (Heatmap):** Har bir tugmaning xatolar chastotasini ko'rsatuvchi Canvas renderer.
 
 ---
 
-## 🛠️ Tizim Arxitekturasi (System Engine)
+## 🛠️ Tizim Arxitekturasi (Architecture)
 
-Tezyoz modulli, oson kengayuvchi va unit-testlashga qulay **Layered & Event-Driven Architecture** arxitekturasida yozilgan:
+Tezyoz modulli, oson kengayuvchi va 100% testlanuvchan **Layered & Event-Driven Architecture** asosida qurilgan:
 
 ```mermaid
-graph LR
-    UI[GUI qatlami] -->|Events| EventBus[Event Bus Engine]
-    EventBus -->|Publish/Subscribe| Services[Biznes mantiq qatlami]
-    Services -->|Repos| DB[Lokal SQL Repozitoriy]
-    DB -->|SQL3| Data[(typemaster.db)]
-```
+graph TD
+    subgraph UI_Layer [GUI Qatlami]
+        DashboardView[Dashboard View]
+        TypingView[Typing Test View]
+        ResultsView[Results View]
+        AchievementsView[Achievements View]
+        SettingsView[Settings View]
+    end
 
-### Papka Tuzilishi
-- `app/` — Dasturning GUI boshlang'ich nuqtasi (`application.py`), `event_bus.py` va sozlamalar.
-- `database/` — Ma'lumotlar bazasi relyatsion sxemasi (`schema.py`) hamda repository klasterlari.
-- `services/` — Auth seansi, i18n tarjima xizmati (`i18n_service.py`), yutuqlar (`achievements_service.py`), ovoz (`sound_service.py`).
-- `engine/` — WPM / Aniqlik hisoblagichlar hamda typing simulyator mashinasi.
-- `ui/` — Ekranga yuklanadigan visual CustomTkinter/Tkinter darchalari, jumladan `keyboard_visualizer.py`.
-- `charts/` — Canvas yordamida chizilgan progress jadvallari, heatmap rendereri.
-- `tests/` — Loyiha ishonchliligini ta'minlovchi 196 ta to'liq avtomatlashtirilgan unit-testlar.
+    subgraph Event_Bus [Event Engine]
+        EB[EventBus Manager]
+    end
+
+    subgraph Business_Services [Biznes Mantiq Qatlami]
+        AuthService[Auth Service]
+        AchievementsService[Achievements Service]
+        SmartEngine[Smart Adaptive Engine]
+        I18nService[i18n Service]
+        SoundService[Sound Service]
+    end
+
+    subgraph Data_Access [Ma'lumotlar Bazasi]
+        DB[Database Manager - SQLite]
+        Repos[Repositories: Test, User, Settings, DailyStats]
+    end
+
+    UI_Layer -->|Publish Events| EB
+    EB -->|Notify Subscribers| Business_Services
+    Business_Services --> Repos
+    Repos --> DB
+```
 
 ---
 
-## 🚀 Texnik O'rnatish va Sozlash (Run Deck)
+## 📁 Loyiha Tuzilishi (Project Structure)
 
-### Minimal Talablar:
-- Windows 8 / 10 / 11.
-- Python 3.8+ versiyasi.
+```text
+typing/
+├── app/                  # Dasturni ishga tushirish (application.py, event_bus.py)
+├── database/             # Relyatsion SQLite bazasi va repozitoriylar (schema.py, connection.py)
+├── services/             # Biznes mantiq xizmatlari (i18n_service.py, achievements_service.py, sound_service.py)
+├── engine/               # WPM, Aniqlik, Ritm va Smart Adaptive mashq dvigateli
+├── ui/                   # CustomTkinter va Tkinter asosidagi barcha interfeys oynalari
+├── charts/               # Interaktiv grafiklar va Klaviatsura Heatmap Canvas rendereri
+├── gamification/         # Darajalar va XP hisoblash formulasining mantiqiy modullari
+├── tests/                # 196 ta avtomatlashtirilgan unit-testlar to'plami
+└── main.py               # Asosiy ishga tushirish fayli
+```
 
-### Bosqichma-bosqich yuritish:
+---
+
+## 🚀 O'rnatish va Ishga Tushirish (Run Deck)
+
+### Tizim Talablari:
+- **OS:** Windows 8 / 10 / 11 (64-bit)
+- **Python:** 3.8 yoki undan yuqori
+
+### Bosqichma-bosqich ko'rsatma:
 
 ```powershell
-# 1. Loyihani yuklab oling (Clone)
+# 1. Repozitoriyani yuklab oling (Clone)
 git clone https://github.com/Valijon21/Tezyoz.git
 cd Tezyoz
 
-# 2. Virtual muhitni tayyorlang va ishga tushiring
+# 2. Virtual muhit yaratish va aktivlashtirish
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-# 3. Kerakli kutubxonalarni yuklang
+# 3. Zaruriy kutubxonalarni o'rnatish
 pip install -r requirements.txt
 
-# 4. Dasturni ishga tushiring
+# 4. Dasturni ishga tushirish
 python main.py
 ```
 
-### 🚦 Test Verifikatsiyasi
+### 🧪 Unit-Testlarni Yuritish (Verification)
 
-Dasturning barcha visual va logic qismlari 196 ta avtomatlashtirilgan testlar to'plami bilan to'liq qoplangan:
+Loyihadagi barcha biznes mantiq va UI funksiyalari **196 ta avtomatlashtirilgan unit-testlar** bilan 100% qoplangan:
 
 ```powershell
 python -m unittest discover -s tests
@@ -92,14 +143,29 @@ python -m unittest discover -s tests
 
 ---
 
-## 👨‍💻 Dasturchi va Aloqa
+## 👨‍💻 Dasturchi va Biznes Xizmatlari
 
-- **Dasturchi:** Valijon Ergashev
-- **Telefon:** [+998 (77) 342-33-21](tel:+998773423321)
-- **Xizmatlar:** Telegram botlar, CRM tizimlar va Biznesni avtomatlashtirish uchun dasturlar tuzib beramiz.
-- **Telegram:** [https://t.me/valijon2107](https://t.me/valijon2107)
+<div align="center">
+
+### **Valijon Ergashev**
+*Senior Software Engineer & Automation Specialist*
+
+📞 **Telefon:** [+998 (77) 342-33-21](tel:+998773423321)  
+💬 **Telegram Direct:** [@valijon2107](https://t.me/valijon2107)
+
+---
+
+#### 💼 Biz Taklif Qiladigan Professional Dasturlash Xizmatlari:
+- 🤖 **Telegram Botlar:** Har qanday murakkablikdagi avtomatlashtirilgan botlar va Mini App'lar.
+- 🏢 **CRM Tizimlar:** Biznesingiz uchun maxsus boshqaruv va hisobot platformalari.
+- ⚙️ **Biznesni Avtomatlashtirish:** Kompaniya jarayonlarini soddalashtiruvchi oflayn va onlayn dasturlar.
+
+*Agarda sizga ham sifatli va ishonchli dasturiy ta'minot kerak bo'lsa, xohlagan vaqtingizda bog'lanishingiz mumkin!*
+
+</div>
 
 ---
 
 ## 📄 Litsenziya
-Ushbu dastur MIT Litsenziyasi ostida ochiq manba etib belgilangan.
+
+Ushbu loyiha [MIT License](LICENSE) ostida ochiq manba etib belgilangan.
